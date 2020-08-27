@@ -1,9 +1,12 @@
 import "module-alias/register";
 import { query } from "@utils/gql";
 
-console.log(
-  query({
-    query: `
+bootstrap().catch((err) => console.log(err));
+
+async function bootstrap() {
+  console.log(
+    await query({
+      query: `
     query {
       transactions(tags: [{ name: "Exchange", values: "Verto" }]) {
         edges {
@@ -14,5 +17,6 @@ console.log(
       }
     }
   `,
-  })
-);
+    })
+  );
+}
