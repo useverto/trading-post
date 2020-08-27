@@ -1,6 +1,13 @@
 // Client for the Arweave GraphQL endpoint
+import fetch from "node-fetch";
 
-export async function query({ query, variables = null }) {
+export async function query({
+  query,
+  variables,
+}: {
+  query: string;
+  variables?: string;
+}) {
   var graphql = JSON.stringify({
     query,
     variables,
