@@ -1,0 +1,18 @@
+{
+  "name": "verto-trading-post",
+  "version": "2.0.0",
+  "private": true,
+  "author": "The Verto Team",
+  "license": "MIT",
+  "scripts": {
+    "fmt": "prettier --write ."
+  },
+  "dependencies": {
+    "arweave": "^1.9.1",
+    "community-js": "^1.0.9"
+  },
+  "devDependencies": {
+    "prettier": "^2.1.1",
+    "typescript": "^4.0.2"
+  }
+}
