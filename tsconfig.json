@@ -3,6 +3,7 @@
     "strict": true,
     "outDir": "./dist",
     "baseUrl": "./src",
+    "downlevelIteration": true,
     "paths": {
       "@utils/*": ["utils/*"]
     }

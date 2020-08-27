@@ -13,6 +13,7 @@
   "dependencies": {
     "arweave": "^1.9.1",
     "community-js": "^1.0.9",
+    "logplease": "^1.2.15",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
