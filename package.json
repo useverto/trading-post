@@ -36,6 +36,7 @@
     "@types/fecha": "^2.3.1",
     "@types/node-fetch": "^2.5.7",
     "module-alias": "^2.2.2",
+    "pkg": "^4.4.9",
     "prettier": "^2.1.1",
     "rollup": "^2.26.6",
     "rollup-plugin-string": "^3.0.0",
