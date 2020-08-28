@@ -15,7 +15,7 @@ const log = new Logger({
   name: "arweave",
 });
 
-export async function init() {
+export async function init(keyfile?: string) {
   const client = new Arweave({
     host: "arweave.net",
     port: 443,
@@ -24,7 +24,7 @@ export async function init() {
     logging: true,
     logger: (msg: any) => log.debug(msg),
   });
-  const jwk = await getJwk();
+  const jwk = await getJwk(keyfile);
   const walletAddr = await client.wallets.jwkToAddress(jwk!);
   const info = await client.network.getInfo();
   log.info(
@@ -46,10 +46,11 @@ export async function init() {
 }
 
 let cachedJwk: JWKPublicInterface | undefined;
-async function getJwk() {
+async function getJwk(keyfile?: string) {
+  log.info(keyfile!);
   if (!cachedJwk) {
     const potentialJwk = JSON.parse(
-      await readFile(join(__dirname, relativeKeyPath), { encoding: "utf8" })
+      await readFile(keyfile || relativeKeyPath, { encoding: "utf8" })
     );
     cachedJwk = potentialJwk;
   }

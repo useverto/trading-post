@@ -1,4 +1,5 @@
 import "@utils/console";
+import commander from "commander";
 import { init } from "@utils/arweave";
 import { query } from "@utils/gql";
 import Log from "@utils/logger";
@@ -10,12 +11,8 @@ const log = new Log({
   name: "verto",
 });
 
-log.debug("Starting bootstrap...");
-
-bootstrap().catch((err) => log.error(err));
-
-async function bootstrap() {
-  const { client, community } = await init();
+async function bootstrap(keyfile?: string) {
+  const { client, community } = await init(keyfile);
 
   const possibleGenesis = (
     await query({
@@ -44,4 +41,15 @@ async function bootstrap() {
   //     })
   //   ).data.transactions.edges[0]
   // );
+}
+
+const program = commander.program;
+const verto = new commander.Command();
+
+program.option("-k, --key-file <file>", "Arweave wallet keyfile");
+
+program.parse(process.argv);
+
+if (program.keyFile) {
+  bootstrap(program.keyFile).catch((err) => log.error(err));
 }
