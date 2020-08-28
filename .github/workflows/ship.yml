@@ -59,6 +59,7 @@ jobs:
         with:
           tag: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
+          draft: true
           prerelease: false
           allowUpdates: true
           replacesArtifacts: true
