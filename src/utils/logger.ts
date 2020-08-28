@@ -36,7 +36,7 @@ export default class Log implements LogOptions {
   public static Levels: typeof LogLevels = LogLevels;
 
   /** Whether to write to console or not. */
-  public console: boolean;
+  public console: boolean = true;
   /** The maximum level to output. */
   public level: LogLevels;
   /** Determines the filename from `logs/${name}.log` to output as. */
@@ -61,13 +61,7 @@ export default class Log implements LogOptions {
     // Use the name to determine the path for the stream.
     this._filepath = `logs/${this.name}.log`;
 
-    // Set the optional options second.
-    // Check each one for undefined and if not, set appropriately.
-    if (typeof options.console === 'undefined') {
-      this.console = process.env.NODE_ENV === 'development';
-    } else {
-      this.console = options.console;
-    }
+    this.console = options.console || true;
 
     if (typeof options.level === 'undefined') {
       this.level =

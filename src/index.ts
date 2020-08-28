@@ -7,7 +7,8 @@ const log = new Log({
   name: 'index.ts'
 });
 
-log.debug("Starting...")
+log.debug("Starting bootstrap...")
+
 bootstrap().catch((err) => console.log(err));
 
 async function bootstrap() {
