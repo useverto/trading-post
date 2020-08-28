@@ -2,6 +2,7 @@ dist
 logs
 node_modules
 arweave.json
+config.json
 verto
 verto.exe
 vertolinux

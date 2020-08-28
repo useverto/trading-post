@@ -1,11 +1,7 @@
 import "@utils/console";
 import commander from "commander";
-import { init } from "@utils/arweave";
-import { query } from "@utils/gql";
 import Log from "@utils/logger";
-import genesisQuery from "./queries/genesis.gql";
-import txsQuery from "./queries/txs.gql";
-import CONSTANTS from "./utils/constants.yml";
+import { init } from "@utils/arweave";
 import { genesis } from "workflows/genesis";
 
 const log = new Log({
@@ -13,25 +9,10 @@ const log = new Log({
   name: "verto",
 });
 
-async function bootstrap(keyfile?: string) {
-  const { client, walletAddr, community } = await init(keyfile);
+async function bootstrap(keyfile?: string, config?: string) {
+  const { client, community } = await init(keyfile);
 
-  await genesis(client, walletAddr, community);
-
-  // const possibleGenesis = (
-  //   await query({
-  //     query: genesisQuery,
-  //     variables: {
-  //       owners: [walletAddr],
-  //       reciepents: [CONSTANTS.exchangeWallet],
-  //     },
-  //   })
-  // ).data.transactions.edges;
-  // if (possibleGenesis.length === 1) {
-  //   log.info(`Genesis tx found: ${possibleGenesis[0].node.id}`);
-  // } else {
-  //   log.info("No genesis found!");
-  // }
+  await genesis(client, community, keyfile, config);
 
   // This logic grabs the latest trade tx
   // console.log(
@@ -51,9 +32,10 @@ const program = commander.program;
 const verto = new commander.Command();
 
 program.option("-k, --key-file <file>", "Arweave wallet keyfile");
+program.option("-c, --config <file>", "Verto trading post config");
 
 program.parse(process.argv);
 
-if (program.keyFile) {
-  bootstrap(program.keyFile).catch((err) => log.error(err));
+if (program.keyFile && program.config) {
+  bootstrap(program.keyFile, program.config).catch((err) => log.error(err));
 }

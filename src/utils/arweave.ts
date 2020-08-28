@@ -42,11 +42,11 @@ export async function init(keyfile?: string) {
   );
   await community.setCommunityTx(CONSTANTS.exchangeContractSrc);
 
-  return { client, walletAddr, community };
+  return { client, community };
 }
 
 let cachedJwk: JWKPublicInterface | undefined;
-async function getJwk(keyfile?: string) {
+export async function getJwk(keyfile?: string) {
   if (!cachedJwk) {
     log.info(`Loading keyfile from: ${keyfile || relativeKeyPath}`);
     const potentialJwk = JSON.parse(
