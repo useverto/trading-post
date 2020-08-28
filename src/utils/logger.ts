@@ -87,7 +87,8 @@ export default class Log implements LogOptions {
       this.timestamp = options.timestamp;
     } else if (typeof options.timestamp === "undefined" || options.timestamp) {
       // If the passed timestamp is unset or `true`, use the default format.
-      this.timestamp = "YYYY-MM-DD HH:mm:ss,SSS";
+      // this.timestamp = "YYYY-MM-DD HH:mm:ss,SSS";
+      this.timestamp = "HH:mm:ss";
     } else {
       // Otherwise disable the timestamp.
       this.timestamp = "";
@@ -200,7 +201,7 @@ export default class Log implements LogOptions {
     const levelString: string = this._getFormattedLevel(level, forConsole);
     const timestamp: string = this._getTimestamp(forConsole);
 
-    message = String(message).replace(/\n/g, "␊");
+    // message = String(message).replace(/\n/g, "␊");
 
     if (timestamp.length === 0) {
       return `${levelString} ${message}`;

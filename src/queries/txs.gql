@@ -1,0 +1,15 @@
+query($num: Int) {
+  transactions(
+    first: $num
+    tags: [
+      { name: "Exchange", values: "Verto" }
+      { name: "Trade-Opcode", values: ["Buy", "Sell"] }
+    ]
+  ) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
