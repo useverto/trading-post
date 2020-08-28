@@ -18,12 +18,19 @@ export default {
       format: "cjs",
     },
   ],
-  external: [...Object.keys(pkg.dependencies || {}), "*.gql", "*.yml"],
+  external: [
+    ...Object.keys(pkg.dependencies || {}),
+    "*.gql",
+    "*.yml",
+    "fs/promises",
+  ],
   plugins: [
     typescript(),
     json(),
     yml(),
-    resolve(),
+    resolve({
+      preferBuiltins: true,
+    }),
     alias({
       "@utils": __dirname + "/src/utils",
     }),
@@ -38,6 +45,8 @@ export default {
         }
       },
     },
-    commonjs(),
+    commonjs({
+      include: /node_modules/,
+    }),
   ],
 };

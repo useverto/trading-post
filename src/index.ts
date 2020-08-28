@@ -12,7 +12,7 @@ const log = new Log({
 
 log.debug("Starting bootstrap...");
 
-bootstrap().catch((err) => console.log(err));
+bootstrap().catch((err) => log.error(err));
 
 async function bootstrap() {
   const { client, community } = await init();
