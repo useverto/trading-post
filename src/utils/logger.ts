@@ -230,13 +230,13 @@ export default class Log implements LogOptions {
 
     if (forConsole === true) {
       if (wanted === LogLevels.error) {
-        level = chalk.black.bgRed(level);
+        level = chalk.black.bold.red(level);
       } else if (wanted === LogLevels.warn) {
-        level = chalk.black.bgYellow(level);
+        level = chalk.black.bold.yellow(level);
       } else if (wanted === LogLevels.info) {
-        level = chalk.black.bgGreen(level);
+        level = chalk.black.bold.green(level);
       } else {
-        level = chalk.black.bgCyan(level);
+        level = chalk.black.bold.cyan(level);
       }
     }
 
