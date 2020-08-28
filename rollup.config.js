@@ -6,6 +6,7 @@ import resolve from "@rollup/plugin-node-resolve";
 import alias from "@rollup/plugin-alias";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
+import yml from "@rollup/plugin-yaml";
 
 const filter = createFilter("**/*.gql", []);
 
@@ -17,10 +18,11 @@ export default {
       format: "cjs",
     },
   ],
-  external: [...Object.keys(pkg.dependencies || {}), "*.gql"],
+  external: [...Object.keys(pkg.dependencies || {}), "*.gql", "*.yml"],
   plugins: [
     typescript(),
     json(),
+    yml(),
     resolve(),
     alias({
       "@utils": __dirname + "/src/utils",
