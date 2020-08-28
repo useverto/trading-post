@@ -17,11 +17,11 @@ const log = new Logger({
 
 export async function init(keyfile?: string) {
   const client = new Arweave({
-    host: "arweave.net",
+    host: "arweave.dev",
     port: 443,
     protocol: "https",
     timeout: 20000,
-    logging: true,
+    logging: false,
     logger: (msg: any) => log.debug(msg),
   });
   const jwk = await getJwk(keyfile);
@@ -47,8 +47,8 @@ export async function init(keyfile?: string) {
 
 let cachedJwk: JWKPublicInterface | undefined;
 async function getJwk(keyfile?: string) {
-  log.info(keyfile!);
   if (!cachedJwk) {
+    log.info(`Loading keyfile from: ${keyfile || relativeKeyPath}`);
     const potentialJwk = JSON.parse(
       await readFile(keyfile || relativeKeyPath, { encoding: "utf8" })
     );
