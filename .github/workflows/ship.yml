@@ -1,0 +1,67 @@
+name: Ship
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ship:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install dependencies
+        run: |
+          npm i -g yarn
+          yarn
+
+      - name: Get version # For release notes
+        id: version
+        run: echo "::set-output name=tag::$(node -p "require('./package.json').version")"
+
+      - name: Package executables
+        run: yarn pkg
+
+      - name: Zip linux release
+        if: startsWith(matrix.os, 'ubuntu')
+        run: zip -r verto-x64-linux.zip verto
+
+      - name: Zip mac release
+        if: startsWith(matrix.os, 'mac')
+        run: zip -r verto-x64-darwin.zip deno
+
+      - name: Zip windows release
+        if: startsWith(matrix.os, 'windows')
+        run: Compress-Archive -CompressionLevel Optimal -Force -Path verto.exe -DestinationPath verto-x64-windows.zip
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: release
+          path: |
+            verto-x64-linux.zip
+            verto-x64-macos.zip
+            verto-x64-windows.zip
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          prerelease: false
+          allowUpdates: true
+          replacesArtifacts: true
+          artifacts: "release/*"
+          body: "RELEASE NOTES HERE"
+          token: ${{ secrets.GITHUB_TOKEN }}
