@@ -1,4 +1,4 @@
-import Arweave = require("arweave");
+import Arweave from "arweave";
 import Community from "community-js";
 
 import { exchangeContractSrc } from "@utils/constants";
