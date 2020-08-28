@@ -1,0 +1,17 @@
+query($owners: [String!], $recipients: [String!]) {
+  transactions(
+    owners: $owners
+    recipients: $recipients
+    tags: [
+      { name: "Exchange", values: "Verto" }
+      { name: "Trading-Post-Genesis", values: "Genesis" }
+    ]
+    first: 1
+  ) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
