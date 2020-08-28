@@ -5,6 +5,7 @@ import { query } from "@utils/gql";
 import Log from "@utils/logger";
 import genesisQuery from "./queries/genesis.gql";
 import txsQuery from "./queries/txs.gql";
+import CONSTANTS from "./utils/constants.yml";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -12,14 +13,14 @@ const log = new Log({
 });
 
 async function bootstrap(keyfile?: string) {
-  const { client, community } = await init(keyfile);
+  const { client, walletAddr, community } = await init(keyfile);
 
   const possibleGenesis = (
     await query({
       query: genesisQuery,
       variables: {
-        owners: ["l-x7026roC1dkAmJ5iWhz4vGOxVnKmotGbceFAA-NwE"],
-        reciepents: ["pvPWBZ8A5HLpGSEfhEmK1A3PfMgB_an8vVS6L14Hsls"],
+        owners: [walletAddr],
+        reciepents: [CONSTANTS.exchangeWallet],
       },
     })
   ).data.transactions.edges;

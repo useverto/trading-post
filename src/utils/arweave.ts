@@ -42,7 +42,7 @@ export async function init(keyfile?: string) {
   );
   await community.setCommunityTx(CONSTANTS.exchangeContractSrc);
 
-  return { client, community };
+  return { client, walletAddr, community };
 }
 
 let cachedJwk: JWKPublicInterface | undefined;
