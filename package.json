@@ -8,7 +8,8 @@
   "scripts": {
     "start": "node .",
     "dist": "rollup -c",
-    "fmt": "prettier --write ."
+    "fmt": "prettier --write .",
+    "check:fmt": "prettier --check ."
   },
   "dependencies": {
     "arweave": "^1.9.1",
