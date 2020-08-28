@@ -5,18 +5,20 @@
   "author": "The Verto Team",
   "license": "MIT",
   "main": "./dist/verto.js",
-  "scripts": {
-    "start": "node .",
-    "dist": "rollup -c",
-    "fmt": "prettier --write .",
-    "check:fmt": "prettier --check .",
-    "build:linux": "yarn dist && pkg -t node14-linux dist/verto.js",
-    "build:win": "yarn dist && pkg -t node14-win dist/verto.js",
-    "build:mac": "yarn dist && pkg -t node14-mac dist/verto.js",
-    "build:all": "yarn dist && pkg dist/verto.js"
-  },
   "bin": {
-    "verto": "dist/verto.js"
+    "verto": "./dist/verto.js"
+  },
+  "scripts": {
+    "fmt": "prettier --write .",
+    "fmt:check": "prettier --check .",
+    "dev": "node .",
+    "build": "rollup -c",
+    "pkg": "yarn build && pkg -t host dist/verto.js",
+    "pkg:linux": "yarn build && pkg -t node14-linux dist/verto.js",
+    "pkg:win": "yarn build && pkg -t node14-win dist/verto.js",
+    "pkg:arm": "echo not implemented",
+    "pkg:all": "yarn build && pkg dist/verto.js",
+    "test": "echo not implemented"
   },
   "dependencies": {
     "arweave": "^1.9.1",
