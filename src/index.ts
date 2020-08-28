@@ -1,13 +1,13 @@
 import "module-alias/register";
 import { query } from "@utils/gql";
-import Log from '@utils/logger';
+import Log from "@utils/logger";
 
 const log = new Log({
   level: Log.Levels.debug,
-  name: 'index.ts'
+  name: "index.ts",
 });
 
-log.debug("Starting bootstrap...")
+log.debug("Starting bootstrap...");
 
 bootstrap().catch((err) => console.log(err));
 
