@@ -6,6 +6,7 @@ import Log from "@utils/logger";
 import genesisQuery from "./queries/genesis.gql";
 import txsQuery from "./queries/txs.gql";
 import CONSTANTS from "./utils/constants.yml";
+import { genesis } from "workflows/genesis";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -15,20 +16,22 @@ const log = new Log({
 async function bootstrap(keyfile?: string) {
   const { client, walletAddr, community } = await init(keyfile);
 
-  const possibleGenesis = (
-    await query({
-      query: genesisQuery,
-      variables: {
-        owners: [walletAddr],
-        reciepents: [CONSTANTS.exchangeWallet],
-      },
-    })
-  ).data.transactions.edges;
-  if (possibleGenesis.length === 1) {
-    log.info(`Genesis tx found: ${possibleGenesis[0].node.id}`);
-  } else {
-    log.info("No genesis found!");
-  }
+  await genesis(client, walletAddr, community);
+
+  // const possibleGenesis = (
+  //   await query({
+  //     query: genesisQuery,
+  //     variables: {
+  //       owners: [walletAddr],
+  //       reciepents: [CONSTANTS.exchangeWallet],
+  //     },
+  //   })
+  // ).data.transactions.edges;
+  // if (possibleGenesis.length === 1) {
+  //   log.info(`Genesis tx found: ${possibleGenesis[0].node.id}`);
+  // } else {
+  //   log.info("No genesis found!");
+  // }
 
   // This logic grabs the latest trade tx
   // console.log(
