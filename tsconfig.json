@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "baseUrl": "./src",
     "downlevelIteration": true,
+    "esModuleInterop": true,
     "paths": {
       "@utils/*": ["utils/*"]
     }

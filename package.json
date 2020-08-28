@@ -11,10 +11,15 @@
     "fmt": "prettier --write ."
   },
   "dependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/fecha": "^2.3.1",
     "arweave": "^1.9.1",
+    "chalk": "^4.1.0",
     "community-js": "^1.0.9",
+    "fetch": "^1.1.0",
     "logplease": "^1.2.15",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "rfs": "^9.0.3"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.7",

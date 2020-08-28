@@ -1,209 +1,269 @@
-import * as fs from "fs";
-import { format } from "util";
-import { EventEmitter } from "events";
+import {Writable} from 'stream';
+import chalk from 'chalk';
+import fecha from 'fecha';
+// @ts-ignore
+import * as rfs from 'rotating-file-stream';
 
-// Usage: 
-// import { Logger } from "@utils/logger";
-// const log = Logger.create("myfile");
-// log.debug("Up and running ;)");
-
-interface ILogLevels {
-    [level: string]: string;
+/**
+ * Levels enum used to determine when to log, `none` means nothing will be logged.
+ */
+export enum LogLevels {
+  'none' = -1,
+  'error',
+  'warn',
+  'info',
+  'debug'
 }
 
-const LogLevels: ILogLevels = {
-  'DEBUG': 'DEBUG',
-  'INFO':  'INFO',
-  'WARN':  'WARN',
-  'ERROR': 'ERROR',
-  'NONE':  'NONE',
-};
-
-// Global log level
-let GlobalLogLevel = LogLevels.DEBUG;
-
-// Global log file name
-let GlobalLogfile: string | null = null;
-
-let GlobalEvents = new EventEmitter();
-
-// ANSI colors
-let Colors = {
-  'Black':   0,
-  'Red':     1,
-  'Green':   2,
-  'Yellow':  3,
-  'Blue':    4,
-  'Magenta': 5,
-  'Cyan':    6,
-  'Grey':    7,
-  'White':   9,
-  'Default': 9,
-};
-
-const loglevelColors = [Colors.Cyan, Colors.Green, Colors.Yellow, Colors.Red, Colors.Default];
-
-const defaultOptions = {
-  useColors: true,
-  color: Colors.Default,
-  showTimestamp: true,
-  useLocalTime: false,
-  showLevel: true,
-  filename: GlobalLogfile,
-  appendFile: true,
-};
-
-class Logger {
-  [x: string]: any;
-  constructor(category: any, options?: any) {
-    this.category = category;
-    let opts = {};
-    Object.assign(opts, defaultOptions);
-    Object.assign(opts, options);
-    this.options = opts;
-    this.debug = this.debug.bind(this);
-    this.log = this.log.bind(this);
-    this.info = this.info.bind(this);
-    this.warn = this.warn.bind(this);
-    this.error = this.error.bind(this);
-  }
-
-  debug(...args: string[]) {
-    if(this._shouldLog(LogLevels.DEBUG))
-      this._write(LogLevels.DEBUG, format(null, ...args));
-  }
-
-  log() {
-    if(this._shouldLog(LogLevels.DEBUG))
-      this.debug(...arguments);
-  }
-
-  info() {
-    if(this._shouldLog(LogLevels.INFO))
-      this._write(LogLevels.INFO, format(null, ...arguments));
-  }
-
-  warn() {
-    if(this._shouldLog(LogLevels.WARN))
-      this._write(LogLevels.WARN, format(null, ...arguments));
-  }
-
-  error() {
-    if(this._shouldLog(LogLevels.ERROR))
-      this._write(LogLevels.ERROR, format(null, ...arguments));
-  }
-
-  _write(level: string, text: string) {
-    if((this.options.filename || GlobalLogfile) && !this.fileWriter)
-      this.fileWriter = fs.openSync(this.options.filename || GlobalLogfile, this.options.appendFile ? 'a+' : 'w+');
-
-    let format = this._format(level, text);
-    let unformattedText = this._createLogMessage(level, text);
-    let formattedText = this._createLogMessage(level, text, format.timestamp, format.level, format.category, format.text);
-
-    if(this.fileWriter)
-      fs.writeSync(this.fileWriter, unformattedText + '\n', null, 'utf-8');
-
-    if(!this.options.useColors) {
-      console.log(formattedText)
-      GlobalEvents.emit('data', this.category, level, text)
-    } 
-    }
-
-  _format(level: string, text: string) {
-    let timestampFormat = '';
-    let levelFormat     = '';
-    let categoryFormat  = '';
-    let textFormat      = ': ';
-
-    if(this.options.useColors) {
-        const levelColor    = Object.keys(LogLevels).map((f: string) => LogLevels[f]).indexOf(level);
-        const categoryColor = this.options.color;
-
-        if(this.options.showTimestamp) timestampFormat = '\u001b[3' + Colors.Grey + 'm';
-
-        if(this.options.showLevel) levelFormat = '\u001b[3' + loglevelColors[levelColor] + ';22m';
-
-        categoryFormat = '\u001b[3' + categoryColor + ';1m';
-        textFormat = '\u001b[0m: ';
-    }
-    return {
-      timestamp: timestampFormat,
-      level: levelFormat,
-      category: categoryFormat,
-      text: textFormat
-    };
+/**
+ * Options for the Log class. Options marked as `undefined` are optional.
+ * @param {boolean | undefined} console `boolean | undefined` Whether to log to console or not. Defaults to `process.env.NODE_ENV === 'development'`.
+ * @param {LogLevels | undefined} level `LogLevels | undefined` Determines what levels it should log. Default to `LogLevels.debug` if `process.env.NODE_ENV === 'development'`, otherwise `LogLevels.info`.
+ * @param {string} name `string` Determines the filename from `logs/${name}.log` to output as.
+ * @param {Writable | undefined} stream `Writable | undefined` The stream Log should write to. Defaults to a gzipped [`rotating-file-stream`](https://www.npmjs.com/package/rotating-file-stream) that rotates every 5 days with a maximum of 6 files.
+ * @param {boolean | string | undefined} timestamp `boolean | string | undefined` If `true` or `undefined`, defaults to `YYYY-MM-DD HH:mm:ss,SSS` with [Fecha's formatting tokens](https://www.npmjs.com/package/fecha#formatting-tokens). If `false` or an empty string, doesn't output a timestamp at all. If a non-empty string, uses that as formatting for Fecha.
+ */
+export interface LogOptions {
+  console?: boolean;
+  level?: LogLevels;
+  name: string;
+  stream?: Writable;
+  timestamp?: boolean | string;
 }
 
-  _createLogMessage(level: string, text: any, timestampFormat?: string | undefined, levelFormat?: string | undefined, categoryFormat?: string | undefined, textFormat?: string | undefined) {
-    timestampFormat = timestampFormat || '';
-    levelFormat     = levelFormat     || '';
-    categoryFormat  = categoryFormat  || '';
-    textFormat      = textFormat      || ': ';
+export default class Log implements LogOptions {
+  /** Levels enum used to determine when to log, `none` means nothing will be logged. */
+  public static Levels: typeof LogLevels = LogLevels;
 
-    if(this.options.useColors) {
-      if(this.options.showTimestamp)
-        timestampFormat = '%c';
+  /** Whether to write to console or not. */
+  public console: boolean;
+  /** The maximum level to output. */
+  public level: LogLevels;
+  /** Determines the filename from `logs/${name}.log` to output as. */
+  public readonly name: string;
+  /** The stream to write to. */
+  public readonly stream: Writable;
+  /** The timestamp format using [Fecha's formatting tokens](https://www.npmjs.com/package/fecha#formatting-tokens) */
+  public timestamp: string;
 
-      if(this.options.showLevel)
-        levelFormat = '%c';
+  /** The filepath of the stream. */
+  private readonly _filepath: string;
 
-      categoryFormat  = '%c';
-      textFormat = ': %c';
+  /**
+   * Creates a new instance of Log.
+   * @param {LogOptions} options `LogOptions` Options to define Log's behaviour.
+   * @returns {Log} `Log` An instance of Log.
+   */
+  constructor(options: LogOptions) {
+    // Set the required options first.
+    this.name = options.name;
+
+    // Use the name to determine the path for the stream.
+    this._filepath = `logs/${this.name}.log`;
+
+    // Set the optional options second.
+    // Check each one for undefined and if not, set appropriately.
+    if (typeof options.console === 'undefined') {
+      this.console = process.env.NODE_ENV === 'development';
+    } else {
+      this.console = options.console;
     }
 
-    let result = '';
+    if (typeof options.level === 'undefined') {
+      this.level =
+        process.env.NODE_ENV === 'development'
+          ? LogLevels.debug
+          : LogLevels.info;
+    } else {
+      this.level = options.level;
+    }
 
-    if(this.options.showTimestamp && !this.options.useLocalTime)
-      result += '' + new Date().toISOString() + ' ';
+    if (typeof options.stream === 'undefined') {
+      this.stream = rfs.createStream(this._filepath, {
+        compress: 'gzip',
+        interval: '5d',
+        maxFiles: 6
+      });
+    } else {
+      this.stream = options.stream;
+    }
 
-    if(this.options.showTimestamp && this.options.useLocalTime)
-      result += '' + new Date().toLocaleString() + ' ';
-
-    result = timestampFormat + result;
-
-    if(this.options.showLevel)
-      result += levelFormat + '[' + level +']' + (level === LogLevels.INFO || level === LogLevels.WARN ? ' ' : '') + ' ';
-
-    result += categoryFormat + this.category;
-    result += textFormat + text;
-    return result;
+    if (typeof options.timestamp === 'string') {
+      // If the passed timestamp is a string use that as the format.
+      this.timestamp = options.timestamp;
+    } else if (typeof options.timestamp === 'undefined' || options.timestamp) {
+      // If the passed timestamp is unset or `true`, use the default format.
+      this.timestamp = 'YYYY-MM-DD HH:mm:ss,SSS';
+    } else {
+      // Otherwise disable the timestamp.
+      this.timestamp = '';
+    }
   }
 
-  _shouldLog(level: string) {
-    let envLogLevel = (typeof process !== "undefined" && process.env !== undefined && process.env.LOG !== undefined) ? process.env.LOG.toUpperCase() : null;
-    const logLevel = envLogLevel || GlobalLogLevel;
-    const levels   = Object.keys(LogLevels).map((f) => LogLevels[f]);
-    const index    = levels.indexOf(level);
-    const levelIdx = levels.indexOf(logLevel);
-    return index >= levelIdx;
+  /**
+   * Creates a new instance of Log with the properties of the original.
+   * @param {Partial<LogOptions>?} options Options to override the original's.
+   * @returns {Log} The new instance of Log.
+   */
+  public extend(options?: Partial<LogOptions>): Log {
+    return new Log({
+      ...this,
+      ...options
+    });
   }
-};
 
-/* Public API */
-export default {
-  Colors: Colors,
-  LogLevels: LogLevels,
-  setLogLevel: (level: string) => {
-    GlobalLogLevel = level;
-  },
-  setLogfile: (filename: string | null) => {
-    GlobalLogfile = filename;
-  },
-  create: (category: any, options?: any) => {
-    const logger = new Logger(category, options);
-    return logger;
-  },
-  events: GlobalEvents,
-};
+  /**
+   * Logs a message with the `Error` level.
+   * @param {string} message `string` The message to log.
+   * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Error` level.
+   */
+  public error(message: string): string | undefined {
+    if (this.level < LogLevels.error) {
+      return;
+    }
 
-const log = new Logger("myfile", {
-    useColors: true,     // Enable colors
-    color: Colors.White, // Set the color of the logger
-    showTimestamp: true, // Display timestamp in the log message
-    useLocalTime: false, // Display timestamp in local timezone
-    showLevel: true,     // Display log level in the log message
-    filename: null,      // Set file path to log to a file
-    appendFile: false,    // Append logfile instead of overwriting
-  });
-log.debug("Up and running ;)");
+    this._writeToConsole(message, LogLevels.error);
+    return this._writeToStream(message, LogLevels.error);
+  }
+
+  /**
+   * Logs a message with the `Warn` level.
+   * @param {string} message `string` The message to log.
+   * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Warn` level.
+   */
+  public warn(message: string): string | undefined {
+    if (this.level < LogLevels.warn) {
+      return;
+    }
+
+    this._writeToConsole(message, LogLevels.warn);
+    return this._writeToStream(message, LogLevels.warn);
+  }
+
+  /**
+   * Logs a message with the `Info` level.
+   * @param {string} message `string` The message to log.
+   * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Info` level.
+   */
+  public info(message: string): string | undefined {
+    if (this.level < LogLevels.info) {
+      return;
+    }
+
+    this._writeToConsole(message, LogLevels.info);
+    return this._writeToStream(message, LogLevels.info);
+  }
+
+  /**
+   * Logs a message with the `Debug` level.
+   * @param {string} message `string` The message to log.
+   * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Debug` level.
+   */
+  public debug(message: string): string | undefined {
+    if (this.level < LogLevels.debug) {
+      return;
+    }
+
+    this._writeToConsole(message, LogLevels.debug);
+    return this._writeToStream(message, LogLevels.debug);
+  }
+
+  /**
+   * Writes a message to the console when applicable.
+   * @param {string} message `string` The message to write.
+   * @param {LogLevels} level `LogLevels` The level to write.
+   */
+  private _writeToConsole(message: string, level: LogLevels): void {
+    if (this.console) {
+      console.log(this._formatMessage(message, level, true));
+    }
+  }
+
+  /**
+   * Writes a message to the instance's stream.
+   * @param {string} message `string` The message to write.
+   * @param {LogLevels} level `LogLevels` The level to write.
+   * @returns {string} `string` The formatted message that was logged.
+   */
+  private _writeToStream(message: string, level: LogLevels): string {
+    message = this._formatMessage(message, level) + '\n';
+    this.stream.write(message);
+    return message;
+  }
+
+  /**
+   * Formats a message with the level and timestamp (if applicable).
+   * @param {string} message `string` The message to be formatted.
+   * @param {LogLevels} level `LogLevels` The level to be formatted.
+   * @param {boolean?} forConsole `boolean | undefined` Whether to add Chalk styling for the console.
+   * @returns {string} `string` The formatted message.
+   */
+  private _formatMessage(
+    message: string,
+    level: LogLevels,
+    forConsole?: boolean
+  ): string {
+    const levelString: string = this._getFormattedLevel(level, forConsole);
+    const timestamp: string = this._getTimestamp(forConsole);
+
+    message = String(message).replace(/\n/g, '␊');
+
+    if (timestamp.length === 0) {
+      return `${levelString} ${message}`;
+    }
+
+    return `${timestamp} ${levelString} ${message}`;
+  }
+
+  /**
+   * Gets a string representation of a LogLevels' value.
+   * @param {LogLevels} wanted `LogLevels` The wanted level to get a formatted representation of.
+   * @param {boolean?} forConsole `boolean | undefined` Whether to add Chalk styling for the console.
+   * @returns {string} `string` The string representation of the wanted level.
+   */
+  private _getFormattedLevel(wanted: LogLevels, forConsole?: boolean): string {
+    let level = '';
+
+    if (wanted === LogLevels.error) {
+      level = 'Error';
+    } else if (wanted === LogLevels.warn) {
+      level = 'Warn ';
+    } else if (wanted === LogLevels.info) {
+      level = 'Info ';
+    } else {
+      level = 'Debug';
+    }
+
+    if (forConsole === true) {
+      if (wanted === LogLevels.error) {
+        level = chalk.black.bgRed(level);
+      } else if (wanted === LogLevels.warn) {
+        level = chalk.black.bgYellow(level);
+      } else if (wanted === LogLevels.info) {
+        level = chalk.black.bgGreen(level);
+      } else {
+        level = chalk.black.bgCyan(level);
+      }
+    }
+
+    return level;
+  }
+
+  /**
+   * Returns a string timestamp with the current time (if applicable).
+   * @param {boolean?} forConsole `boolean | undefined` Whether to add Chalk styling for the console.
+   * @returns {string} `string` The string timestamp, the string will be empty if the timestamp format is empty.
+   */
+  private _getTimestamp(forConsole?: boolean): string {
+    if (this.timestamp.length === 0) {
+      return '';
+    }
+
+    let timestamp: string = fecha.format(new Date(), this.timestamp);
+    if (forConsole === true) {
+      timestamp = chalk.gray(timestamp);
+    }
+
+    return timestamp;
+  }
+}
