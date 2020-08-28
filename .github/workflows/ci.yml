@@ -26,3 +26,7 @@ jobs:
         run: yarn check:fmt
       - name: Build
         run: yarn dist
+      - name: Install pkg
+        run: yarn global add pkg
+      - name: Build executables
+        run: yarn build:all
