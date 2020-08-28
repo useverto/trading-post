@@ -21,9 +21,7 @@ async function bootstrap() {
     await query({
       query: genesisQuery,
       variables: {
-        // @ts-ignore
         owners: ["l-x7026roC1dkAmJ5iWhz4vGOxVnKmotGbceFAA-NwE"],
-        // @ts-ignore
         reciepents: ["pvPWBZ8A5HLpGSEfhEmK1A3PfMgB_an8vVS6L14Hsls"],
       },
     })
