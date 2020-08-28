@@ -5,8 +5,13 @@
     "baseUrl": "./src",
     "downlevelIteration": true,
     "esModuleInterop": true,
+    "moduleResolution": "node",
+    "target": "es2015",
+    "module": "es2015",
+    "lib": ["es2015"],
     "paths": {
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@queries/*": ["queries/*"]
     }
   }
 }

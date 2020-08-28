@@ -1,0 +1,9 @@
+query {
+  transactions(tags: [{ name: "Exchange", values: "Verto" }]) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
