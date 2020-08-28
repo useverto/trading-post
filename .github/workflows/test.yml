@@ -25,7 +25,7 @@ jobs:
           yarn
 
       - name: Build source
-        run: yarn dist
+        run: yarn build
 
       - name: Run Tests
         run: yarn test
