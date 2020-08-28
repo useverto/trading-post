@@ -170,7 +170,8 @@ export default class Log implements LogOptions {
    */
   private _writeToConsole(message: string, level: LogLevels): void {
     if (this.console) {
-      console.log(this._formatMessage(message, level, true));
+      // @ts-ignore
+      console.newLog(this._formatMessage(message, level, true));
     }
   }
 

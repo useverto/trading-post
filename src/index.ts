@@ -1,3 +1,4 @@
+import "@utils/console";
 import { init } from "@utils/arweave";
 import { query } from "@utils/gql";
 import Log from "@utils/logger";
