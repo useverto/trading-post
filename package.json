@@ -25,7 +25,7 @@
     "arweave": "^1.9.1",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
-    "community-js": "^1.0.10",
+    "community-js": "^1.0.11",
     "koa": "^2.13.0",
     "node-fetch": "^2.6.0",
     "rfs": "^9.0.3",

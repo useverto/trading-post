@@ -689,13 +689,13 @@ commondir@^1.0.1:
   resolved "https://registry.yarnpkg.com/commondir/-/commondir-1.0.1.tgz#ddd800da0c66127393cca5950ea968a3aaf1253b"
   integrity sha1-3dgA2gxmEnOTzKWVDqloo6rxJTs=
 
-community-js@^1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.10.tgz#4b54fd08f5e4dd5d7672cf51e60230ee803f40cb"
-  integrity sha512-i58ubwPSuTxS+ass5Tn0/x5KKmIMF2+WKAq/cekocF43jmpQ4+DPIy0aCU+QJo2QEHjTX7g4V0XBXqMgSD3sAg==
+community-js@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.11.tgz#725d0536c552eef726d88f549a914c24a5efe4ca"
+  integrity sha512-DjrzeoCf+b6znPoX8atRnQcKzZN1PuytfrIXf/e4U4Kz5+B0crvs9j2VGrzbPQ+RgqJ15Fu3gLto8JK/8p890g==
   dependencies:
     arweave "^1.9.1"
-    smartweave "https://arweave.net/bGbhpHfMnFhjrrqcTNs1X5NERqsC_p2UA0xP50EqFPk"
+    smartweave "https://arweave.net/wdLl4M0wJOOYsdKuqMNaiug2vb7MwEBFYTVEerwTUyk"
     tiny-worker "^2.3.0"
 
 concat-map@0.0.1:
@@ -2177,9 +2177,9 @@ slash@^3.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-"smartweave@https://arweave.net/bGbhpHfMnFhjrrqcTNs1X5NERqsC_p2UA0xP50EqFPk":
+"smartweave@https://arweave.net/wdLl4M0wJOOYsdKuqMNaiug2vb7MwEBFYTVEerwTUyk":
   version "0.3.2"
-  resolved "https://arweave.net/bGbhpHfMnFhjrrqcTNs1X5NERqsC_p2UA0xP50EqFPk#dd25246c2942d6a6b31582a447c1301a6554dc28"
+  resolved "https://arweave.net/wdLl4M0wJOOYsdKuqMNaiug2vb7MwEBFYTVEerwTUyk#36b322559adddb949fc1fadc35638df90cb9f3f7"
   dependencies:
     arweave "^1.9.1"
     bignumber.js "^9.0.0"
