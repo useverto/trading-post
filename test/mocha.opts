@@ -1,0 +1,13 @@
+--require test/setup/setup-node.js
+--require ts-node/register
+--ui bdd
+
+--reporter spec
+--bail
+--full-trace
+--check-leaks
+--watch-extensions tsx,ts
+--colors
+
+--recursive
+--timeout 5000

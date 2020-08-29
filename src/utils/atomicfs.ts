@@ -29,7 +29,7 @@ async function openLoop(dest: PathLike): Promise<FileHandle> {
   }
 }
 
-export async function writeAtomic(path: string, content: string) {
+export async function writeFileAtomic(path: string, content: string | Buffer) {
   const tmp = join(dirname(path), "." + process.pid + "." + counter++);
   let fd = await openLoop(tmp);
   const contentLength = Buffer.byteLength(content);
