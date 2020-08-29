@@ -44,6 +44,7 @@
     "@types/commander": "^2.12.2",
     "@types/fecha": "^2.3.1",
     "@types/koa": "^2.11.4",
+    "@types/node": "^14.6.2",
     "@types/node-fetch": "^2.5.7",
     "@types/sade": "^1.7.2",
     "module-alias": "^2.2.2",
