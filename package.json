@@ -18,8 +18,8 @@
     "pkg:win": "yarn build && pkg -t node14-win dist/verto.js",
     "pkg:arm": "echo not implemented",
     "pkg:all": "yarn build && pkg dist/verto.js",
-    "pretest": "tsc -p ./tsconfig.test.json",
-    "test": "mocha 'build/test/**/*.test.js'"
+    "pretest": "rollup -c rollup.test.js",
+    "test": "mocha 'build/verto.test.js'"
   },
   "dependencies": {
     "arweave": "^1.9.1",
@@ -35,6 +35,7 @@
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-multi-entry": "^4.0.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-yaml": "^2.1.1",
     "@rollup/pluginutils": "^4.0.0",

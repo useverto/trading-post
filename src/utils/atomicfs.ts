@@ -1,28 +1,40 @@
-import { open, write, rename, fsync, unlink, FileHandle } from "fs/promises";
-import { PathLike } from "fs";
+import { open, rename, fsync, unlink, close } from "fs";
+import { write, PathLike } from "fs";
+import { promisify } from "util";
 import { join, dirname } from "path";
+
+let fsunlink = promisify(unlink);
+let fsrename = promisify(rename);
+let fsfsync = promisify(fsync);
+let fsopen = promisify(open);
+let fsclose = promisify(close);
 
 let counter = 0;
 
 async function cleanup(dest: PathLike) {
-  await unlink(dest);
+  await fsunlink(dest);
 }
 
 async function writeLoop(
-  fd: FileHandle,
+  fd: number,
   content: Buffer,
   contentLength: number,
   offset: number
 ): Promise<null | void> {
-  let { bytesWritten } = await write(fd, content, offset);
-  return bytesWritten < contentLength - offset
-    ? await writeLoop(fd, content, contentLength, offset + bytesWritten)
-    : null;
+  return new Promise(async (resolve, reject) => {
+    write(fd, content, offset, async function (err, bytesWritten) {
+      resolve(
+        bytesWritten < contentLength - offset
+          ? await writeLoop(fd, content, contentLength, offset + bytesWritten)
+          : null
+      );
+    });
+  });
 }
 
-async function openLoop(dest: PathLike): Promise<FileHandle> {
+async function openLoop(dest: PathLike): Promise<number> {
   try {
-    let fd = await open(dest, "w");
+    let fd = await fsopen(dest, "w");
     return fd;
   } catch (err) {
     return err.code === "EMFILE" ? await openLoop(dest) : err;
@@ -35,11 +47,12 @@ export async function writeFileAtomic(path: string, content: string | Buffer) {
   const contentLength = Buffer.byteLength(content);
   try {
     await writeLoop(fd, Buffer.from(content), contentLength, 0);
-    await fsync(fd);
-    fd.close();
-    await rename(tmp, path);
+    await fsfsync(fd);
+    await fsclose(fd);
+    await fsrename(tmp, path);
   } catch (err) {
-    fd.close();
+    await fsclose(fd);
     await cleanup(tmp);
+    throw new Error(err);
   }
 }
