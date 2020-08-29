@@ -7,6 +7,7 @@ import alias from "@rollup/plugin-alias";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import yml from "@rollup/plugin-yaml";
+import { terser } from "rollup-plugin-terser";
 
 const filter = createFilter("**/*.gql", []);
 
@@ -23,6 +24,7 @@ export default {
     "*.gql",
     "*.yml",
     "fs/promises",
+    "util",
   ],
   plugins: [
     typescript(),
@@ -47,6 +49,11 @@ export default {
     },
     commonjs({
       include: /node_modules/,
+    }),
+    terser({
+      format: {
+        comments: false,
+      },
     }),
   ],
 };
