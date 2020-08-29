@@ -1,10 +1,12 @@
-query($num: Int) {
+query($owners: [String!], $recipients: [String!], $num: Int) {
   transactions(
-    first: $num
+    owners: $owners
+    recipients: $recipients
     tags: [
       { name: "Exchange", values: "Verto" }
       { name: "Trade-Opcode", values: ["Buy", "Sell"] }
     ]
+    first: $num
   ) {
     edges {
       node {

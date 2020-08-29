@@ -1,7 +1,7 @@
 import "@utils/console";
 import commander from "commander";
 import Log from "@utils/logger";
-import { init } from "@utils/arweave";
+import { init, monitorWallet } from "@utils/arweave";
 import { genesis } from "workflows/genesis";
 import { initAPI } from "@utils/api";
 
@@ -11,22 +11,17 @@ const log = new Log({
 });
 
 async function bootstrap(keyfile?: string, config?: string) {
-  const { client, community } = await init(keyfile);
+  const { client, walletAddr, community } = await init(keyfile);
 
   await genesis(client, community, keyfile, config);
 
-  // This logic grabs the latest trade tx
-  // console.log(
-  //   (
-  //     await query({
-  //       query: txsQuery,
-  //       variables: {
-  //         // @ts-ignore
-  //         num: 1,
-  //       },
-  //     })
-  //   ).data.transactions.edges[0]
-  // );
+  for await (const txId of monitorWallet(client, walletAddr)) {
+    try {
+      log.info(`Attempting to match transaction. txId=${txId}`);
+    } catch (err) {
+      // await log.error(`Failed to handle tx, tx_id=${txId}`, err);
+    }
+  }
 }
 
 const program = commander.program;
