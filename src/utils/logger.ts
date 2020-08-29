@@ -1,18 +1,18 @@
-import { Writable } from 'stream';
-import chalk from 'chalk';
-import fecha from 'fecha';
+import { Writable } from "stream";
+import chalk from "chalk";
+import fecha from "fecha";
 // @ts-ignore
-import * as rfs from 'rotating-file-stream';
+import * as rfs from "rotating-file-stream";
 
 /**
  * Levels enum used to determine when to log, `none` means nothing will be logged.
  */
 export enum LogLevels {
-  'none' = -1,
-  'error',
-  'warn',
-  'info',
-  'debug',
+  "none" = -1,
+  "error",
+  "warn",
+  "info",
+  "debug",
 }
 
 /**
@@ -63,35 +63,35 @@ export default class Log implements LogOptions {
 
     this.console = options.console || true;
 
-    if (typeof options.level === 'undefined') {
+    if (typeof options.level === "undefined") {
       this.level =
-        process.env.NODE_ENV === 'development'
+        process.env.NODE_ENV === "development"
           ? LogLevels.debug
           : LogLevels.info;
     } else {
       this.level = options.level;
     }
 
-    if (typeof options.stream === 'undefined') {
+    if (typeof options.stream === "undefined") {
       this.stream = rfs.createStream(this._filepath, {
-        compress: 'gzip',
-        interval: '5d',
+        compress: "gzip",
+        interval: "5d",
         maxFiles: 6,
       });
     } else {
       this.stream = options.stream;
     }
 
-    if (typeof options.timestamp === 'string') {
+    if (typeof options.timestamp === "string") {
       // If the passed timestamp is a string use that as the format.
       this.timestamp = options.timestamp;
-    } else if (typeof options.timestamp === 'undefined' || options.timestamp) {
+    } else if (typeof options.timestamp === "undefined" || options.timestamp) {
       // If the passed timestamp is unset or `true`, use the default format.
       // this.timestamp = "YYYY-MM-DD HH:mm:ss,SSS";
-      this.timestamp = 'HH:mm:ss';
+      this.timestamp = "HH:mm:ss";
     } else {
       // Otherwise disable the timestamp.
-      this.timestamp = '';
+      this.timestamp = "";
     }
   }
 
@@ -183,7 +183,7 @@ export default class Log implements LogOptions {
    * @returns {string} `string` The formatted message that was logged.
    */
   private _writeToStream(message: string, level: LogLevels): string {
-    message = this._formatMessage(message, level) + '\n';
+    message = this._formatMessage(message, level) + "\n";
     this.stream.write(message);
     return message;
   }
@@ -219,16 +219,16 @@ export default class Log implements LogOptions {
    * @returns {string} `string` The string representation of the wanted level.
    */
   private _getFormattedLevel(wanted: LogLevels, forConsole?: boolean): string {
-    let level = '';
+    let level = "";
 
     if (wanted === LogLevels.error) {
-      level = 'Error';
+      level = "Error";
     } else if (wanted === LogLevels.warn) {
-      level = 'Warn ';
+      level = "Warn ";
     } else if (wanted === LogLevels.info) {
-      level = 'Info ';
+      level = "Info ";
     } else {
-      level = 'Debug';
+      level = "Debug";
     }
 
     if (forConsole === true) {
@@ -253,7 +253,7 @@ export default class Log implements LogOptions {
    */
   private _getTimestamp(forConsole?: boolean): string {
     if (this.timestamp.length === 0) {
-      return '';
+      return "";
     }
 
     let timestamp: string = fecha.format(new Date(), this.timestamp);

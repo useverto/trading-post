@@ -1,6 +1,6 @@
-import Logger from '@utils/logger';
+import Logger from "@utils/logger";
 const log = new Logger({
-  name: 'community-js',
+  name: "community-js",
   level: Logger.Levels.warn,
 });
 

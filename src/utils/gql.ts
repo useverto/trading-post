@@ -1,5 +1,5 @@
 // Client for the Arweave GraphQL endpoint
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 
 interface StringMap {
   [key: string]: string | object;
@@ -25,13 +25,13 @@ interface GrapqlQuery {
  */
 async function request(graphql: string) {
   var requestOptions = {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'content-type': 'application/json',
+      "content-type": "application/json",
     },
     body: graphql,
   };
-  let res = await fetch('https://arweave.dev/graphql', requestOptions);
+  let res = await fetch("https://arweave.dev/graphql", requestOptions);
   return await res.clone().json();
 }
 
