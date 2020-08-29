@@ -19,7 +19,7 @@
     "pkg:arm": "echo not implemented",
     "pkg:all": "yarn build && pkg dist/verto.js",
     "pretest": "tsc -p ./tsconfig.test.json",
-    "test": "NODE_ENV=test mocha 'build/test/**/*.test.js'"
+    "test": "mocha 'build/test/**/*.test.js'"
   },
   "dependencies": {
     "arweave": "^1.9.1",
