@@ -11,7 +11,7 @@
   "scripts": {
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
-    "dev": "node .",
+    "dev": "node . -k arweave.json",
     "build": "rollup -c",
     "pkg": "yarn build && pkg -t host dist/verto.js",
     "pkg:linux": "yarn build && pkg -t node14-linux dist/verto.js",
