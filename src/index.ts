@@ -3,6 +3,7 @@ import commander from "commander";
 import Log from "@utils/logger";
 import { init } from "@utils/arweave";
 import { genesis } from "workflows/genesis";
+import { initAPI } from "@utils/api";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -33,9 +34,11 @@ const verto = new commander.Command();
 
 program.option("-k, --key-file <file>", "Arweave wallet keyfile");
 program.option("-c, --config <file>", "Verto trading post config");
+program.option("-p, --port <port>", "Trading post API server port", "8080");
 
 program.parse(process.argv);
 
 if (program.keyFile && program.config) {
   bootstrap(program.keyFile, program.config).catch((err) => log.error(err));
+  initAPI(parseInt(program.port));
 }
