@@ -45,6 +45,7 @@ export async function genesis(
     );
     tx.addTag("Exchange", "Verto");
     tx.addTag("Trading-Post-Genesis", "Genesis");
+    tx.addTag("Content-Type", "application/json");
     await client.transactions.sign(tx, jwk!);
     const res = await client.transactions.post(tx);
     log.info(`genesis_tx_id=${tx.id}`);

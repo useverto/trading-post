@@ -38,7 +38,7 @@ export async function init(keyfile?: string) {
   log.info("Configuring community.xyz");
   const community = new Community(client, jwk);
   log.debug(
-    `Setting community tx. community_tx=${CONSTANTS.exchangeContractSrc}}`
+    `Setting community tx. community_tx=${CONSTANTS.exchangeContractSrc}`
   );
   await community.setCommunityTx(CONSTANTS.exchangeContractSrc);
 
