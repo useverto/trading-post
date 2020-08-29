@@ -2,7 +2,10 @@ name: Test
 
 on:
   push:
-  pull_request:
+    branches:
+      - master
+  # TODO: enable when repo is public
+  # pull_request:
 
 jobs:
   test:
