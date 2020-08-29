@@ -15,6 +15,8 @@ async function bootstrap(keyfile?: string, config?: string) {
 
   await genesis(client, community, keyfile, config);
 
+  // Monitor all new transactions that come into this wallet.
+  log.info("Monitoring wallet for incoming transactions...");
   for await (const txId of monitorWallet(client, walletAddr)) {
     try {
       log.info(`Attempting to match transaction. txId=${txId}`);

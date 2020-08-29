@@ -68,7 +68,7 @@ export async function* monitorWallet(
         num: 1,
       },
     })
-  ).data.transactions.edges[0].node.id;
+  ).data.transactions.edges[0]?.node.id;
 
   if (candidateLatestTx !== latestTxId) {
     yield candidateLatestTx;
