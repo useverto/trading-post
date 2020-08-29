@@ -33,5 +33,5 @@ http.use(async (ctx) => {
 export function initAPI(port?: number) {
   port = port || 8080;
   http.listen(port);
-  log.debug(`Started trading post server at port ${port}`)
+  log.debug(`Started trading post server at port ${port}`);
 }
