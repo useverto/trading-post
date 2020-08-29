@@ -1,6 +1,6 @@
-import { open, write, rename, fsync, unlink, FileHandle } from "fs/promises";
-import { PathLike } from "fs";
-import { join, dirname } from "path";
+import { open, write, rename, fsync, unlink, FileHandle } from 'fs/promises';
+import { PathLike } from 'fs';
+import { join, dirname } from 'path';
 
 let counter = 0;
 
@@ -22,15 +22,15 @@ async function writeLoop(
 
 async function openLoop(dest: PathLike): Promise<FileHandle> {
   try {
-    let fd = await open(dest, "w");
+    let fd = await open(dest, 'w');
     return fd;
   } catch (err) {
-    return err.code === "EMFILE" ? await openLoop(dest) : err;
+    return err.code === 'EMFILE' ? await openLoop(dest) : err;
   }
 }
 
 export async function writeFileAtomic(path: string, content: string | Buffer) {
-  const tmp = join(dirname(path), "." + process.pid + "." + counter++);
+  const tmp = join(dirname(path), '.' + process.pid + '.' + counter++);
   let fd = await openLoop(tmp);
   const contentLength = Buffer.byteLength(content);
   try {
