@@ -22,14 +22,6 @@ export async function genesis(
   const walletAddr = await client.wallets.jwkToAddress(jwk!);
 
   const stake = await community.getVaultBalance(walletAddr);
-  if (stake <= 0) {
-    throw new Error(
-      "Stake value is <= 0." +
-        "\n\t\tYou need to stake some tokens to be an eligible trading post." +
-        `\n\t\tSee https://community.xyz/#${CONSTANTS.exchangeContractSrc}/vault` +
-        "\n\t\tto stake your tokens"
-    );
-  }
 
   const possibleGenesis = (
     await query({

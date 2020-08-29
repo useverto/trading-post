@@ -3,6 +3,7 @@ logs
 node_modules
 arweave.json
 config.json
+build
 verto
 verto.exe
 vertolinux
