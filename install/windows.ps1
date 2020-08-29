@@ -1,11 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
-if ($v) {
-  $Version = ${v}
-}
-
 if ($args.Length -eq 1) {
-  $Version = $args.Get(0)
+  $v = $args.Get(0)
 }
 
 $VertoInstall = $env:VERTO_INSTALL
@@ -22,10 +18,10 @@ $Target = 'windows'
 # GitHub requires TLS 1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$VertoUri = if (!$Version) {
-  "https://github.com/vertoland/verto/releases/download/${Version}/verto-windows.zip"
+$VertoUri = if (!$v) {
+  "https://github.com/vertoland/verto/releases/download/${v}/verto-windows.zip"
 } else {
-  "https://github.com/vertoland/verto/releases/download/${Version}/verto-windows.zip"
+  "https://github.com/vertoland/verto/releases/download/${v}/verto-windows.zip"
 }
 
 if (!(Test-Path $BinDir)) {
