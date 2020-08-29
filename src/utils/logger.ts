@@ -202,14 +202,14 @@ export default class Log implements LogOptions {
   ): string {
     const levelString: string = this._getFormattedLevel(level, forConsole);
     const timestamp: string = this._getTimestamp(forConsole);
-
+    const loggerName: string = this._getFormattedName(this.name);
     // message = String(message).replace(/\n/g, "␊");
 
     if (timestamp.length === 0) {
       return `${levelString} ${message}`;
     }
 
-    return `${timestamp} ${levelString} ${message}`;
+    return `${timestamp} ${levelString} ${message} - ${loggerName}`;
   }
 
   /**
@@ -262,5 +262,9 @@ export default class Log implements LogOptions {
     }
 
     return timestamp;
+  }
+
+  private _getFormattedName(name: string): string {
+    return chalk.white.bold(name);
   }
 }
