@@ -38,6 +38,7 @@ export default {
     alias({
       "@utils": __dirname + "/src/utils",
       "@api": __dirname + "/src/api",
+      "@endpoints": __dirname + "src/api/endpoints",
     }),
     {
       name: "string",
