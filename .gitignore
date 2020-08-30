@@ -1,8 +1,9 @@
 # verto production bundles
 dist
 
-# verto logs
+# logs
 logs
+*.log
 
 # nodejs modules
 node_modules
