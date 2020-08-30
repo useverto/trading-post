@@ -29,6 +29,7 @@ export interface LogOptions {
   name: string;
   stream?: Writable;
   timestamp?: boolean | string;
+  newline?: boolean;
 }
 
 export default class Log implements LogOptions {
@@ -49,6 +50,9 @@ export default class Log implements LogOptions {
   /** The filepath of the stream. */
   private readonly _filepath: string;
 
+  /** Whether to log with newline or not. */
+  public readonly newline: boolean;
+
   /**
    * Creates a new instance of Log.
    * @param {LogOptions} options `LogOptions` Options to define Log's behaviour.
@@ -57,6 +61,7 @@ export default class Log implements LogOptions {
   constructor(options: LogOptions) {
     // Set the required options first.
     this.name = options.name;
+    this.newline = options.newline || false;
 
     // Use the name to determine the path for the stream.
     this._filepath = `logs/${this.name}.log`;
@@ -207,7 +212,7 @@ export default class Log implements LogOptions {
       return `${levelString} ${message}`;
     }
 
-    return `${timestamp} ${levelString} ${message} - ${loggerName}`;
+    return `${timestamp} ${levelString} ${message} - ${loggerName}${this.newLine ? "\n" : ""}`;
   }
 
   /**
