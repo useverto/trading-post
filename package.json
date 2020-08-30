@@ -26,6 +26,7 @@
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
     "community-js": "useverto/community-js#c5338bf",
+    "dotenv": "^8.2.0",
     "koa": "^2.13.0",
     "node-fetch": "^2.6.0",
     "rfs": "^9.0.3",

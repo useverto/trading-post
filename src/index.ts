@@ -1,4 +1,5 @@
 import "@utils/console";
+import dotenv from "dotenv";
 import commander from "commander";
 import Log from "@utils/logger";
 import { init, monitorWallet } from "@utils/arweave";
@@ -7,6 +8,7 @@ import { initAPI } from "@api/index";
 import { loadConfig, TradingPostConfig } from "@utils/config";
 import { match } from "@workflows/match";
 
+dotenv.config();
 const log = new Log({
   level: Log.Levels.debug,
   name: "verto",
@@ -29,7 +31,6 @@ async function bootstrap(config: TradingPostConfig, keyfile?: string) {
 }
 
 const program = commander.program;
-const verto = new commander.Command();
 
 program.option("-k, --key-file <file>", "Arweave wallet keyfile");
 program.option(

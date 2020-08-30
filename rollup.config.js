@@ -25,6 +25,8 @@ export default {
     "*.yml",
     "fs/promises",
     "util",
+    "fs",
+    "path",
   ],
   plugins: [
     typescript(),
