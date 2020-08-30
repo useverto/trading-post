@@ -28,7 +28,6 @@ async function bootstrap(config: TradingPostConfig, keyfile?: string) {
 }
 
 const program = commander.program;
-const verto = new commander.Command();
 
 program.option("-k, --key-file <file>", "Arweave wallet keyfile");
 program.option(

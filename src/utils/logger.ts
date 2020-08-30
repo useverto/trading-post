@@ -170,9 +170,7 @@ export default class Log implements LogOptions {
    */
   private _writeToConsole(message: string, level: LogLevels): void {
     if (this.console) {
-      // TODO(@divy-work): Switch back to console.log when PR at smartweave is merged.
-      // @ts-ignore
-      console.newLog(this._formatMessage(message, level, true));
+      console.log(this._formatMessage(message, level, true));
     }
   }
 
