@@ -5,7 +5,7 @@ import { getJwk } from "@utils/arweave";
 import CONSTANTS from "../utils/constants.yml";
 import { query } from "@utils/gql";
 import genesisQuery from "../queries/genesis.gql";
-import { readFile } from "fs/promises";
+import { GenesisConfig } from "@utils/config";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -15,8 +15,8 @@ const log = new Log({
 export async function genesis(
   client: Arweave,
   community: Community,
-  keyfile?: string,
-  config?: string
+  config: GenesisConfig,
+  keyfile?: string
 ) {
   const jwk = await getJwk(keyfile);
   const walletAddr = await client.wallets.jwkToAddress(jwk!);
@@ -38,7 +38,7 @@ export async function genesis(
     log.info("Sending genesis transaction");
     const tx = await client.createTransaction(
       {
-        data: await readFile(config!, { encoding: "utf8" }),
+        data: JSON.stringify(config),
         target: CONSTANTS.exchangeWallet,
       },
       jwk!

@@ -64,7 +64,6 @@ export async function* monitorWallet(
       query: txsQuery,
       variables: {
         recipients: [addr],
-        // @ts-ignore
         num: 1,
       },
     })

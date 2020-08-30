@@ -2,7 +2,7 @@
 import fetch from "node-fetch";
 
 interface StringMap {
-  [key: string]: string | object;
+  [key: string]: string | object | number;
 }
 
 /**
