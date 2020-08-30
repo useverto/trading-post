@@ -3,7 +3,7 @@ import commander from "commander";
 import Log from "@utils/logger";
 import { init, monitorWallet } from "@utils/arweave";
 import { genesis } from "workflows/genesis";
-import { initAPI } from "@utils/api";
+import { initAPI } from "@api/api";
 
 const log = new Log({
   level: Log.Levels.debug,
