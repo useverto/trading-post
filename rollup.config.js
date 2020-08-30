@@ -25,6 +25,8 @@ export default {
     "*.yml",
     "fs/promises",
     "util",
+    "fs",
+    "path",
   ],
   plugins: [
     typescript(),
@@ -35,6 +37,7 @@ export default {
     }),
     alias({
       "@utils": __dirname + "/src/utils",
+      "@api": __dirname + "/src/api",
     }),
     {
       name: "string",

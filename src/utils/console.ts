@@ -1,15 +1,13 @@
 import Logger from "@utils/logger";
 const log = new Logger({
   name: "community-js",
-  level: Logger.Levels.warn,
+  level: Logger.Levels.debug,
 });
 
-/** TEMPORARY FILE
- * Disables Smartweave's console.log and console.warn in the code.
- * See https://github.com/ArweaveTeam/SmartWeave/pull/27
+/**
+ * Converts console to logger except the console.log method
  */
 
-// @ts-ignore
-console.newLog = (x: any) => console.info(x);
-console.log = (x: any) => log.debug(x);
+console.info = (x: any) => log.info(x);
 console.warn = (x: any) => log.warn(x);
+console.error = (x: any) => log.error(x);

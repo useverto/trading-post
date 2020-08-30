@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - master
-  # TODO: enable when repo is public
-  # pull_request:
+  pull_request:
 
 jobs:
   lint:

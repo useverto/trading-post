@@ -1,12 +1,32 @@
+# verto production bundles
 dist
+
+# logs
 logs
+*.log
+
+# nodejs modules
 node_modules
+
+# arweave keyfule
 arweave.json
+
+# verto config files
 config.json
+verto.config.json
+
+# test build dir
 build
+
+# verto production binaries
 verto
 verto.exe
 vertolinux
 verto-mac
 verto-win.exe
-*.log
+
+# test generated artifacts
+test_artifacts/
+
+# enviornment variables
+.env

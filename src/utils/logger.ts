@@ -29,6 +29,7 @@ export interface LogOptions {
   name: string;
   stream?: Writable;
   timestamp?: boolean | string;
+  newline?: boolean;
 }
 
 export default class Log implements LogOptions {
@@ -49,6 +50,9 @@ export default class Log implements LogOptions {
   /** The filepath of the stream. */
   private readonly _filepath: string;
 
+  /** Whether to log with newline or not. */
+  public readonly newline: boolean;
+
   /**
    * Creates a new instance of Log.
    * @param {LogOptions} options `LogOptions` Options to define Log's behaviour.
@@ -57,6 +61,7 @@ export default class Log implements LogOptions {
   constructor(options: LogOptions) {
     // Set the required options first.
     this.name = options.name;
+    this.newline = options.newline || Boolean(process.env.LOG_NEWLINE) || false;
 
     // Use the name to determine the path for the stream.
     this._filepath = `logs/${this.name}.log`;
@@ -112,7 +117,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to log.
    * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Error` level.
    */
-  public error(message: string): string | undefined {
+  public error(message: any): string | undefined {
     if (this.level < LogLevels.error) {
       return;
     }
@@ -126,7 +131,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to log.
    * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Warn` level.
    */
-  public warn(message: string): string | undefined {
+  public warn(message: any): string | undefined {
     if (this.level < LogLevels.warn) {
       return;
     }
@@ -140,7 +145,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to log.
    * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Info` level.
    */
-  public info(message: string): string | undefined {
+  public info(message: any): string | undefined {
     if (this.level < LogLevels.info) {
       return;
     }
@@ -154,7 +159,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to log.
    * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Debug` level.
    */
-  public debug(message: string): string | undefined {
+  public debug(message: any): string | undefined {
     if (this.level < LogLevels.debug) {
       return;
     }
@@ -168,11 +173,9 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to write.
    * @param {LogLevels} level `LogLevels` The level to write.
    */
-  private _writeToConsole(message: string, level: LogLevels): void {
+  private _writeToConsole(message: any, level: LogLevels): void {
     if (this.console) {
-      // TODO(@divy-work): Switch back to console.log when PR at smartweave is merged.
-      // @ts-ignore
-      console.newLog(this._formatMessage(message, level, true));
+      console.log(this._formatMessage(message, level, true));
     }
   }
 
@@ -204,12 +207,14 @@ export default class Log implements LogOptions {
     const timestamp: string = this._getTimestamp(forConsole);
     const loggerName: string = this._getFormattedName(this.name);
     // message = String(message).replace(/\n/g, "␊");
-
+    if (typeof message == "object") message = JSON.stringify(message);
     if (timestamp.length === 0) {
       return `${levelString} ${message}`;
     }
 
-    return `${timestamp} ${levelString} ${message} - ${loggerName}`;
+    return `${timestamp} ${levelString} ${message} - ${loggerName}${
+      this.newline ? "\n" : ""
+    }`;
   }
 
   /**
