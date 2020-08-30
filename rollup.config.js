@@ -34,8 +34,9 @@ export default {
       preferBuiltins: true,
     }),
     alias({
-      "@utils": __dirname + "/src/utils",
       "@api": __dirname + "/src/api",
+      "@utils": __dirname + "/src/utils",
+      "@workflows": __dirname + "/src/workflows",
     }),
     {
       name: "string",

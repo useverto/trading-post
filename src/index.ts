@@ -2,7 +2,7 @@ import "@utils/console";
 import commander from "commander";
 import Log from "@utils/logger";
 import { init, monitorWallet } from "@utils/arweave";
-import { genesis } from "workflows/genesis";
+import { genesis } from "@workflows/genesis";
 import { initAPI } from "@api/index";
 import { loadConfig, TradingPostConfig } from "@utils/config";
 
