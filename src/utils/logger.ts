@@ -207,7 +207,7 @@ export default class Log implements LogOptions {
     const timestamp: string = this._getTimestamp(forConsole);
     const loggerName: string = this._getFormattedName(this.name);
     // message = String(message).replace(/\n/g, "␊");
-
+    if (typeof message == "object") message = JSON.stringify(message);
     if (timestamp.length === 0) {
       return `${levelString} ${message}`;
     }
