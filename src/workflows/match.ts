@@ -25,5 +25,14 @@ export async function match(client: Arweave, txId: string) {
   // @ts-ignore
   const opcode = tx.tags.find((tag) => tag.name === "Trade-Opcode")?.value!;
 
-  log.info(`Received transaction.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
+  log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
+
+  switch(opcode) {
+    case "Buy": {
+      // TODO: Search the db for sell orders
+    }
+    case "Sell": {
+      // TODO: Create a new entry in the DB
+    }
+  }
 }
