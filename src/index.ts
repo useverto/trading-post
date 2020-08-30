@@ -5,6 +5,7 @@ import { init, monitorWallet } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
 import { initAPI } from "@api/index";
 import { loadConfig, TradingPostConfig } from "@utils/config";
+import { match } from "@workflows/match";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -20,7 +21,7 @@ async function bootstrap(config: TradingPostConfig, keyfile?: string) {
   log.info("Monitoring wallet for incoming transactions...");
   for await (const txId of monitorWallet(client, walletAddr)) {
     try {
-      log.info(`Attempting to match transaction. txId=${txId}`);
+      await match(client, txId);
     } catch (err) {
       // log.error(`Failed to handle tx, tx_id=${txId}`, err);
     }
