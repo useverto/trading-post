@@ -213,7 +213,7 @@ export default class Log implements LogOptions {
     }
 
     return `${timestamp} ${levelString} ${message} - ${loggerName}${
-      this.newLine ? "\n" : ""
+      this.newline ? "\n" : ""
     }`;
   }
 

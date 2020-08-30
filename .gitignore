@@ -26,3 +26,6 @@ verto-win.exe
 
 # test generated artifacts
 test_artifacts/
+
+# enviornment variables
+.env
