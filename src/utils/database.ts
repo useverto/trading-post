@@ -6,6 +6,10 @@ const log = new Logger({
   level: Logger.Levels.debug,
 });
 
+/**
+ * Establish connection with the sqlite database.
+ * @param db sqlite data file location
+ */
 export async function init(db: string): Promise<Sequelize> {
   const sequelize = new Sequelize({
     dialect: "sqlite",
