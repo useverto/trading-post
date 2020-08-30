@@ -26,7 +26,7 @@
     "arweave": "^1.9.1",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
-    "community-js": "useverto/community-js#c5338bf",
+    "community-js": "^1.0.12",
     "dotenv": "^8.2.0",
     "koa": "^2.13.0",
     "node-fetch": "^2.6.0",

@@ -284,13 +284,6 @@
   dependencies:
     "@types/koa" "*"
 
-"@types/koa-router@^7.4.1":
-  version "7.4.1"
-  resolved "https://registry.yarnpkg.com/@types/koa-router/-/koa-router-7.4.1.tgz#3702a4cabe4558cc4eec70d5574acc04beecff7c"
-  integrity sha512-Hg78TXz78QYfEgdq3nTeRmQFEwJKZljsXb/DhtexmyrpRDRnl59oMglh9uPj3/WgKor0woANrYTnxA8gaWGK2A==
-  dependencies:
-    "@types/koa" "*"
-
 "@types/koa@*", "@types/koa@^2.11.4":
   version "2.11.4"
   resolved "https://registry.yarnpkg.com/@types/koa/-/koa-2.11.4.tgz#8af02a069a9f8e08fa47b8da28d982e652f69cfb"
@@ -809,12 +802,13 @@ commondir@^1.0.1:
   resolved "https://registry.yarnpkg.com/commondir/-/commondir-1.0.1.tgz#ddd800da0c66127393cca5950ea968a3aaf1253b"
   integrity sha1-3dgA2gxmEnOTzKWVDqloo6rxJTs=
 
-community-js@useverto/community-js#c5338bf:
-  version "1.0.11"
-  resolved "https://codeload.github.com/useverto/community-js/tar.gz/c5338bf6e25739cf6e9f2fdc6a7d622e85ab9480"
+community-js@^1.0.12:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.12.tgz#1cbbb947f35ba17441df756d37b44453d111de1b"
+  integrity sha512-42KgtpxfF4njS7EWH8Do9q9050rm9iwpmiRViFKAtElqxlr3HRGceOjXeCCmo5yfXv6/rWspN96JYWGXp3igJA==
   dependencies:
     arweave "^1.9.1"
-    smartweave "https://arweave.net/wdLl4M0wJOOYsdKuqMNaiug2vb7MwEBFYTVEerwTUyk"
+    smartweave "https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc"
     tiny-worker "^2.3.0"
 
 concat-map@0.0.1:
@@ -2627,9 +2621,9 @@ slash@^3.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
 
-"smartweave@https://arweave.net/wdLl4M0wJOOYsdKuqMNaiug2vb7MwEBFYTVEerwTUyk":
+"smartweave@https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc":
   version "0.3.2"
-  resolved "https://arweave.net/wdLl4M0wJOOYsdKuqMNaiug2vb7MwEBFYTVEerwTUyk#36b322559adddb949fc1fadc35638df90cb9f3f7"
+  resolved "https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc#a07150cd6228643fe252890956a8f93b3c3b260b"
   dependencies:
     arweave "^1.9.1"
     bignumber.js "^9.0.0"
