@@ -61,7 +61,7 @@ export default class Log implements LogOptions {
   constructor(options: LogOptions) {
     // Set the required options first.
     this.name = options.name;
-    this.newline = options.newline || false;
+    this.newline = options.newline || Boolean(process.env.LOG_NEWLINE) || false;
 
     // Use the name to determine the path for the stream.
     this._filepath = `logs/${this.name}.log`;
@@ -212,7 +212,9 @@ export default class Log implements LogOptions {
       return `${levelString} ${message}`;
     }
 
-    return `${timestamp} ${levelString} ${message} - ${loggerName}${this.newLine ? "\n" : ""}`;
+    return `${timestamp} ${levelString} ${message} - ${loggerName}${
+      this.newLine ? "\n" : ""
+    }`;
   }
 
   /**

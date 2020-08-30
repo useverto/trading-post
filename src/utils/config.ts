@@ -1,7 +1,7 @@
 import { readFile } from "fs/promises";
 
 /**
- * Trading post API Server Config
+ * Trading post API Server configuration
  */
 export interface APIConfig {
   host: string;
@@ -18,7 +18,7 @@ export interface GenesisConfig {
 }
 
 /**
- * The Trading post Config
+ * The Trading post configuration
  */
 export interface TradingPostConfig {
   genesis: GenesisConfig;
