@@ -1,14 +1,22 @@
-import { Document, Schema, Model, model } from "mongoose";
+import { Sequelize } from "sequelize";
+import Logger from "@utils/logger";
 
-export interface Trade extends Document {
-  name: string;
-  matched: boolean;
-}
-
-export const Trade = new Schema({
-  name: { type: String, required: true },
-  matched: { type: Boolean, required: true },
+const log = new Logger({
+  name: "database",
+  level: Logger.Levels.debug,
 });
 
-const User = model<Trade>("User", Trade);
-export default User;
+export async function init(db: string): Promise<Sequelize> {
+  const sequelize = new Sequelize({
+    dialect: "sqlite",
+    storage: db,
+    logging: (msg) => log.debug(msg),
+  });
+  try {
+    await sequelize.authenticate();
+    log.info("Connection has been established successfully.");
+  } catch (error) {
+    log.error("Unable to connect to the database: " + error);
+  }
+  return sequelize;
+}
