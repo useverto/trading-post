@@ -689,10 +689,9 @@ commondir@^1.0.1:
   resolved "https://registry.yarnpkg.com/commondir/-/commondir-1.0.1.tgz#ddd800da0c66127393cca5950ea968a3aaf1253b"
   integrity sha1-3dgA2gxmEnOTzKWVDqloo6rxJTs=
 
-community-js@^1.0.11:
+community-js@useverto/community-js#master:
   version "1.0.11"
-  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.11.tgz#725d0536c552eef726d88f549a914c24a5efe4ca"
-  integrity sha512-DjrzeoCf+b6znPoX8atRnQcKzZN1PuytfrIXf/e4U4Kz5+B0crvs9j2VGrzbPQ+RgqJ15Fu3gLto8JK/8p890g==
+  resolved "https://codeload.github.com/useverto/community-js/tar.gz/8d3cb0348dfba709ff632b41fc525a65ea2694c7"
   dependencies:
     arweave "^1.9.1"
     smartweave "https://arweave.net/wdLl4M0wJOOYsdKuqMNaiug2vb7MwEBFYTVEerwTUyk"
