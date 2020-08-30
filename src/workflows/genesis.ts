@@ -33,7 +33,9 @@ export async function genesis(
     })
   ).data.transactions.edges;
   if (possibleGenesis.length === 1) {
-    log.info(`genesis_tx_id=${possibleGenesis[0].node.id}`);
+    log.info(
+      `Found genesis transaction.\n\t\ttxId=${possibleGenesis[0].node.id}`
+    );
   } else {
     log.info("Sending genesis transaction");
     const tx = await client.createTransaction(
