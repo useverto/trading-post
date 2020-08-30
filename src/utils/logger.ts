@@ -117,7 +117,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to log.
    * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Error` level.
    */
-  public error(message: string): string | undefined {
+  public error(message: any): string | undefined {
     if (this.level < LogLevels.error) {
       return;
     }
@@ -131,7 +131,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to log.
    * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Warn` level.
    */
-  public warn(message: string): string | undefined {
+  public warn(message: any): string | undefined {
     if (this.level < LogLevels.warn) {
       return;
     }
@@ -145,7 +145,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to log.
    * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Info` level.
    */
-  public info(message: string): string | undefined {
+  public info(message: any): string | undefined {
     if (this.level < LogLevels.info) {
       return;
     }
@@ -159,7 +159,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to log.
    * @returns {string | undefined} Returns `string` if something was logged and `undefined` if the Log instance level was lower than the `Debug` level.
    */
-  public debug(message: string): string | undefined {
+  public debug(message: any): string | undefined {
     if (this.level < LogLevels.debug) {
       return;
     }
@@ -173,7 +173,7 @@ export default class Log implements LogOptions {
    * @param {string} message `string` The message to write.
    * @param {LogLevels} level `LogLevels` The level to write.
    */
-  private _writeToConsole(message: string, level: LogLevels): void {
+  private _writeToConsole(message: any, level: LogLevels): void {
     if (this.console) {
       console.log(this._formatMessage(message, level, true));
     }
