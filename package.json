@@ -22,10 +22,11 @@
     "test": "mocha 'build/verto.test.js'"
   },
   "dependencies": {
+    "@koa/router": "^9.4.0",
     "arweave": "^1.9.1",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
-    "community-js": "useverto/community-js#c5338bf",
+    "community-js": "^1.0.12",
     "dotenv": "^8.2.0",
     "koa": "^2.13.0",
     "node-fetch": "^2.6.0",
@@ -47,6 +48,7 @@
     "@types/commander": "^2.12.2",
     "@types/fecha": "^2.3.1",
     "@types/koa": "^2.11.4",
+    "@types/koa__router": "^8.0.2",
     "@types/mocha": "^8.0.3",
     "@types/mongoose": "^5.7.36",
     "@types/node": "^14.6.2",

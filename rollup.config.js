@@ -37,6 +37,7 @@ export default {
     }),
     alias({
       "@api": __dirname + "/src/api",
+      "@endpoints": __dirname + "src/api/endpoints",
       "@utils": __dirname + "/src/utils",
       "@workflows": __dirname + "/src/workflows",
     }),
