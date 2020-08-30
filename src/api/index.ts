@@ -1,5 +1,7 @@
 import Koa from "koa";
 import Log from "@utils/logger";
+import PingRouter from "@endpoints/ping";
+import MatchRouter from "@endpoints/match";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -23,9 +25,7 @@ http.use(async (ctx, next) => {
   ctx.set("X-Response-Time", `${ms}ms`);
 });
 
-http.use(async (ctx) => {
-  ctx.body = "Hello, I am a Verto trading post ;)";
-});
+http.use(PingRouter.routes()).use(MatchRouter.routes());
 
 /**
  * Start the trading post HTTP server

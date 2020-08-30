@@ -12,7 +12,8 @@
     "paths": {
       "@utils/*": ["utils/*"],
       "@queries/*": ["queries/*"],
-      "@api/*": ["api/*"]
+      "@api/*": ["api/*"],
+      "@endpoints/*": ["api/endpoints/*"]
     }
   }
 }
