@@ -31,7 +31,7 @@ export async function match(client: Arweave, txId: string, db: Database) {
 
   if (opcode === "Buy") {
     const orders = await db.get<TokenInstance[]>(`
-      SELECT * FROM '${token}' WHERE type = "Sell"
+      SELECT * FROM "${token}" WHERE type = "Sell"
     `);
 
     if (!orders || orders?.length === 0) {
@@ -46,7 +46,7 @@ export async function match(client: Arweave, txId: string, db: Database) {
 
     // TODO(@johnletey): Go through and make trades ...
   } else if (opcode === "Sell") {
-    await db.run(`INSERT INTO '${token}' VALUES (?, ?, ?, ?, ?)`, [
+    await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?)`, [
       txId,
       amnt,
       rate,
