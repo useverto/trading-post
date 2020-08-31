@@ -69,9 +69,17 @@ export async function match(
         );
 
         log.info(`Sent ${amnt} AR to ${order.addr}\n\t\ttxId = ${arTx.id}`);
-        // TODO(@johnletey): Grab the PST ticker from the contract.
         log.info(
-          `Sent ${pstAmount} TODO to ${tx.owner.address}\n\t\ttxId = ${pstTx}`
+          `Sent ${pstAmount} ${
+            JSON.parse(
+              (
+                await client.transactions.getData(token, {
+                  decode: true,
+                  string: true,
+                })
+              ).toString()
+            )["ticker"]
+          } to ${tx.owner.address}\n\t\ttxId = ${pstTx}`
         );
 
         if (order.amnt === pstAmount) {
