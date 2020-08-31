@@ -1,6 +1,9 @@
 query($txId: ID!) {
   transaction(id: $txId) {
     id
+    owner {
+      address
+    }
     tags {
       name
       value

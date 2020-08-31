@@ -11,11 +11,11 @@ type Order = "Buy" | "Sell";
 
 // We need to declare an interface for our model that is basically what our class would be
 export interface TokenInstance {
-  id: number;
+  txID: string;
   amnt: number;
-  price?: number;
+  rate?: number;
   addr: string;
-  orderx: Order;
+  type: Order;
 }
 
 /**
@@ -39,9 +39,9 @@ export async function init(db: string): Promise<Database> {
 export function setupTokenTables(db: Database, contracts: string[]) {
   let contractTables = contracts.map(async (contract) => {
     return await db.exec(`CREATE TABLE IF NOT EXISTS '${contract}' (
-      id INTEGER PRIMARY KEY,
+      txID STRING NOT NULL PRIMARY KEY,
       amnt INTEGER NOT NULL,
-      price INTEGER,
+      rate INTEGER,
       addr STRING NOT NULL,
       type STRING NOT NULL
     )`);
