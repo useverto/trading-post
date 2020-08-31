@@ -30,3 +30,6 @@ test_artifacts/
 
 # enviornment variables
 .env
+
+# verto db file
+db

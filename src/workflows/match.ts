@@ -1,7 +1,7 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
 import { query } from "@utils/gql";
-import findTx from "@queries/findtx.gql";
+import findTx from "../queries/findtx.gql";
 import { TokenModel } from "@utils/database";
 
 const log = new Log({
