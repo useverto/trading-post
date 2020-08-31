@@ -22,12 +22,12 @@ async function bootstrap(
   keyfile?: string
 ) {
   const { client, walletAddr, community, jwk } = await init(keyfile);
-  await genesis(client, community, config.genesis, keyfile);
+  await genesis(client, community, jwk!, config.genesis);
   // Monitor all new transactions that come into this wallet.
   log.info("Monitoring wallet for incoming transactions...");
   for await (const txId of monitorWallet(client, walletAddr)) {
     try {
-      await match(client, txId, jwk, db);
+      await match(client, txId, jwk!, db);
     } catch (err) {
       log.error(
         `Failed to handle transaction.\n\t\ttxId = ${txId}\n\t\t${err}`
