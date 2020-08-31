@@ -46,7 +46,7 @@ export async function match(
   await saveOrder(db, token, tokenEntry);
 
   if (opcode === "Buy") {
-    const orders = await getOrder(db, token, opcode);
+    const orders = await getOrder(db, token, "Sell");
     for (const order of orders) {
       if (!order.rate) continue;
       const pstAmount = order.rate * amnt;
