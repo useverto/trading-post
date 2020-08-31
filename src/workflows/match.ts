@@ -4,7 +4,6 @@ import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
 import { TokenInstance } from "@utils/database";
-import { or } from "sequelize";
 
 const log = new Log({
   level: Log.Levels.debug,
