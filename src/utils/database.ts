@@ -52,13 +52,13 @@ export function setupTokenTables(
     let model = sequelize.define<TokenInstance>(contract, {
       id: {
         primaryKey: true,
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
       },
       amnt: {
         type: DataTypes.NUMBER,
       },
       price: {
-        type: DataTypes.NUMBER || DataTypes,
+        type: DataTypes.NUMBER,
         allowNull: true,
       },
       createdAt: {
