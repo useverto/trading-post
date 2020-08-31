@@ -7,12 +7,17 @@ const log = new Logger({
 });
 
 // We need to declare an interface for our model that is basically what our class would be
-interface TokenInstance extends Model {
+export interface TokenInstance extends Model {
   id: number;
   amnt: number;
   price?: number;
   createdAt: Date;
   addr: string;
+}
+
+export interface TokenModel {
+  model: ModelCtor<TokenInstance>,
+  contract: string;
 }
 
 /**
@@ -42,10 +47,10 @@ export async function init(db: string): Promise<Sequelize> {
 export function setupTokenTables(
   sequelize: Sequelize,
   contracts: string[]
-): ModelCtor<TokenInstance>[] {
-  let contractTables: ModelCtor<TokenInstance>[] = contracts.map(
-    (contractID, i) => {
-      return sequelize.define<TokenInstance>(contractID, {
+): TokenModel[] {
+  let contractTables: TokenModel[] = contracts.map(
+    (contract, i) => {
+      let model = sequelize.define<TokenInstance>(contract, {
         id: {
           primaryKey: true,
           type: DataTypes.INTEGER.UNSIGNED,
@@ -64,6 +69,7 @@ export function setupTokenTables(
           type: DataTypes.STRING,
         },
       });
+      return { model, contract }
     }
   );
   return contractTables;
