@@ -8,7 +8,6 @@ import { initAPI } from "@api/index";
 import { init as initDB, setupTokenTables, TokenModel } from "@utils/database";
 import { loadConfig, TradingPostConfig } from "@utils/config";
 import { match } from "@workflows/match";
-import sequelize from "sequelize";
 
 dotenv.config();
 const log = new Log({
@@ -29,7 +28,7 @@ async function bootstrap(
   log.info("Monitoring wallet for incoming transactions...");
   for await (const txId of monitorWallet(client, walletAddr)) {
     try {
-      await match(client, txId);
+      await match(client, txId, models);
     } catch (err) {
       // log.error(`Failed to handle tx, tx_id=${txId}`, err);
     }
