@@ -32,7 +32,7 @@ export async function match(client: Arweave, txId: string, db: Database) {
   switch (opcode) {
     case "Buy": {
       const orders = await db.get<TokenInstance[]>(`
-        SELECT * FROM ${token} WHERE type = "Sell"
+        SELECT * FROM "${token}" WHERE type = "Sell"
       `);
 
       if (orders?.length === 0) {
@@ -49,7 +49,7 @@ export async function match(client: Arweave, txId: string, db: Database) {
     }
     case "Sell": {
       await db.exec(`
-        INSERT INTO ${token} VALUES (${txId}, ${amnt}, ${rate}, ${tx.owner.address}, ${opcode})
+        INSERT INTO "${token}" VALUES (${txId}, ${amnt}, ${rate}, ${tx.owner.address}, ${opcode})
       `);
     }
   }
