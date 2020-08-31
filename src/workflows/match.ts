@@ -4,7 +4,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
-import { TokenInstance, saveOrder, getOrder } from "@utils/database";
+import { TokenInstance, saveOrder, getOrders } from "@utils/database";
 import { interactWrite } from "smartweave";
 
 const log = new Log({
@@ -46,7 +46,7 @@ export async function match(
   await saveOrder(db, token, tokenEntry);
 
   if (opcode === "Buy") {
-    const orders = await getOrder(db, token, "Sell");
+    const orders = await getOrders(db, token, "Sell");
     for (const order of orders) {
       if (!order.rate) continue;
       const pstAmount = order.rate * amnt;

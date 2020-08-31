@@ -63,7 +63,7 @@ export async function saveOrder(
   ]);
 }
 
-export async function getOrder(
+export async function getOrders(
   db: Database,
   token: string,
   opcode: Order
