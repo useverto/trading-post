@@ -4,6 +4,7 @@ import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
 import { TokenInstance } from "@utils/database";
+import { or } from "sequelize";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -29,32 +30,31 @@ export async function match(client: Arweave, txId: string, db: Database) {
 
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
 
-  switch (opcode) {
-    case "Buy": {
-      const orders = await db.get<TokenInstance[]>(`
-        SELECT * FROM '${token}' WHERE type = "Sell"
-      `);
+  if (opcode === "Buy") {
+    const orders = await db.get<TokenInstance[]>(`
+      SELECT * FROM '${token}' WHERE type = "Sell"
+    `);
 
-      if (orders?.length === 0) {
-        log.info("No sell orders to match with.");
-        return;
-      }
-
-      orders?.sort((a, b) => {
-        // @ts-ignore
-        return a.rate - b.rate;
-      });
-
-      // TODO: Go through and make trades ...
+    if (!orders || orders?.length === 0) {
+      log.info("No sell orders to match with.");
+      return;
     }
-    case "Sell": {
-      await db.run(`INSERT INTO '${token}' VALUES (?, ?, ?, ?, ?)`, [
-        txId,
-        amnt,
-        rate,
-        tx.owner.address,
-        opcode,
-      ]);
-    }
+
+    orders?.sort((a, b) => {
+      // @ts-ignore
+      return a.rate - b.rate;
+    });
+
+    // TODO(@johnletey): Go through and make trades ...
+  } else if (opcode === "Sell") {
+    await db.run(`INSERT INTO '${token}' VALUES (?, ?, ?, ?, ?)`, [
+      txId,
+      amnt,
+      rate,
+      tx.owner.address,
+      opcode,
+    ]);
+  } else {
+    log.error(`Invalid trade opCode.`);
   }
 }
