@@ -88,6 +88,8 @@ export function contractModel(
   models: TokenModel[],
   contractID: string
 ): TokenModel | undefined {
-  const contractModel = models.find((model) => model.contract == contractID);
+  const contractModel = models.find((model) => {
+    if (model.contract == contractID) return model;
+  });
   return contractModel;
 }
