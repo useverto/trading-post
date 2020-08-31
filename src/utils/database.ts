@@ -52,28 +52,34 @@ export function setupTokenTables(
   contracts: string[]
 ): TokenModel[] {
   let contractTables: TokenModel[] = contracts.map((contract, i) => {
-    let model = sequelize.define<TokenInstance>(contract, {
-      id: {
-        primaryKey: true,
-        type: DataTypes.INTEGER,
+    let model = sequelize.define<TokenInstance>(
+      contract,
+      {
+        id: {
+          primaryKey: true,
+          type: DataTypes.INTEGER,
+        },
+        amnt: {
+          type: DataTypes.NUMBER,
+        },
+        price: {
+          type: DataTypes.NUMBER,
+          allowNull: true,
+        },
+        createdAt: {
+          type: DataTypes.DATE,
+        },
+        addr: {
+          type: DataTypes.STRING,
+        },
+        order: {
+          type: DataTypes.STRING,
+        },
       },
-      amnt: {
-        type: DataTypes.NUMBER,
-      },
-      price: {
-        type: DataTypes.NUMBER,
-        allowNull: true,
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-      },
-      addr: {
-        type: DataTypes.STRING,
-      },
-      order: {
-        type: DataTypes.STRING,
-      },
-    });
+      {
+        freezeTableName: true,
+      }
+    );
     return { model, contract };
   });
   return contractTables;
@@ -91,5 +97,6 @@ export function contractModel(
   const contractModel = models.find((model) => {
     if (model.contract == contractID) return model;
   });
+  console.log(contractModel);
   return contractModel;
 }

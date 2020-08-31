@@ -5,7 +5,12 @@ import Log from "@utils/logger";
 import { init, monitorWallet } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
 import { initAPI } from "@api/index";
-import { init as initDB, setupTokenTables, TokenModel } from "@utils/database";
+import {
+  init as initDB,
+  setupTokenTables,
+  TokenModel,
+  contractModel,
+} from "@utils/database";
 import { loadConfig, TradingPostConfig } from "@utils/config";
 import { match } from "@workflows/match";
 
@@ -21,7 +26,6 @@ async function bootstrap(
   keyfile?: string
 ) {
   const { client, walletAddr, community } = await init(keyfile);
-
   await genesis(client, community, config.genesis, keyfile);
 
   // Monitor all new transactions that come into this wallet.
