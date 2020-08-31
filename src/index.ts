@@ -5,6 +5,7 @@ import Log from "@utils/logger";
 import { init, monitorWallet } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
 import { initAPI } from "@api/index";
+import { init as initDB } from "@utils/database";
 import { loadConfig, TradingPostConfig } from "@utils/config";
 import { match } from "@workflows/match";
 
