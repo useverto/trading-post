@@ -3,7 +3,7 @@ import Arweave from "arweave";
 import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
-import { TokenInstance } from "@utils/database";
+import { TokenInstance, saveOrder, getOrder } from "@utils/database";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -30,20 +30,7 @@ export async function match(client: Arweave, txId: string, db: Database) {
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
 
   if (opcode === "Buy") {
-    const orders = await db.get<TokenInstance[]>(`
-      SELECT * FROM "${token}" WHERE type = "Sell"
-    `);
-
-    if (!orders || orders?.length === 0) {
-      log.info("No sell orders to match with.");
-      return;
-    }
-
-    orders.sort((a, b) => {
-      if (a.rate && b.rate) return a.rate - b.rate;
-      else return 0;
-    });
-
+    const orders = await getOrder(db, token);
     for (const order of orders) {
       if (!order.rate) continue;
       const pstAmount = order.rate * amnt;
@@ -60,13 +47,14 @@ export async function match(client: Arweave, txId: string, db: Database) {
       }
     }
   } else if (opcode === "Sell") {
-    await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?)`, [
-      txId,
+    const tokenEntry: TokenInstance = {
+      txID: txId,
       amnt,
       rate,
-      tx.owner.address,
-      opcode,
-    ]);
+      addr: tx.owner.address,
+      type: opcode,
+    };
+    await saveOrder(db, token, tokenEntry);
   } else {
     log.error(`Invalid trade opCode.`);
   }

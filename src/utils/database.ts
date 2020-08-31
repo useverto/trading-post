@@ -48,3 +48,35 @@ export function setupTokenTables(db: Database, contracts: string[]) {
   });
   return contractTables;
 }
+
+export async function saveOrder(
+  db: Database,
+  token: string,
+  entry: TokenInstance
+) {
+  return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?)`, [
+    entry.txID,
+    entry.amnt,
+    entry.rate,
+    entry.addr,
+    entry.type,
+  ]);
+}
+
+export async function getOrder(
+  db: Database,
+  token: string
+): Promise<TokenInstance[]> {
+  const orders = await db.get<TokenInstance[]>(`
+      SELECT * FROM "${token}" WHERE type = "Sell"
+    `);
+  if (!orders || orders?.length === 0) {
+    log.info("No sell orders to match with.");
+    return [];
+  }
+  orders.sort((a, b) => {
+    if (a.rate && b.rate) return a.rate - b.rate;
+    else return 0;
+  });
+  return orders;
+}
