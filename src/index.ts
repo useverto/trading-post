@@ -30,7 +30,7 @@ async function bootstrap(
     try {
       await match(client, txId, models);
     } catch (err) {
-      // log.error(`Failed to handle tx, tx_id=${txId}`, err);
+      log.error(`Failed to handle transaction.\n\t\ttxId=${txId}\n\t\t${err}`);
     }
   }
 }

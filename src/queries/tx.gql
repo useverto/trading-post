@@ -1,4 +1,4 @@
-query($txId: String!) {
+query($txId: ID!) {
   transaction(id: $txId) {
     id
     tags {

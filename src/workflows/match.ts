@@ -1,8 +1,8 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
-import { query } from "@utils/gql";
-import findTx from "../queries/findtx.gql";
 import { TokenModel } from "@utils/database";
+import { query } from "@utils/gql";
+import txQuery from "../queries/tx.gql";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -16,7 +16,7 @@ export async function match(
 ) {
   const tx = (
     await query({
-      query: findTx,
+      query: txQuery,
       variables: {
         txId,
       },
