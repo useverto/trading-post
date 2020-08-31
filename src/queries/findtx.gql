@@ -1,0 +1,9 @@
+query($txId: String!) {
+  transaction(id: $txId) {
+    id
+    tags {
+      name
+      value
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
-import { simpleQuery } from "@utils/gql";
+import { query } from "@utils/gql";
+import findTx from "@queries/findtx.gql";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -9,17 +10,12 @@ const log = new Log({
 
 export async function match(client: Arweave, txId: string) {
   const tx = (
-    await simpleQuery(`
-      query {
-        transaction(id: "${txId}") {
-          id
-          tags {
-            name
-            value
-          }
-        }
-      }
-    `)
+    await query({
+      query: findTx,
+      variables: {
+        txId,
+      },
+    })
   ).data.transaction;
 
   const opcode = tx.tags.find((tag: any) => tag.name === "Trade-Opcode")
