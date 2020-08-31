@@ -44,7 +44,21 @@ export async function match(client: Arweave, txId: string, db: Database) {
       return a.rate - b.rate;
     });
 
-    // TODO(@johnletey): Go through and make trades ...
+    for (const order of orders) {
+      // @ts-ignore
+      const pstAmount = order.rate * amnt;
+      if (order.amnt >= pstAmount) {
+        // TODO: Make the trade
+        //       Update (or remove) the sell entry in the db
+        //       Remove the buy entry from the db
+        return;
+      } else {
+        // TODO: Make the trade
+        //       Calculate the new amount (and update db)
+        //       Remove the sell entry from the db
+        //       Continue
+      }
+    }
   } else if (opcode === "Sell") {
     await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?)`, [
       txId,
