@@ -389,6 +389,13 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
+"@types/sqlite3@^3.1.6":
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/@types/sqlite3/-/sqlite3-3.1.6.tgz#554ce76f886eb187cfc86e2f0bb67cbac4f568ce"
+  integrity sha512-OBsK0KIGUICExQ/ZvnPY4cKx5Kz4NcrVyGTIvOL5y4ajXu7r++RfBajfpGfGDmDVCKcoCDX1dO84/oeyeITnxA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/validator@*", "@types/validator@^13.1.0":
   version "13.1.0"
   resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.1.0.tgz#3d776127dbce7dd31fc06f86d3428b072e631eba"
@@ -2661,6 +2668,11 @@ sqlite3@^5.0.0:
     node-pre-gyp "^0.11.0"
   optionalDependencies:
     node-gyp "3.x"
+
+sqlite@^4.0.14:
+  version "4.0.14"
+  resolved "https://registry.yarnpkg.com/sqlite/-/sqlite-4.0.14.tgz#af35fc94205a874e3c7a08b2a66228d09f530ab3"
+  integrity sha512-U80Xp7ERil4kWr2MDR51S0AR+A8CzPjYMXnWdtkD5e34vUCZCE48hSIxJsOQSI84mGI1Y4N4qty4NNPhIDHJwQ==
 
 sshpk@^1.7.0:
   version "1.16.1"

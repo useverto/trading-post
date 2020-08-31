@@ -2,7 +2,7 @@ import Koa from "koa";
 import Log from "@utils/logger";
 import PingRouter from "@endpoints/ping";
 import MatchRouter from "@endpoints/match";
-import { TokenModel } from "@utils/database";
+import { Database } from "sqlite";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -31,19 +31,19 @@ http.use(PingRouter.routes()).use(MatchRouter.routes());
 /**
  * Start the trading post HTTP server
  */
-export function initAPI(host?: string, port?: number, models?: TokenModel[]) {
+export function initAPI(host?: string, port?: number, db?: Database) {
   port = port || 8080;
   host = host || "localhost";
-  if (models?.length && models?.length > 0) {
-    setupDbMiddleware(models);
+  if (db) {
+    setupDbMiddleware(db);
   }
   http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
 }
 
-function setupDbMiddleware(models: TokenModel[]) {
+function setupDbMiddleware(db: Database) {
   return http.use(async (ctx, next) => {
-    ctx.models = models;
+    ctx.db = db;
     next();
   });
 }

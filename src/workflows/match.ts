@@ -1,19 +1,15 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
-import { TokenModel } from "@utils/database";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
+import { Database } from "sqlite";
 
 const log = new Log({
   level: Log.Levels.debug,
   name: "match",
 });
 
-export async function match(
-  client: Arweave,
-  txId: string,
-  models: TokenModel[]
-) {
+export async function match(client: Arweave, txId: string, db: Database) {
   const tx = (
     await query({
       query: txQuery,

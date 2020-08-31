@@ -5,14 +5,10 @@ import Log from "@utils/logger";
 import { init, monitorWallet } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
 import { initAPI } from "@api/index";
-import {
-  init as initDB,
-  setupTokenTables,
-  TokenModel,
-  contractModel,
-} from "@utils/database";
+import { init as initDB, setupTokenTables } from "@utils/database";
 import { loadConfig, TradingPostConfig } from "@utils/config";
 import { match } from "@workflows/match";
+import { Database } from "sqlite";
 
 dotenv.config();
 const log = new Log({
@@ -22,17 +18,16 @@ const log = new Log({
 
 async function bootstrap(
   config: TradingPostConfig,
-  models: TokenModel[],
+  db: Database,
   keyfile?: string
 ) {
   const { client, walletAddr, community } = await init(keyfile);
   await genesis(client, community, config.genesis, keyfile);
-
   // Monitor all new transactions that come into this wallet.
   log.info("Monitoring wallet for incoming transactions...");
   for await (const txId of monitorWallet(client, walletAddr)) {
     try {
-      await match(client, txId, models);
+      await match(client, txId, db);
     } catch (err) {
       log.error(
         `Failed to handle transaction.\n\t\ttxId = ${txId}\n\t\t${err}`
@@ -59,10 +54,8 @@ if (program.keyFile && program.config) {
         connPool,
         cnf.genesis.acceptedTokens
       );
-      bootstrap(cnf, tokenModels, program.keyFile).catch((err) =>
-        log.error(err)
-      );
-      initAPI(cnf.api.host, cnf.api.port, tokenModels);
+      bootstrap(cnf, connPool, program.keyFile).catch((err) => log.error(err));
+      initAPI(cnf.api.host, cnf.api.port, connPool);
     });
   });
 }

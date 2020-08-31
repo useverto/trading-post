@@ -33,3 +33,4 @@ test_artifacts/
 
 # verto db file
 db
+db.db
