@@ -5,9 +5,10 @@ import Log from "@utils/logger";
 import { init, monitorWallet } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
 import { initAPI } from "@api/index";
-import { init as initDB } from "@utils/database";
+import { init as initDB, setupTokenTables, TokenModel } from "@utils/database";
 import { loadConfig, TradingPostConfig } from "@utils/config";
 import { match } from "@workflows/match";
+import sequelize from "sequelize";
 
 dotenv.config();
 const log = new Log({
@@ -15,7 +16,11 @@ const log = new Log({
   name: "verto",
 });
 
-async function bootstrap(config: TradingPostConfig, keyfile?: string) {
+async function bootstrap(
+  config: TradingPostConfig,
+  models: TokenModel[],
+  keyfile?: string
+) {
   const { client, walletAddr, community } = await init(keyfile);
 
   await genesis(client, community, config.genesis, keyfile);
@@ -39,13 +44,20 @@ program.option(
   "Verto trading post config",
   "verto.config.json"
 );
-program.option("-p, --port <port>", "Trading post API server port", "8080");
 
 program.parse(process.argv);
 
 if (program.keyFile && program.config) {
   loadConfig(program.config).then((cnf) => {
-    bootstrap(cnf, program.keyFile).catch((err) => log.error(err));
-    initAPI(parseInt(program.port));
+    initDB(cnf.database).then((connPool) => {
+      const tokenModels = setupTokenTables(
+        connPool,
+        cnf.genesis.acceptedTokens
+      );
+      bootstrap(cnf, tokenModels, program.keyFile).catch((err) =>
+        log.error(err)
+      );
+      initAPI(cnf.api.host, cnf.api.port, tokenModels);
+    });
   });
 }

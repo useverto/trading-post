@@ -5,7 +5,7 @@ import { readFile } from "fs/promises";
  */
 export interface APIConfig {
   host: string;
-  port: string;
+  port: number;
 }
 
 /**
