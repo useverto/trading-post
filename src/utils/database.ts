@@ -65,13 +65,15 @@ export async function saveOrder(
 
 export async function getOrder(
   db: Database,
-  token: string
+  token: string,
+  opcode: Order
 ): Promise<TokenInstance[]> {
-  const orders = await db.get<TokenInstance[]>(`
-      SELECT * FROM "${token}" WHERE type = "Sell"
-    `);
+  const orders = await db.get<TokenInstance[]>(
+    `SELECT * FROM "${token}" WHERE type = ?`,
+    [opcode]
+  );
   if (!orders || orders?.length === 0) {
-    log.info("No sell orders to match with.");
+    log.info(`No ${opcode.toLowerCase()} orders to match with.`);
     return [];
   }
   orders.sort((a, b) => {

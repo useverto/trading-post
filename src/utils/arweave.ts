@@ -45,7 +45,7 @@ export async function init(keyfile?: string) {
   );
   await community.setCommunityTx(CONSTANTS.exchangeContractSrc);
 
-  return { client, walletAddr, community };
+  return { client, walletAddr, community, jwk };
 }
 
 export async function* monitorWallet(
