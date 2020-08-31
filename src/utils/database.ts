@@ -16,7 +16,7 @@ export interface TokenInstance extends Model {
 }
 
 export interface TokenModel {
-  model: ModelCtor<TokenInstance>,
+  model: ModelCtor<TokenInstance>;
   contract: string;
 }
 
@@ -48,29 +48,40 @@ export function setupTokenTables(
   sequelize: Sequelize,
   contracts: string[]
 ): TokenModel[] {
-  let contractTables: TokenModel[] = contracts.map(
-    (contract, i) => {
-      let model = sequelize.define<TokenInstance>(contract, {
-        id: {
-          primaryKey: true,
-          type: DataTypes.INTEGER.UNSIGNED,
-        },
-        amnt: {
-          type: DataTypes.NUMBER,
-        },
-        price: {
-          type: DataTypes.NUMBER || DataTypes,
-          allowNull: true,
-        },
-        createdAt: {
-          type: DataTypes.DATE,
-        },
-        addr: {
-          type: DataTypes.STRING,
-        },
-      });
-      return { model, contract }
-    }
-  );
+  let contractTables: TokenModel[] = contracts.map((contract, i) => {
+    let model = sequelize.define<TokenInstance>(contract, {
+      id: {
+        primaryKey: true,
+        type: DataTypes.INTEGER.UNSIGNED,
+      },
+      amnt: {
+        type: DataTypes.NUMBER,
+      },
+      price: {
+        type: DataTypes.NUMBER || DataTypes,
+        allowNull: true,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+      },
+      addr: {
+        type: DataTypes.STRING,
+      },
+    });
+    return { model, contract };
+  });
   return contractTables;
+}
+
+/**
+ * Get the database model for a particular contract ID from an array of db models.
+ * @param models An array of token models.
+ * @param contractID The contract ID for the particular model.
+ */
+export function contractModel(
+  models: TokenModel[],
+  contractID: string
+): TokenModel | undefined {
+  const contractModel = models.find((model) => model.contract == contractID);
+  return contractModel;
 }

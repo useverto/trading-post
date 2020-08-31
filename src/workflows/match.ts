@@ -22,7 +22,8 @@ export async function match(client: Arweave, txId: string) {
     `)
   ).data.transaction;
 
-  const opcode = tx.tags.find((tag: any) => tag.name === "Trade-Opcode")?.value!;
+  const opcode = tx.tags.find((tag: any) => tag.name === "Trade-Opcode")
+    ?.value!;
 
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
 
