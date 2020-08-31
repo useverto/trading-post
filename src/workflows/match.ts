@@ -97,7 +97,9 @@ export async function match(
         const arTx = await client.createTransaction(
           {
             target: order.addr,
-            quantity: client.ar.arToWinston((order.amnt / order.rate).toString()),
+            quantity: client.ar.arToWinston(
+              (order.amnt / order.rate).toString()
+            ),
           },
           jwk
         );
@@ -114,7 +116,7 @@ export async function match(
         // TODO(@johnletey): Add logs
 
         await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
-          amnt - (order.amnt / order.rate),
+          amnt - order.amnt / order.rate,
           txId,
         ]);
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
