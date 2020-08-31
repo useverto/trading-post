@@ -94,10 +94,30 @@ export async function match(
 
         return;
       } else {
-        // TODO: Make the trade
-        //       Calculate the new amount (and update db)
-        //       Remove the sell entry from the db
-        //       Continue
+        const arTx = await client.createTransaction(
+          {
+            target: order.addr,
+            quantity: client.ar.arToWinston((order.amnt / order.rate).toString()),
+          },
+          jwk
+        );
+        await client.transactions.sign(arTx, jwk);
+        await client.transactions.post(arTx);
+
+        const pstTx = await interactWrite(
+          client,
+          jwk,
+          token,
+          `{"function": "transfer", "target": "${tx.owner.address}", "qty": ${order.amnt}}`
+        );
+
+        // TODO(@johnletey): Add logs
+
+        await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
+          amnt - (order.amnt / order.rate),
+          txId,
+        ]);
+        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
       }
     }
   } else if (opcode === "Sell") {
