@@ -4,7 +4,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
-import { TokenInstance, saveOrder, getOrders } from "@utils/database";
+import { TokenInstance, saveOrder, getSellOrders, getBuyOrders } from "@utils/database";
 import { interactWrite } from "smartweave";
 
 const log = new Log({
@@ -46,7 +46,7 @@ export async function match(
   await saveOrder(db, token, tokenEntry);
 
   if (opcode === "Buy") {
-    const orders = await getOrders(db, token, "Sell");
+    const orders = await getSellOrders(db, token);
     for (const order of orders) {
       if (!order.rate) continue;
       const pstAmount = order.rate * amnt;
@@ -123,7 +123,28 @@ export async function match(
       }
     }
   } else if (opcode === "Sell") {
-    // TODO: Write down what needs to be done here lol
+    const orders = await getBuyOrders(db, token);
+    for (const order of orders) {
+      // If buy order is greater than sell order worth
+      if (order.amnt > (amnt / rate)) {
+        //    Send PST to buyer
+        //    Send AR to seller
+        //    Remove sell order from DB
+        //    Keep buy order but subtract amount from sell order's worth
+      
+      // If buy order is less than sell order worth
+      } else if (order.amnt < (amnt / rate)) {
+        //    Fill buy order
+        //    Partially fill sell order
+        //    Remove buy order from DB
+        //    Keep sell order but subtract amount from buy order's worth
+
+      // Both orders are equal
+      } else {
+        // Fill both buy and sell orders
+        // Remove both orders from the DB
+      }
+    }
   } else {
     log.error(`Invalid trade opCode.`);
   }

@@ -63,22 +63,38 @@ export async function saveOrder(
   ]);
 }
 
-export async function getOrders(
+export async function getSellOrders(
   db: Database,
-  token: string,
-  opcode: Order
+  token: string
 ): Promise<TokenInstance[]> {
   const orders = await db.get<TokenInstance[]>(
-    `SELECT * FROM "${token}" WHERE type = ?`,
-    [opcode]
+    `SELECT * FROM "${token}" WHERE type = "Sell"`
   );
   if (!orders || orders?.length === 0) {
-    log.info(`No ${opcode.toLowerCase()} orders to match with.`);
+    log.info(`No sell orders to match with.`);
     return [];
   }
   orders.sort((a, b) => {
     if (a.rate && b.rate) return a.rate - b.rate;
     else return 0;
+  });
+  return orders;
+}
+
+export async function getBuyOrders(
+  db: Database,
+  token: string
+): Promise<TokenInstance[]> {
+  const orders = await db.get<TokenInstance[]>(
+    `SELECT * FROM "${token}" WHERE type = "Buy"`
+  );
+  if (!orders || orders?.length === 0) {
+    log.info(`No buy orders to match with.`);
+    return [];
+  }
+  orders.sort((a, b) => {
+    // @ts-ignore
+    return a.createdAt - b.createdAt
   });
   return orders;
 }
