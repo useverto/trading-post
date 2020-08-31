@@ -6,6 +6,8 @@ const log = new Logger({
   level: Logger.Levels.debug,
 });
 
+type Order = "Buy" | "Sell";
+
 // We need to declare an interface for our model that is basically what our class would be
 export interface TokenInstance extends Model {
   id: number;
@@ -13,6 +15,7 @@ export interface TokenInstance extends Model {
   price?: number;
   createdAt: Date;
   addr: string;
+  order: Order;
 }
 
 export interface TokenModel {
@@ -65,6 +68,9 @@ export function setupTokenTables(
         type: DataTypes.DATE,
       },
       addr: {
+        type: DataTypes.STRING,
+      },
+      order: {
         type: DataTypes.STRING,
       },
     });
