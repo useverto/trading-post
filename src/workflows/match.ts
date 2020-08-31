@@ -39,13 +39,13 @@ export async function match(client: Arweave, txId: string, db: Database) {
       return;
     }
 
-    orders?.sort((a, b) => {
-      // @ts-ignore
-      return a.rate - b.rate;
+    orders.sort((a, b) => {
+      if (a.rate && b.rate) return a.rate - b.rate;
+      else return 0;
     });
 
     for (const order of orders) {
-      // @ts-ignore
+      if (!order.rate) continue;
       const pstAmount = order.rate * amnt;
       if (order.amnt >= pstAmount) {
         // TODO: Make the trade
