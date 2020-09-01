@@ -10,10 +10,11 @@
     "module": "es2015",
     "lib": ["es2015"],
     "paths": {
-      "@utils/*": ["utils/*"],
-      "@queries/*": ["queries/*"],
       "@api/*": ["api/*"],
-      "@endpoints/*": ["api/endpoints/*"]
+      "@endpoints/*": ["api/endpoints/*"],
+      "@queries/*": ["queries/*"],
+      "@utils/*": ["utils/*"],
+      "@workflows/*": ["workflows/*"]
     }
   }
 }

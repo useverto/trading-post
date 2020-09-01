@@ -1,7 +1,8 @@
 import Koa from "koa";
 import Log from "@utils/logger";
-import PingRouter from "@endpoints/ping";
-import MatchRouter from "@endpoints/match";
+import createRouter from "@api/routes";
+import { v4 } from "uuid";
+import { Database } from "sqlite";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -25,13 +26,14 @@ http.use(async (ctx, next) => {
   ctx.set("X-Response-Time", `${ms}ms`);
 });
 
-http.use(PingRouter.routes()).use(MatchRouter.routes());
-
 /**
  * Start the trading post HTTP server
  */
-export function initAPI(port?: number) {
+export function initAPI(host?: string, port?: number, db?: Database) {
   port = port || 8080;
-  http.listen(port);
+  host = host || "localhost";
+  const verifyID = v4();
+  http.use(createRouter(db).routes());
+  http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
 }
