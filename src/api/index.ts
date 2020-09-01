@@ -1,6 +1,7 @@
 import Koa from "koa";
 import Log from "@utils/logger";
-import PingRouter from "@endpoints/ping";
+import createRouter from "@api/routes";
+import { v4 } from "uuid";
 import { Database } from "sqlite";
 
 const log = new Log({
@@ -25,24 +26,15 @@ http.use(async (ctx, next) => {
   ctx.set("X-Response-Time", `${ms}ms`);
 });
 
-http.use(PingRouter.routes());
-
 /**
  * Start the trading post HTTP server
  */
 export function initAPI(host?: string, port?: number, db?: Database) {
   port = port || 8080;
   host = host || "localhost";
-  if (db) {
-    setupDbMiddleware(db);
-  }
+  const verifyID = v4();
+  log.debug(verifyID);
+  http.use(createRouter(db).routes());
   http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
-}
-
-function setupDbMiddleware(db: Database) {
-  return http.use(async (ctx, next) => {
-    ctx.db = db;
-    next();
-  });
 }
