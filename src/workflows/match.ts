@@ -163,12 +163,34 @@ export async function match(
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
 
         return;
-        // If buy order is less than sell order worth
       } else {
-        //    Fill buy order
-        //    Partially fill sell order
-        //    Remove buy order from DB
-        //    Keep sell order but subtract amount from buy order's worth
+        const arTx = await client.createTransaction(
+          {
+            target: tx.owner.address,
+            quantity: client.ar.arToWinston(order.amnt.toString()),
+          },
+          jwk
+        );
+        await client.transactions.sign(arTx, jwk);
+        await client.transactions.post(arTx);
+
+        const pstTx = await interactWrite(
+          client,
+          jwk,
+          token,
+          `{"function": "transfer", "target": "${order.addr}", "qty": ${
+            order.amnt * rate
+          }}`
+        );
+
+        // TODO(@johnletey): Add logs
+
+        await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
+          amnt - order.amnt * rate,
+          txId,
+        ]);
+        amnt -= order.amnt * rate;
+        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
       }
     }
   } else {
