@@ -43,6 +43,7 @@ export async function loadConfig(loc: string): Promise<TradingPostConfig> {
     let config: TradingPostConfig = JSON.parse(
       await readFile(loc, { encoding: "utf8" })
     );
+    log.info(`Loaded config file from ${loc}`);
     return config;
   } catch (e) {
     log.error(`Failed to deserialize trading post config: ${e}`);
