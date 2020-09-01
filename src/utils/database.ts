@@ -16,6 +16,7 @@ export interface TokenInstance {
   rate?: number;
   addr: string;
   type: Order;
+  createdAt: Date;
 }
 
 /**
@@ -43,7 +44,8 @@ export function setupTokenTables(db: Database, contracts: string[]) {
       amnt INTEGER NOT NULL,
       rate INTEGER,
       addr STRING NOT NULL,
-      type STRING NOT NULL
+      type STRING NOT NULL,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
     )`);
   });
   return contractTables;
@@ -93,8 +95,7 @@ export async function getBuyOrders(
     return [];
   }
   orders.sort((a, b) => {
-    // @ts-ignore
-    return a.createdAt - b.createdAt
+    return +new Date(a.createdAt) - +new Date(b.createdAt);
   });
   return orders;
 }
