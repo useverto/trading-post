@@ -1,7 +1,6 @@
 import Koa from "koa";
 import Log from "@utils/logger";
 import PingRouter from "@endpoints/ping";
-import MatchRouter from "@endpoints/match";
 import { Database } from "sqlite";
 
 const log = new Log({
@@ -26,7 +25,7 @@ http.use(async (ctx, next) => {
   ctx.set("X-Response-Time", `${ms}ms`);
 });
 
-http.use(PingRouter.routes()).use(MatchRouter.routes());
+http.use(PingRouter.routes());
 
 /**
  * Start the trading post HTTP server
