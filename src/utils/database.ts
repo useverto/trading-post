@@ -56,12 +56,13 @@ export async function saveOrder(
   token: string,
   entry: TokenInstance
 ) {
-  return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?)`, [
+  return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?, ?)`, [
     entry.txID,
     entry.amnt,
     entry.rate,
     entry.addr,
     entry.type,
+    entry.createdAt,
   ]);
 }
 
