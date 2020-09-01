@@ -35,6 +35,14 @@ export async function match(
   const opcode = tx.tags.find((tag: any) => tag.name === "Type")?.value!;
   let amnt = tx.tags.find((tag: any) => tag.name === "Amnt")?.value!;
   const token = tx.tags.find((tag: any) => tag.name === "Token")?.value!;
+  const ticker = JSON.parse(
+    (
+      await client.transactions.getData(token, {
+        decode: true,
+        string: true,
+      })
+    ).toString()
+  )["ticker"];
   const rate = tx.tags.find((tag: any) => tag.name === "Rate")?.value!;
 
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
@@ -72,18 +80,12 @@ export async function match(
           `{"function": "transfer", "target": "${tx.owner.address}", "qty": ${pstAmount}}`
         );
 
-        log.info(`Sent ${amnt} AR to ${order.addr}\n\t\ttxId = ${arTx.id}`);
         log.info(
-          `Sent ${pstAmount} ${
-            JSON.parse(
-              (
-                await client.transactions.getData(token, {
-                  decode: true,
-                  string: true,
-                })
-              ).toString()
-            )["ticker"]
-          } to ${tx.owner.address}\n\t\ttxId = ${pstTx}`
+          "Matched!" +
+            `\n\t\tSent ${amnt} AR to ${order.addr}` +
+            `\n\t\t\ttxId = ${arTx.id}` +
+            `\n\t\tSent ${pstAmount} ${ticker} to ${tx.owner.address}` +
+            `\n\t\ttxId = ${pstTx}`
         );
 
         if (order.amnt === pstAmount) {
@@ -117,7 +119,13 @@ export async function match(
           `{"function": "transfer", "target": "${tx.owner.address}", "qty": ${order.amnt}}`
         );
 
-        // TODO(@johnletey): Add logs
+        log.info(
+          "Matched!" +
+            `\n\t\tSent ${order.amnt / order.rate} AR to ${order.addr}` +
+            `\n\t\t\ttxId = ${arTx.id}` +
+            `\n\t\tSent ${order.amnt} ${ticker} to ${tx.owner.address}` +
+            `\n\t\ttxId = ${pstTx}`
+        );
 
         await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
           amnt - order.amnt / order.rate,
@@ -148,7 +156,13 @@ export async function match(
           `{"function": "transfer", "target": "${order.addr}", "qty": ${amnt}}`
         );
 
-        // TODO(@johnletey): Add logs
+        log.info(
+          "Matched!" +
+            `\n\t\tSent ${amnt / rate} AR to ${tx.owner.address}` +
+            `\n\t\t\ttxId = ${arTx.id}` +
+            `\n\t\tSent ${amnt} ${ticker} to ${order.addr}` +
+            `\n\t\ttxId = ${pstTx}`
+        );
 
         if (order.amnt === amnt / rate) {
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
@@ -181,7 +195,13 @@ export async function match(
           }}`
         );
 
-        // TODO(@johnletey): Add logs
+        log.info(
+          "Matched!" +
+            `\n\t\tSent ${order.amnt} AR to ${tx.owner.address}` +
+            `\n\t\t\ttxId = ${arTx.id}` +
+            `\n\t\tSent ${order.amnt * rate} ${ticker} to ${order.addr}` +
+            `\n\t\ttxId = ${pstTx}`
+        );
 
         await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
           amnt - order.amnt * rate,
