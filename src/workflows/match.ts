@@ -83,7 +83,8 @@ export async function match(
         log.info(
           "Matched!" +
             `\n\t\tSent ${amnt} AR to ${order.addr}` +
-            `\n\t\t\ttxId = ${arTx.id}` +
+            `\n\t\ttxId = ${arTx.id}` +
+            "\n" +
             `\n\t\tSent ${pstAmount} ${ticker} to ${tx.owner.address}` +
             `\n\t\ttxId = ${pstTx}`
         );
@@ -122,7 +123,8 @@ export async function match(
         log.info(
           "Matched!" +
             `\n\t\tSent ${order.amnt / order.rate} AR to ${order.addr}` +
-            `\n\t\t\ttxId = ${arTx.id}` +
+            `\n\t\ttxId = ${arTx.id}` +
+            "\n" +
             `\n\t\tSent ${order.amnt} ${ticker} to ${tx.owner.address}` +
             `\n\t\ttxId = ${pstTx}`
         );
@@ -159,7 +161,8 @@ export async function match(
         log.info(
           "Matched!" +
             `\n\t\tSent ${amnt / rate} AR to ${tx.owner.address}` +
-            `\n\t\t\ttxId = ${arTx.id}` +
+            `\n\t\ttxId = ${arTx.id}` +
+            "\n" +
             `\n\t\tSent ${amnt} ${ticker} to ${order.addr}` +
             `\n\t\ttxId = ${pstTx}`
         );
@@ -198,7 +201,8 @@ export async function match(
         log.info(
           "Matched!" +
             `\n\t\tSent ${order.amnt} AR to ${tx.owner.address}` +
-            `\n\t\t\ttxId = ${arTx.id}` +
+            `\n\t\ttxId = ${arTx.id}` +
+            "\n" +
             `\n\t\tSent ${order.amnt * rate} ${ticker} to ${order.addr}` +
             `\n\t\ttxId = ${pstTx}`
         );
