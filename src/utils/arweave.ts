@@ -1,13 +1,10 @@
 import Arweave from "arweave";
 import { JWKPublicInterface } from "arweave/node/lib/wallet";
 import Logger from "@utils/logger";
-import { join, relative } from "path";
+import { relative } from "path";
 import { readFile } from "fs/promises";
 import Community from "community-js";
 import CONSTANTS from "./constants.yml";
-import { sleep } from "./sleep";
-import { query } from "./gql";
-import txsQuery from "../queries/txs.gql";
 
 const relativeKeyPath = process.env.KEY_PATH
   ? relative(__dirname, process.env.KEY_PATH)
@@ -46,34 +43,6 @@ export async function init(keyfile?: string) {
   await community.setCommunityTx(CONSTANTS.exchangeContractSrc);
 
   return { client, walletAddr, community, jwk };
-}
-
-export async function* monitorWallet(
-  client: Arweave,
-  addr: string,
-  latestTxId?: string
-): AsyncIterableIterator<string> {
-  // Frequency in Hz converted to mHz.
-  const monitorFrequency =
-    parseInt(process.env.WALLET_QUERY_FREQUENCY ?? "10", 10) * 1000;
-
-  await sleep(monitorFrequency);
-
-  const candidateLatestTx = (
-    await query({
-      query: txsQuery,
-      variables: {
-        recipients: [addr],
-        num: 1,
-      },
-    })
-  ).data.transactions.edges[0]?.node.id;
-
-  if (candidateLatestTx !== latestTxId) {
-    yield candidateLatestTx;
-  }
-
-  yield* monitorWallet(client, addr, candidateLatestTx);
 }
 
 let cachedJwk: JWKPublicInterface | undefined;
