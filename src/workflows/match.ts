@@ -32,11 +32,9 @@ export async function match(
     })
   ).data.transaction;
 
-  // TODO(@johnletey): Update some of these tags once frontend is updated
-  const opcode = tx.tags.find((tag: any) => tag.name === "Trade-Opcode")
-    ?.value!;
+  const opcode = tx.tags.find((tag: any) => tag.name === "Type")?.value!;
   let amnt = tx.tags.find((tag: any) => tag.name === "Amnt")?.value!;
-  const token = tx.tags.find((tag: any) => tag.name === "Target-Token")?.value!;
+  const token = tx.tags.find((tag: any) => tag.name === "Token")?.value!;
   const rate = tx.tags.find((tag: any) => tag.name === "Rate")?.value!;
 
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);

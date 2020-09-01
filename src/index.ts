@@ -10,7 +10,7 @@ import { loadConfig, TradingPostConfig } from "@utils/config";
 import { match } from "@workflows/match";
 import { Database } from "sqlite";
 import { query } from "@utils/gql";
-import txsQuery from "./queries/txs.gql";
+import tradesQuery from "./queries/trades.gql";
 
 dotenv.config();
 const log = new Log({
@@ -31,7 +31,7 @@ async function bootstrap(
   setInterval(async () => {
     const candidateLatestTx = (
       await query({
-        query: txsQuery,
+        query: tradesQuery,
         variables: {
           recipients: [walletAddr],
           num: 1,
