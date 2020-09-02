@@ -33,8 +33,17 @@ export async function match(
   ).data.transaction;
 
   const opcode = tx.tags.find((tag: any) => tag.name === "Type")?.value!;
-  let amnt = tx.tags.find((tag: any) => tag.name === "Amnt")?.value!;
-  const token = tx.tags.find((tag: any) => tag.name === "Token")?.value!;
+
+  let amnt =
+    opcode === "Buy"
+      ? tx.quantity.ar
+      : JSON.parse(tx.tags.find((tag: any) => tag.name === "Input")?.value!)[
+          "qty"
+        ];
+
+  const token = tx.tags.find((tag: any) =>
+    tag.name === (opcode === "Buy") ? "Token" : "Contract"
+  )?.value!;
   const ticker = JSON.parse(
     (
       await client.transactions.getData(token, {
@@ -43,6 +52,7 @@ export async function match(
       })
     ).toString()
   )["ticker"];
+
   const rate = tx.tags.find((tag: any) => tag.name === "Rate")?.value!;
 
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);

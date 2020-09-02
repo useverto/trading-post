@@ -4,6 +4,9 @@ query($txId: ID!) {
     owner {
       address
     }
+    quantity {
+      ar
+    }
     tags {
       name
       value
