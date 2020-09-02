@@ -37,6 +37,7 @@ const config = {
       "@endpoints": __dirname + "src/api/endpoints",
       "@utils": __dirname + "/src/utils",
       "@workflows": __dirname + "/src/workflows",
+      "@commands": __dirname + "/src/commands",
     }),
     {
       name: "string",
