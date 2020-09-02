@@ -59,6 +59,7 @@ export async function loadConfig(loc: string): Promise<TradingPostConfig> {
 export async function createConfig(loc: string, config: TradingPostConfig) {
   try {
     await writeFile(loc, JSON.stringify(config, null, 2), { encoding: "utf8" });
+    log.info(`Created Verto configuration file at ${loc}`);
   } catch (e) {
     log.error(`Failed to write trading post config: ${e}`);
     process.exit(1);
