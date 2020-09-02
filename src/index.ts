@@ -5,7 +5,7 @@ import { prompt } from "enquirer";
 import Log from "@utils/logger";
 import { initAPI } from "@api/index";
 import { init as initDB, setupTokenTables } from "@utils/database";
-import { loadConfig, TradingPostConfig } from "@utils/config";
+import { loadConfig, TradingPostConfig, createConfig } from "@utils/config";
 import { bootstrap } from "@workflows/bootstrap";
 
 /**
@@ -76,7 +76,7 @@ program
         message: "Enter the publicly accessible url for the trading post",
       },
     ]);
-    response as TradingPostConfig;
+    await createConfig("verto.config.json", response as TradingPostConfig);
   });
 
 /**
