@@ -1,11 +1,11 @@
 import "@utils/console";
 import dotenv from "dotenv";
 import commander from "commander";
-import { prompt } from "enquirer";
+import InitCommand from "@commands/init";
 import Log from "@utils/logger";
 import { initAPI } from "@api/index";
 import { init as initDB, setupTokenTables } from "@utils/database";
-import { loadConfig, TradingPostConfig, createConfig } from "@utils/config";
+import { loadConfig } from "@utils/config";
 import { bootstrap } from "@workflows/bootstrap";
 
 /**
@@ -38,46 +38,13 @@ program
     "-c, --config <file>",
     "Verto trading post config",
     "verto.config.json"
-  );
-
-program
+  )
+  /**
+   * subcommand "init" to create a verto configuration file
+   */
   .command("init")
   .description("generate a verto configuration file")
-  .action(async () => {
-    const response = await prompt([
-      {
-        type: "list",
-        name: "genesis.acceptedTokens",
-        message: "Enter the contract ID for the supported token(s)",
-      },
-      {
-        type: "text",
-        name: "genesis.tradeFee",
-        message: "What will be the trade fee for the trading post?",
-      },
-      {
-        type: "input",
-        name: "database",
-        message: "Enter the database location",
-      },
-      {
-        type: "input",
-        name: "api.host",
-        message: "Enter trading post API host",
-      },
-      {
-        type: "input",
-        name: "api.port",
-        message: "Enter trading post API port",
-      },
-      {
-        type: "input",
-        name: "genesis.publicURL",
-        message: "Enter the publicly accessible url for the trading post",
-      },
-    ]);
-    await createConfig("verto.config.json", response as TradingPostConfig);
-  });
+  .action(InitCommand);
 
 /**
  * Parse the raw process arguments
