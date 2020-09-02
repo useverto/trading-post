@@ -1,78 +1,79 @@
 import "@utils/console";
 import dotenv from "dotenv";
 import commander from "commander";
+import InitCommand from "@commands/init";
 import Log from "@utils/logger";
-import { init } from "@utils/arweave";
-import { genesis } from "@workflows/genesis";
 import { initAPI } from "@api/index";
 import { init as initDB, setupTokenTables } from "@utils/database";
-import { loadConfig, TradingPostConfig } from "@utils/config";
-import { match } from "@workflows/match";
-import { Database } from "sqlite";
-import { query } from "@utils/gql";
-import tradesQuery from "./queries/trades.gql";
+import { loadConfig } from "@utils/config";
+import { bootstrap } from "@workflows/bootstrap";
 
+/**
+ * Initialize enviornment variables from .env
+ */
 dotenv.config();
+
+/**
+ * Create a logger instance
+ */
 const log = new Log({
   level: Log.Levels.debug,
   name: "verto",
 });
 
-async function bootstrap(
-  config: TradingPostConfig,
-  db: Database,
-  keyfile?: string
-) {
-  const { client, walletAddr, community, jwk } = await init(keyfile);
-  await genesis(client, community, jwk!, config.genesis);
-  // Monitor all new transactions that come into this wallet.
-  log.info("Monitoring wallet for incoming transactions...");
-  let latestTxId: string;
-  setInterval(async () => {
-    const candidateLatestTx = (
-      await query({
-        query: tradesQuery,
-        variables: {
-          recipients: [walletAddr],
-          num: 1,
-        },
-      })
-    ).data.transactions.edges[0]?.node.id;
-
-    if (candidateLatestTx !== latestTxId) {
-      latestTxId = candidateLatestTx;
-
-      try {
-        await match(client, latestTxId, jwk!, db);
-      } catch (err) {
-        log.error(
-          `Failed to handle transaction.\n\t\ttxId = ${latestTxId}\n\t\t${err}`
-        );
-      }
-    }
-  }, 10000);
-}
-
+/**
+ * Create a CLI program and define argument flags
+ */
 const program = commander.program;
+program
+  .version("2.0.0")
+  /**
+   * -k, --keyfile flag to specify the arweave keyfile location.
+   */
+  .option("-k, --key-file <file>", "Arweave wallet keyfile")
+  /**
+   * -c, --config flag to specify verto's configuration file
+   */
+  .option(
+    "-c, --config <file>",
+    "Verto trading post config",
+    "verto.config.json"
+  )
+  /**
+   * subcommand "init" to create a verto configuration file
+   */
+  .command("init")
+  .description("generate a verto configuration file")
+  .action(InitCommand);
 
-program.option("-k, --key-file <file>", "Arweave wallet keyfile");
-program.option(
-  "-c, --config <file>",
-  "Verto trading post config",
-  "verto.config.json"
-);
-
+/**
+ * Parse the raw process arguments
+ */
 program.parse(process.argv);
 
+/**
+ * Starts the bootstrap process with the given keyfile and configuration
+ */
 if (program.keyFile && program.config) {
-  loadConfig(program.config).then((cnf) => {
-    initDB(cnf.database).then((connPool) => {
-      const tokenModels = setupTokenTables(
-        connPool,
-        cnf.genesis.acceptedTokens
-      );
-      bootstrap(cnf, connPool, program.keyFile).catch((err) => log.error(err));
-      initAPI(cnf.api.host, cnf.api.port, connPool);
-    });
+  /**
+   * Load configuration from the provided config file
+   */
+  loadConfig(program.config).then(async (cnf) => {
+    /**
+     * Create a database connection pool and pass to all workflows
+     */
+    let connPool = await initDB(cnf.database);
+    /**
+     * Setup database tables based on the contracts provided in the configuration
+     */
+    const tokenModels = setupTokenTables(connPool, cnf.genesis.acceptedTokens);
+    /**
+     * Start the bootstrap workflow
+     */
+    bootstrap(cnf, connPool, program.keyFile).catch((err) => log.error(err));
+    /**
+     * Instalise the trading post API
+     */
+    initAPI(cnf.api.host, cnf.api.port, connPool);
   });
 }

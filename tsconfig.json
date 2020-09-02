@@ -14,7 +14,8 @@
       "@endpoints/*": ["api/endpoints/*"],
       "@queries/*": ["queries/*"],
       "@utils/*": ["utils/*"],
-      "@workflows/*": ["workflows/*"]
+      "@workflows/*": ["workflows/*"],
+      "@commands/*": ["commands/*"]
     }
   }
 }
