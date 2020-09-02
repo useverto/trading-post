@@ -22,7 +22,7 @@ export interface GenesisConfig {
   acceptedTokens: string[];
   tradeFee: string;
   version: string;
-  publicURL: URL;
+  publicURL: URL | string;
 }
 
 /**

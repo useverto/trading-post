@@ -1,10 +1,14 @@
-import { createConfig, TradingPostConfig } from "../src/utils/config";
-import { assert } from "chai";
+import {
+  createConfig,
+  TradingPostConfig,
+  loadConfig,
+} from "../src/utils/config";
+import { assert, expect } from "chai";
 
 let testConfiguration: TradingPostConfig;
 
 describe("Config tests", () => {
-  it("Assing configuration", (done) => {
+  it("Assign configuration", (done) => {
     testConfiguration = {
       genesis: {
         acceptedTokens: [
@@ -12,7 +16,7 @@ describe("Config tests", () => {
           "FcM-QQpfcD0xTTzr8u4Su9QCgcvRx_JH4JSCQoFi6Ck",
         ],
         tradeFee: "0.01",
-        publicURL: new URL("https://example.com/"),
+        publicURL: "https://example.com/",
         version: "0.2.0",
       },
       database: "./db.db",
@@ -29,5 +33,16 @@ describe("Config tests", () => {
       "./test_artifacts/verto.config.json",
       testConfiguration
     );
+  });
+  it("Read configuration", async () => {
+    const config: TradingPostConfig = await loadConfig(
+      "./test_artifacts/verto.config.json"
+    );
+    assert(config, "Failed to assert file configuration");
+    expect(config).to.deep.equals(
+      testConfiguration,
+      "File configuration does not match with default"
+    );
+    return;
   });
 });
