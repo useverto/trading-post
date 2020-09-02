@@ -19,10 +19,10 @@ const log = new Log({
 
 async function matchTx(client: Arweave, txId: string, jwk: JWKInterface) {
   const matchedTx = await client.createTransaction({}, jwk);
-  
+
   matchedTx.addTag("Exchange", "Verto");
   matchedTx.addTag("Matched", txId);
-  
+
   await client.transactions.sign(matchedTx, jwk);
   await client.transactions.post(matchedTx);
 }
