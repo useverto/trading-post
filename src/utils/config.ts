@@ -1,4 +1,4 @@
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { URL } from "url";
 import Logger from "@utils/logger";
 
@@ -47,6 +47,20 @@ export async function loadConfig(loc: string): Promise<TradingPostConfig> {
     return config;
   } catch (e) {
     log.error(`Failed to deserialize trading post config: ${e}`);
+    process.exit(1);
+  }
+}
+
+/**
+ * Write the trading post configuration to a json file
+ * @param loc Location of the desired config file
+ * @param config The trading post configuration
+ */
+export async function createConfig(loc: string, config: TradingPostConfig) {
+  try {
+    await writeFile(loc, JSON.stringify(config), { encoding: "utf8" });
+  } catch (e) {
+    log.error(`Failed to write trading post config: ${e}`);
     process.exit(1);
   }
 }
