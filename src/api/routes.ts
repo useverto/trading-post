@@ -1,6 +1,5 @@
 import Router from "@koa/router";
 import { Database } from "sqlite";
-import { uptime } from "process";
 const router = new Router();
 
 export default function createRouter(db?: Database): Router {
@@ -14,7 +13,7 @@ export default function createRouter(db?: Database): Router {
   router.get("/ping", async (ctx, next) => {
     ctx.body = {
       up: true,
-      alive: uptime(),
+      alive: process.uptime(),
     };
     await next();
   });

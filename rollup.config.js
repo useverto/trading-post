@@ -11,7 +11,7 @@ import { terser } from "rollup-plugin-terser";
 
 const filter = createFilter("**/*.gql", []);
 
-export default {
+const config = {
   input: "./src/index.ts",
   output: [
     {
@@ -19,21 +19,18 @@ export default {
       format: "cjs",
     },
   ],
-  external: [
-    ...Object.keys(pkg.dependencies || {}),
-    "*.gql",
-    "*.yml",
-    "fs/promises",
-    "util",
-    "fs",
-    "path",
-  ],
+  external: ["*.gql", "*.yml", "fs/promises", "util", "fs", "path"],
   plugins: [
     typescript(),
     json(),
     yml(),
+    commonjs({
+      include: ["node_modules/**"],
+      ignoreGlobal: false,
+    }),
     resolve({
       preferBuiltins: true,
+      jsnext: true,
     }),
     alias({
       "@api": __dirname + "/src/api",
@@ -52,9 +49,6 @@ export default {
         }
       },
     },
-    commonjs({
-      include: /node_modules/,
-    }),
     terser({
       format: {
         comments: false,
@@ -62,3 +56,8 @@ export default {
     }),
   ],
 };
+
+if (!process.env.PROD)
+  config.external.push(...Object.keys(pkg.dependencies || {}));
+
+export default config;

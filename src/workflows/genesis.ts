@@ -4,7 +4,6 @@ import Community from "community-js";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { GenesisConfig } from "@utils/config";
 import CONSTANTS from "../utils/constants.yml";
-import { exit } from "process";
 import { query } from "@utils/gql";
 import genesisQuery from "../queries/genesis.gql";
 
@@ -29,7 +28,7 @@ export async function genesis(
         `\n\t\tSee https://community.xyz/#${CONSTANTS.exchangeContractSrc}/vault` +
         "\n\t\tto stake your tokens."
     );
-    exit(1);
+    process.exit(1);
   }
 
   const possibleGenesis = (
