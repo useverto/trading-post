@@ -17,6 +17,16 @@ const log = new Log({
   name: "match",
 });
 
+async function matchTx(client: Arweave, txId: string, jwk: JWKInterface) {
+  const matchedTx = await client.createTransaction({}, jwk);
+  
+  matchedTx.addTag("Exchange", "Verto");
+  matchedTx.addTag("Matched", txId);
+  
+  await client.transactions.sign(matchedTx, jwk);
+  await client.transactions.post(matchedTx);
+}
+
 export async function match(
   client: Arweave,
   txId: string,
@@ -101,6 +111,7 @@ export async function match(
 
         if (order.amnt === pstAmount) {
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
+          await matchTx(client, order.txID, jwk);
         } else {
           await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
             order.amnt - pstAmount,
@@ -108,6 +119,7 @@ export async function match(
           ]);
         }
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
+        await matchTx(client, txId, jwk);
 
         return;
       } else {
@@ -145,6 +157,7 @@ export async function match(
         ]);
         amnt -= order.amnt / order.rate;
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
+        await matchTx(client, order.txID, jwk);
       }
     }
   } else if (opcode === "Sell") {
@@ -179,6 +192,7 @@ export async function match(
 
         if (order.amnt === amnt / rate) {
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
+          await matchTx(client, order.txID, jwk);
         } else {
           await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
             order.amnt - amnt / rate,
@@ -186,6 +200,7 @@ export async function match(
           ]);
         }
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
+        await matchTx(client, txId, jwk);
 
         return;
       } else {
@@ -223,6 +238,7 @@ export async function match(
         ]);
         amnt -= order.amnt * rate;
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
+        await matchTx(client, order.txID, jwk);
       }
     }
   } else {
