@@ -3,7 +3,7 @@ import { Database } from "sqlite";
 import { init } from "@utils/arweave";
 import Log from "@utils/logger";
 import { query } from "@utils/gql";
-import tradesQuery from "./queries/trades.gql";
+import tradesQuery from "../queries/trades.gql";
 import { match } from "@workflows/match";
 import { genesis } from "@workflows/genesis";
 

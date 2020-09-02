@@ -1,10 +1,11 @@
 import "@utils/console";
 import dotenv from "dotenv";
 import commander from "commander";
+import { prompt } from "enquirer";
 import Log from "@utils/logger";
 import { initAPI } from "@api/index";
 import { init as initDB, setupTokenTables } from "@utils/database";
-import { loadConfig } from "@utils/config";
+import { loadConfig, TradingPostConfig } from "@utils/config";
 import { bootstrap } from "@workflows/bootstrap";
 
 /**
@@ -24,18 +25,60 @@ const log = new Log({
  * Create a CLI program and define argument flags
  */
 const program = commander.program;
-/**
- * -k, --keyfile flag to specify the arweave keyfile location.
- */
-program.option("-k, --key-file <file>", "Arweave wallet keyfile");
-/**
- * -c, --config flag to specify verto's configuration file
- */
-program.option(
-  "-c, --config <file>",
-  "Verto trading post config",
-  "verto.config.json"
-);
+program
+  .version("2.0.0")
+  /**
+   * -k, --keyfile flag to specify the arweave keyfile location.
+   */
+  .option("-k, --key-file <file>", "Arweave wallet keyfile")
+  /**
+   * -c, --config flag to specify verto's configuration file
+   */
+  .option(
+    "-c, --config <file>",
+    "Verto trading post config",
+    "verto.config.json"
+  );
+
+program
+  .command("init")
+  .description("generate a verto configuration file")
+  .action(async () => {
+    const response = await prompt([
+      {
+        type: "list",
+        name: "genesis.acceptedTokens",
+        message: "Enter the contract ID for the supported token(s)",
+      },
+      {
+        type: "text",
+        name: "genesis.tradeFee",
+        message: "What will be the trade fee for the trading post?",
+      },
+      {
+        type: "input",
+        name: "database",
+        message: "Enter the database location",
+      },
+      {
+        type: "input",
+        name: "api.host",
+        message: "Enter trading post API host",
+      },
+      {
+        type: "input",
+        name: "api.port",
+        message: "Enter trading post API port",
+      },
+      {
+        type: "input",
+        name: "genesis.publicURL",
+        message: "Enter the publicly accessible url for the trading post",
+      },
+    ]);
+    response as TradingPostConfig;
+  });
+
 /**
  * Parse the raw process arguments
  */
