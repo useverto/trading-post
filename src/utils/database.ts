@@ -51,11 +51,22 @@ export function setupTokenTables(db: Database, contracts: string[]) {
   return contractTables;
 }
 
+/**
+ * Save a buy or sell order in the database
+ * @param db sqlite3 connection pool
+ * @param token the contract ID
+ * @param entry the token instance
+ */
 export async function saveOrder(
   db: Database,
   token: string,
   entry: TokenInstance
 ) {
+  /**
+   * Insert a token instance into the database.
+   * NOTE: The following code is not vulnerable to sql injection since invalid table names can never be queried.
+   *       The values are assigned via db.run that is capable of preventing any type of injection
+   */
   return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?, ?)`, [
     entry.txID,
     entry.amnt,
@@ -66,10 +77,19 @@ export async function saveOrder(
   ]);
 }
 
+/**
+ * Retreive sell orders from the database and sort them by their price.
+ * @param db sqlite3 connection pool
+ * @param token the contract ID
+ */
 export async function getSellOrders(
   db: Database,
   token: string
 ): Promise<TokenInstance[]> {
+  /**
+   * Retrieve sell orders from the database.
+   * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
+   */
   const orders = await db.get<TokenInstance[]>(
     `SELECT * FROM "${token}" WHERE type = "Sell"`
   );
@@ -77,6 +97,9 @@ export async function getSellOrders(
     log.info(`No sell orders to match with.`);
     return [];
   }
+  /**
+   * Sort orders by their rate
+   */
   orders.sort((a, b) => {
     if (a.rate && b.rate) return a.rate - b.rate;
     else return 0;
@@ -84,10 +107,19 @@ export async function getSellOrders(
   return orders;
 }
 
+/**
+ * Retreive buy orders from the database and sort them by date of creation.
+ * @param db sqlite3 connection pool
+ * @param token the contract ID
+ */
 export async function getBuyOrders(
   db: Database,
   token: string
 ): Promise<TokenInstance[]> {
+  /**
+   * Retrieve sell orders from the database.
+   * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
+   */
   const orders = await db.get<TokenInstance[]>(
     `SELECT * FROM "${token}" WHERE type = "Buy"`
   );
@@ -95,6 +127,9 @@ export async function getBuyOrders(
     log.info(`No buy orders to match with.`);
     return [];
   }
+  /**
+   * Sort the orders by their date of creation
+   */
   orders.sort((a, b) => {
     return +new Date(a.createdAt) - +new Date(b.createdAt);
   });
