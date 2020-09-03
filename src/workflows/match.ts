@@ -56,9 +56,8 @@ export async function match(
           "qty"
         ];
 
-  const token = tx.tags.find((tag: any) =>
-    tag.name === (opcode === "Buy") ? "Token" : "Contract"
-  )?.value!;
+  const tokenTag = opcode === "Buy" ? "Token" : "Contract";
+  const token = tx.tags.find((tag: any) => tag.name === tokenTag)?.value!;
   const ticker = JSON.parse(
     (
       await client.transactions.getData(token, {
