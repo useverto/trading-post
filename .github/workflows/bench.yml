@@ -35,7 +35,7 @@ jobs:
         run: ./tools/bench.sh
 
       - name: Comment benchmark results
-      - uses: harupy/comment-on-pr@master
+        uses: harupy/comment-on-pr@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
