@@ -36,4 +36,5 @@ export function initAPI(host?: string, port?: number, db?: Database) {
   http.use(createRouter(db).routes());
   http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
+  return http;
 }
