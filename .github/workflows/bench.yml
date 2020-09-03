@@ -1,0 +1,45 @@
+name: Bench
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  bench:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install dependencies
+        run: |
+          npm i -g yarn
+          yarn
+
+      - name: Install hyperfine
+        run: |
+          wget https://github.com/sharkdp/hyperfine/releases/download/v1.10.0/hyperfine_1.10.0_amd64.deb
+          sudo dpkg -i hyperfine_1.10.0_amd64.deb
+
+      - name: Run benchmarks
+        run: |
+          yarn prod
+          yarn pkg
+          hyperfine 'node ./dist/verto.js' './verto' -i --export-markdown .github/workflows/template.md --warmup 5
+
+      - name: Comment benchmark results
+        uses: harupy/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: template.md
