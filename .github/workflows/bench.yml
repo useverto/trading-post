@@ -29,4 +29,9 @@ jobs:
       - name: Build source
         run: ./tools/bench.sh
 
-
+      - name: Comment benchmark results
+      - uses: harupy/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: template.md
