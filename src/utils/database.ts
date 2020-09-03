@@ -136,6 +136,10 @@ export async function getBuyOrders(
   return orders;
 }
 
+/**
+ * Save last alive timestamp in database
+ * @param db the database conenction pool
+ */
 export async function saveTimestamp(db: Database) {
   await db.exec(`CREATE TABLE IF NOT EXISTS "__verto__" (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -154,10 +158,14 @@ interface DbTimestamp {
  */
 export async function getTimestamp(
   db: Database
-): Promise<DbTimestamp | undefined> {
-  return await db.get<DbTimestamp>(`SELECT * FROM "__verto__"`);
+): Promise<DbTimestamp[] | undefined> {
+  return await db.get<DbTimestamp[]>(`SELECT * FROM "__verto__"`);
 }
 
+/**
+ * Setup post shutdown hook and store last uptime in database
+ * @param db the database connection pool
+ */
 export async function shutdownHook(db: Database): Promise<void> {
   // attach user callback to the process event emitter
   // if no callback, it will still exit gracefully on Ctrl-C
