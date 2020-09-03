@@ -30,7 +30,9 @@ const log = new Log({
  */
 const program = commander.program;
 program
+  .name("verto")
   .version("2.0.0")
+  .command("run", { isDefault: true })
   /**
    * -k, --keyfile flag to specify the arweave keyfile location.
    */
@@ -42,13 +44,14 @@ program
     "-c, --config <file>",
     "Verto trading post config",
     "verto.config.json"
-  );
-/**
- * subcommand "init" to create a verto configuration file
- */
-// .command("init")
-// .description("generate a verto configuration file")
-// .action(InitCommand);
+  )
+  .action(RunCommand)
+  /**
+   * subcommand "init" to create a verto configuration file
+   */
+  .command("init")
+  .description("generate a verto configuration file")
+  .action(InitCommand);
 
 /**
  * Parse the raw process arguments
@@ -58,11 +61,11 @@ program.parse(process.argv);
 /**
  * Starts the bootstrap process with the given keyfile and configuration
  */
-if (program.keyFile && program.config) {
+async function RunCommand(opts: any) {
   /**
    * Load configuration from the provided config file
    */
-  loadConfig(program.config).then(async (cnf) => {
+  loadConfig(opts.config).then(async (cnf) => {
     /**
      * Create a database connection pool and pass to all workflows
      */
@@ -74,7 +77,7 @@ if (program.keyFile && program.config) {
     /**
      * Start the bootstrap workflow
      */
-    bootstrap(cnf, connPool, program.keyFile).catch((err) => log.error(err));
+    bootstrap(cnf, connPool, opts.keyFile).catch((err) => log.error(err));
     /**
      * Instalise the trading post API
      */
