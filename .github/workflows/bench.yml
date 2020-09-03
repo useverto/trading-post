@@ -35,7 +35,7 @@ jobs:
         run: |
           yarn prod
           yarn pkg
-          hyperfine 'node ./dist/verto.js' './verto' -i --export-markdown ./BENCHMARKS.md --warmup 5
+          hyperfine 'node ./dist/verto.js' './verto' -i --export-markdown .github/workflows/template.md --warmup 5
 
       - name: Comment benchmark results
         uses: harupy/comment-on-pr@master
