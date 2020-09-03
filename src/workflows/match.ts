@@ -114,14 +114,26 @@ export async function match(
         );
 
         if (order.amnt === pstAmount) {
+          /**
+           * Delete an order.
+           * NOTE: Table names are not subject to sql injections.
+           */
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
           await sendConfirmation(client, order.txID, jwk);
         } else {
+          /**
+           * Update an order.
+           * NOTE: Table names are not subject to sql injections
+           */
           await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
             order.amnt - pstAmount,
             order.txID,
           ]);
         }
+        /**
+         * Delete an order.
+         * NOTE: Table names are not subject to sql injections
+         */
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
         await sendConfirmation(client, txId, jwk);
 
@@ -154,12 +166,19 @@ export async function match(
             `\n\t\tSent ${order.amnt} ${ticker} to ${tx.owner.address}` +
             `\n\t\ttxId = ${pstTx}`
         );
-
+        /**
+         * Update an order.
+         * NOTE: Table names are not subject to sql injections
+         */
         await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
           amnt - order.amnt / order.rate,
           txId,
         ]);
         amnt -= order.amnt / order.rate;
+        /**
+         * Delete an order.
+         * NOTE: Table names are not subject to sql injections
+         */
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
         await sendConfirmation(client, order.txID, jwk);
       }
@@ -195,9 +214,17 @@ export async function match(
         );
 
         if (order.amnt === amnt / rate) {
+          /**
+           * Delete an order.
+           * NOTE: Table names are not subject to sql injections
+           */
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
           await sendConfirmation(client, order.txID, jwk);
         } else {
+          /**
+           * Update an order.
+           * NOTE: Table names are not subject to sql injections
+           */
           await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
             order.amnt - amnt / rate,
             order.txID,
@@ -235,12 +262,19 @@ export async function match(
             `\n\t\tSent ${order.amnt * rate} ${ticker} to ${order.addr}` +
             `\n\t\ttxId = ${pstTx}`
         );
-
+        /**
+         * Update an order.
+         * NOTE: Table names are not subject to sql injections
+         */
         await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
           amnt - order.amnt * rate,
           txId,
         ]);
         amnt -= order.amnt * rate;
+        /**
+         * Delete an order.
+         * NOTE: Table names are not subject to sql injections
+         */
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
         await sendConfirmation(client, order.txID, jwk);
       }

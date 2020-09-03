@@ -86,7 +86,7 @@ export async function getSellOrders(
   db: Database,
   token: string
 ): Promise<TokenInstance[]> {
-   /**
+  /**
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
