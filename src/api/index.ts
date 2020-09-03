@@ -29,11 +29,17 @@ http.use(async (ctx, next) => {
 /**
  * Start the trading post HTTP server
  */
-export function initAPI(host?: string, port?: number, db?: Database) {
+export function initAPI(
+  host?: string,
+  port?: number,
+  db?: Database,
+  startItself: boolean = true
+) {
   port = port || 8080;
   host = host || "localhost";
   const verifyID = v4();
   http.use(createRouter(db).routes());
-  http.listen(port, host);
+  if (startItself) http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
+  return http;
 }
