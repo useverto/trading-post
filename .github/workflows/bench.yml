@@ -32,7 +32,10 @@ jobs:
           sudo dpkg -i hyperfine_1.10.0_amd64.deb
 
       - name: Run benchmarks
-        run: ./tools/bench.sh
+        run: |
+          yarn prod
+          yarn pkg
+          hyperfine 'node ./dist/verto.js' './verto' -i --export-markdown ./BENCHMARKS.md --warmup 5
 
       - name: Comment benchmark results
         uses: harupy/comment-on-pr@master
