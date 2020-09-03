@@ -31,10 +31,13 @@ export async function bootstrap(
           num: 1,
         },
       })
-    ).data.transactions.edges[0]?.node.id;
+    ).data.transactions.edges[0]?.node;
 
-    if (candidateLatestTx !== latestTxId) {
-      latestTxId = candidateLatestTx;
+    // TODO(@johnletey): Compare timestamp to last online value
+    //                   candidateLatestTx.block.timestamp
+
+    if (candidateLatestTx.id !== latestTxId) {
+      latestTxId = candidateLatestTx.id;
 
       try {
         await match(client, latestTxId, jwk!, db);

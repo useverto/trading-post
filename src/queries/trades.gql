@@ -11,6 +11,9 @@ query($owners: [String!], $recipients: [String!], $num: Int) {
     edges {
       node {
         id
+        block {
+          timestamp
+        }
       }
     }
   }
