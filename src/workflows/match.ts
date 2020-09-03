@@ -86,7 +86,7 @@ export async function match(
     const orders = await getSellOrders(db, token);
     for (const order of orders) {
       if (!order.rate) continue;
-      const pstAmount = order.rate * amnt;
+      const pstAmount = amnt / order.rate;
       if (order.amnt >= pstAmount) {
         const arTx = await client.createTransaction(
           {
@@ -144,7 +144,7 @@ export async function match(
           {
             target: order.addr,
             quantity: client.ar.arToWinston(
-              (order.amnt / order.rate).toString()
+              (order.amnt * order.rate).toString()
             ),
           },
           jwk
@@ -161,7 +161,7 @@ export async function match(
 
         log.info(
           "Matched!" +
-            `\n\t\tSent ${order.amnt / order.rate} AR to ${order.addr}` +
+            `\n\t\tSent ${order.amnt * order.rate} AR to ${order.addr}` +
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${order.amnt} ${ticker} to ${tx.owner.address}` +
@@ -172,10 +172,10 @@ export async function match(
          * NOTE: Table names are not subject to sql injections
          */
         await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
-          amnt - order.amnt / order.rate,
+          amnt - order.amnt * order.rate,
           txId,
         ]);
-        amnt -= order.amnt / order.rate;
+        amnt -= order.amnt * order.rate;
         /**
          * Delete an order.
          * NOTE: Table names are not subject to sql injections
@@ -187,11 +187,11 @@ export async function match(
   } else if (opcode === "Sell") {
     const orders = await getBuyOrders(db, token);
     for (const order of orders) {
-      if (order.amnt >= amnt / rate) {
+      if (order.amnt >= amnt * rate) {
         const arTx = await client.createTransaction(
           {
             target: tx.owner.address,
-            quantity: client.ar.arToWinston((amnt / rate).toString()),
+            quantity: client.ar.arToWinston((amnt * rate).toString()),
           },
           jwk
         );
@@ -207,14 +207,14 @@ export async function match(
 
         log.info(
           "Matched!" +
-            `\n\t\tSent ${amnt / rate} AR to ${tx.owner.address}` +
+            `\n\t\tSent ${amnt * rate} AR to ${tx.owner.address}` +
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${amnt} ${ticker} to ${order.addr}` +
             `\n\t\ttxId = ${pstTx}`
         );
 
-        if (order.amnt === amnt / rate) {
+        if (order.amnt === amnt * rate) {
           /**
            * Delete an order.
            * NOTE: Table names are not subject to sql injections
@@ -227,7 +227,7 @@ export async function match(
            * NOTE: Table names are not subject to sql injections
            */
           await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
-            order.amnt - amnt / rate,
+            order.amnt - amnt * rate,
             order.txID,
           ]);
         }
@@ -251,7 +251,7 @@ export async function match(
           jwk,
           token,
           `{"function": "transfer", "target": "${order.addr}", "qty": ${
-            order.amnt * rate
+            order.amnt / rate
           }}`
         );
 
@@ -260,7 +260,7 @@ export async function match(
             `\n\t\tSent ${order.amnt} AR to ${tx.owner.address}` +
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${order.amnt * rate} ${ticker} to ${order.addr}` +
+            `\n\t\tSent ${order.amnt / rate} ${ticker} to ${order.addr}` +
             `\n\t\ttxId = ${pstTx}`
         );
         /**
@@ -268,10 +268,10 @@ export async function match(
          * NOTE: Table names are not subject to sql injections
          */
         await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
-          amnt - order.amnt * rate,
+          amnt - order.amnt / rate,
           txId,
         ]);
-        amnt -= order.amnt * rate;
+        amnt -= order.amnt / rate;
         /**
          * Delete an order.
          * NOTE: Table names are not subject to sql injections
