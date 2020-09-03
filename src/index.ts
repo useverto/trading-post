@@ -38,13 +38,13 @@ program
     "-c, --config <file>",
     "Verto trading post config",
     "verto.config.json"
-  )
-  /**
-   * subcommand "init" to create a verto configuration file
-   */
-  .command("init")
-  .description("generate a verto configuration file")
-  .action(InitCommand);
+  );
+/**
+ * subcommand "init" to create a verto configuration file
+ */
+// .command("init")
+// .description("generate a verto configuration file")
+// .action(InitCommand);
 
 /**
  * Parse the raw process arguments

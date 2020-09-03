@@ -1,6 +1,6 @@
 import Logger from "@utils/logger";
 const log = new Logger({
-  name: "community-js",
+  name: "verto",
   level: Logger.Levels.debug,
 });
 

@@ -135,3 +135,33 @@ export async function getBuyOrders(
   });
   return orders;
 }
+
+export async function saveTimestamp(db: Database) {
+  await db.exec(`CREATE TABLE "__verto__" (
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`);
+  await db.run(`INSERT INTO "__verto__" VALUES (?)`, [new Date()]);
+}
+
+export async function shutdownHook(db: Database): Promise<void> {
+  // attach user callback to the process event emitter
+  // if no callback, it will still exit gracefully on Ctrl-C
+  process.on("cleanup", () => saveTimestamp(db));
+
+  // do app specific cleaning before exiting
+  process.on("exit", async function () {
+    await saveTimestamp(db);
+  });
+
+  // catch ctrl+c event and exit normally
+  process.on("SIGINT", async function () {
+    await saveTimestamp(db);
+    process.exit(2);
+  });
+
+  //catch uncaught exceptions, trace, then exit normally
+  process.on("uncaughtException", async function () {
+    await saveTimestamp(db);
+    process.exit(99);
+  });
+}
