@@ -6,6 +6,7 @@ import { query } from "@utils/gql";
 import tradesQuery from "../queries/trades.gql";
 import { match } from "@workflows/match";
 import { genesis } from "@workflows/genesis";
+import { getTimestamp } from "@utils/database";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -21,6 +22,8 @@ export async function bootstrap(
   await genesis(client, community, jwk!, config.genesis);
   // Monitor all new transactions that come into this wallet.
   log.info("Monitoring wallet for incoming transactions...");
+  const timeEntries = (await getTimestamp(db))!;
+  const time = timeEntries[timeEntries.length - 1]["createdAt"];
   let latestTxId: string;
   setInterval(async () => {
     const candidateLatestTx = (
@@ -33,18 +36,17 @@ export async function bootstrap(
       })
     ).data.transactions.edges[0]?.node;
 
-    // TODO(@johnletey): Compare timestamp to last online value
-    //                   candidateLatestTx.block.timestamp
+    if (candidateLatestTx.block.timestamp > time) {
+      if (candidateLatestTx.id !== latestTxId) {
+        latestTxId = candidateLatestTx.id;
 
-    if (candidateLatestTx.id !== latestTxId) {
-      latestTxId = candidateLatestTx.id;
-
-      try {
-        await match(client, latestTxId, jwk!, db);
-      } catch (err) {
-        log.error(
-          `Failed to handle transaction.\n\t\ttxId = ${latestTxId}\n\t\t${err}`
-        );
+        try {
+          await match(client, latestTxId, jwk!, db);
+        } catch (err) {
+          log.error(
+            `Failed to handle transaction.\n\t\ttxId = ${latestTxId}\n\t\t${err}`
+          );
+        }
       }
     }
   }, 10000);
