@@ -4,7 +4,11 @@ import commander from "commander";
 import InitCommand from "@commands/init";
 import Log from "@utils/logger";
 import { initAPI } from "@api/index";
-import { init as initDB, setupTokenTables } from "@utils/database";
+import {
+  init as initDB,
+  setupTokenTables,
+  shutdownHook,
+} from "@utils/database";
 import { loadConfig } from "@utils/config";
 import { bootstrap } from "@workflows/bootstrap";
 
@@ -38,13 +42,13 @@ program
     "-c, --config <file>",
     "Verto trading post config",
     "verto.config.json"
-  )
-  /**
-   * subcommand "init" to create a verto configuration file
-   */
-  .command("init")
-  .description("generate a verto configuration file")
-  .action(InitCommand);
+  );
+/**
+ * subcommand "init" to create a verto configuration file
+ */
+// .command("init")
+// .description("generate a verto configuration file")
+// .action(InitCommand);
 
 /**
  * Parse the raw process arguments
@@ -75,5 +79,9 @@ if (program.keyFile && program.config) {
      * Instalise the trading post API
      */
     initAPI(cnf.api.host, cnf.api.port, connPool);
+    /**
+     * Setup shutdown hook
+     */
+    shutdownHook(connPool);
   });
 }
