@@ -26,7 +26,12 @@ jobs:
           npm i -g yarn
           yarn
 
-      - name: Build source
+      - name: Install hyperfine
+        run: |
+          wget https://github.com/sharkdp/hyperfine/releases/download/v1.10.0/hyperfine_1.10.0_amd64.deb
+          sudo dpkg -i hyperfine_1.10.0_amd64.deb
+
+      - name: Run benchmarks
         run: ./tools/bench.sh
 
       - name: Comment benchmark results
