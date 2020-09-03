@@ -159,7 +159,7 @@ interface DbTimestamp {
 export async function getTimestamp(
   db: Database
 ): Promise<DbTimestamp[] | undefined> {
-  return await db.get<DbTimestamp[]>(`SELECT * FROM "__verto__"`);
+  return await db.all<DbTimestamp[]>(`SELECT * FROM "__verto__"`);
 }
 
 /**
