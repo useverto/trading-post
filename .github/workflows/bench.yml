@@ -1,0 +1,32 @@
+name: Bench
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install dependencies
+        run: |
+          npm i -g yarn
+          yarn
+
+      - name: Build source
+        run: ./tools/bench.sh
+
+
