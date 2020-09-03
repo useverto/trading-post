@@ -36,28 +36,33 @@ export async function genesis(
       query: genesisQuery,
       variables: {
         owners: [walletAddr],
-        reciepents: [CONSTANTS.exchangeWallet],
+        recipients: [CONSTANTS.exchangeWallet],
       },
     })
   ).data.transactions.edges;
+
   if (possibleGenesis.length === 1) {
     log.info(
       `Found genesis transaction.\n\t\ttxId = ${possibleGenesis[0].node.id}`
     );
   } else {
-    log.info("Sending genesis transaction");
-    const tx = await client.createTransaction(
+    log.info("Sending genesis transaction ...");
+
+    const genesisTx = await client.createTransaction(
       {
         data: JSON.stringify(config),
         target: CONSTANTS.exchangeWallet,
       },
-      jwk!
+      jwk
     );
-    tx.addTag("Exchange", "Verto");
-    tx.addTag("Trading-Post-Genesis", "Genesis");
-    tx.addTag("Content-Type", "application/json");
-    await client.transactions.sign(tx, jwk!);
-    const res = await client.transactions.post(tx);
-    log.info(`genesis_tx_id=${tx.id}`);
+
+    genesisTx.addTag("Exchange", "Verto");
+    genesisTx.addTag("Type", "Genesis");
+    genesisTx.addTag("Content-Type", "application/json");
+
+    await client.transactions.sign(genesisTx, jwk);
+    await client.transactions.post(genesisTx);
+
+    log.info(`Sent genesis transaction.\n\t\ttxId = ${genesisTx.id}`);
   }
 }
