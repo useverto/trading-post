@@ -25,6 +25,7 @@ async function sendConfirmation(
   const confirmationTx = await client.createTransaction({}, jwk);
 
   confirmationTx.addTag("Exchange", "Verto");
+  confirmationTx.addTag("Type", "Confirmation");
   confirmationTx.addTag("Matched", txId);
 
   await client.transactions.sign(confirmationTx, jwk);
