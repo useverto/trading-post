@@ -62,4 +62,4 @@ If you have any questions or need to talk to someone, join our [Discord](https:/
 ## License
 
 The code contained within this repository is licensed under the MIT license.
-See [`./LICENSE`](../LICENSE) for more information.
+See [`./LICENSE`](./LICENSE) for more information.
