@@ -137,10 +137,25 @@ export async function getBuyOrders(
 }
 
 export async function saveTimestamp(db: Database) {
-  await db.exec(`CREATE TABLE "__verto__" (
+  await db.exec(`CREATE TABLE IF NOT EXISTS "__verto__" (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
+  log.info(`Performing shutdown cleanup.`);
   await db.run(`INSERT INTO "__verto__" VALUES (?)`, [new Date()]);
+}
+
+interface DbTimestamp {
+  createdAt: Date | string;
+}
+
+/**
+ * Get the timestamp from database
+ * @param db the database connection pool
+ */
+export async function getTimestamp(
+  db: Database
+): Promise<DbTimestamp | undefined> {
+  return await db.get<DbTimestamp>(`SELECT * FROM "__verto__"`);
 }
 
 export async function shutdownHook(db: Database): Promise<void> {
