@@ -13,7 +13,7 @@
     "fmt:check": "prettier --check .",
     "dev": "node . run -k arweave.json",
     "build": "rollup -c",
-    "prod": "PROD=true rollup -c",
+    "prod": "rollup -c --environment INCLUDE_DEPS,BUILD:production",
     "pkg": "yarn prod && pkg -t host dist/verto.js",
     "pkg:linux": "yarn prod && pkg -t node14-linux dist/verto.js",
     "pkg:macos": "yarn prod && pkg -t node14-macos dist/verto.js",
