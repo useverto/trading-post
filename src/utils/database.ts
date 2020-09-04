@@ -90,7 +90,7 @@ export async function getSellOrders(
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
-  const orders = await db.get<TokenInstance[]>(
+  const orders = await db.all<TokenInstance[]>(
     `SELECT * FROM "${token}" WHERE type = "Sell"`
   );
   if (!orders || orders?.length === 0) {
@@ -120,7 +120,7 @@ export async function getBuyOrders(
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
-  const orders = await db.get<TokenInstance[]>(
+  const orders = await db.all<TokenInstance[]>(
     `SELECT * FROM "${token}" WHERE type = "Buy"`
   );
   if (!orders || orders?.length === 0) {
