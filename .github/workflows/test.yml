@@ -52,7 +52,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         run: |
           $sqlite3=$(gci -filter "node_sqlite3.node" -af -s -name)
-          cp $sqlite3 .node_sqlite3.node
+          cp $sqlite3 node_sqlite3.node
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v2
