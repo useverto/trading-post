@@ -22,7 +22,7 @@ export async function bootstrap(
   await genesis(client, community, jwk!, config.genesis);
   // Monitor all new transactions that come into this wallet.
   log.info("Monitoring wallet for incoming transactions...");
-  const timeEntries = (await getTimestamp(db))!;
+  const timeEntries = await getTimestamp(db);
   const time = timeEntries[timeEntries.length - 1]["createdAt"]
     .toString()
     .slice(0, -3);

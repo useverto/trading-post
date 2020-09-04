@@ -156,10 +156,12 @@ interface DbTimestamp {
  * Get the timestamp from database
  * @param db the database connection pool
  */
-export async function getTimestamp(
-  db: Database
-): Promise<DbTimestamp[] | undefined> {
-  return await db.all<DbTimestamp[]>(`SELECT * FROM "__verto__"`);
+export async function getTimestamp(db: Database): Promise<DbTimestamp[]> {
+  try {
+    return await db.all<DbTimestamp[]>(`SELECT * FROM "__verto__"`);
+  } catch {
+    return [{ createdAt: Date.now().toString() }];
+  }
 }
 
 /**
