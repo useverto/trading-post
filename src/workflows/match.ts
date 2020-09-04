@@ -20,6 +20,7 @@ const log = new Log({
 async function sendConfirmation(
   client: Arweave,
   txId: string,
+  received: string,
   jwk: JWKInterface
 ) {
   const confirmationTx = await client.createTransaction(
@@ -31,7 +32,8 @@ async function sendConfirmation(
 
   confirmationTx.addTag("Exchange", "Verto");
   confirmationTx.addTag("Type", "Confirmation");
-  confirmationTx.addTag("Matched", txId);
+  confirmationTx.addTag("Match", txId);
+  confirmationTx.addTag("Received", received);
 
   await client.transactions.sign(confirmationTx, jwk);
   await client.transactions.post(confirmationTx);
@@ -124,7 +126,7 @@ export async function match(
            * NOTE: Table names are not subject to sql injections.
            */
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
-          await sendConfirmation(client, order.txID, jwk);
+          await sendConfirmation(client, order.txID, `${amnt} AR`, jwk);
         } else {
           /**
            * Update an order.
@@ -140,7 +142,7 @@ export async function match(
          * NOTE: Table names are not subject to sql injections
          */
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
-        await sendConfirmation(client, txId, jwk);
+        await sendConfirmation(client, txId, `${pstAmount} ${ticker}`, jwk);
 
         return;
       } else {
@@ -185,7 +187,12 @@ export async function match(
          * NOTE: Table names are not subject to sql injections
          */
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
-        await sendConfirmation(client, order.txID, jwk);
+        await sendConfirmation(
+          client,
+          order.txID,
+          `${order.amnt / order.rate} AR`,
+          jwk
+        );
       }
     }
   } else if (opcode === "Sell") {
@@ -224,7 +231,7 @@ export async function match(
            * NOTE: Table names are not subject to sql injections
            */
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
-          await sendConfirmation(client, order.txID, jwk);
+          await sendConfirmation(client, order.txID, `${amnt} ${ticker}`, jwk);
         } else {
           /**
            * Update an order.
@@ -236,7 +243,7 @@ export async function match(
           ]);
         }
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
-        await sendConfirmation(client, txId, jwk);
+        await sendConfirmation(client, txId, `${amnt / rate} AR`, jwk);
 
         return;
       } else {
@@ -281,7 +288,12 @@ export async function match(
          * NOTE: Table names are not subject to sql injections
          */
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
-        await sendConfirmation(client, order.txID, jwk);
+        await sendConfirmation(
+          client,
+          order.txID,
+          `${order.amnt * rate} ${ticker}`,
+          jwk
+        );
       }
     }
   } else {
