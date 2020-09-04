@@ -36,13 +36,32 @@ jobs:
       - name: Package executables
         run: yarn pkg
 
-      - name: Upload Artifacts
+      - name: Zip linux release
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sqlite3=$(find . -name node_sqlite3.node)
+          zip -r verto-x64-linux.zip verto README.md LICENSE $sqlite3
+
+      - name: Zip mac release
+        if: startsWith(matrix.os, 'mac')
+        run: |
+          sqlite3=$(find . -name node_sqlite3.node)
+          zip -r verto-x64-macos.zip verto README.md LICENSE $sqlite3
+
+      - name: Zip windows release
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          $sqlite3=$(gci -filter "node_sqlite3.node" -af -s -name)
+          Compress-Archive -CompressionLevel Optimal -Force -Path verto.exe, README.md, LICENSE, $sqlite3 -DestinationPath verto-x64-windows.zip
+
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.os }}
           path: |
-            ./verto
-            ./verto.exe
+            verto-x64-linux.zip
+            verto-x64-macos.zip
+            verto-x64-windows.zip
 
   bench:
     name: Benchmarks

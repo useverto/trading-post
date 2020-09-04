@@ -13,7 +13,6 @@ $BinDir = if ($VertoInstall) {
 
 $VertoZip = "$BinDir\verto.zip"
 $VertoExe = "$BinDir\verto.exe"
-$Target = 'windows'
 
 # GitHub requires TLS 1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
