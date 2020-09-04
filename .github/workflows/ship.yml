@@ -51,15 +51,15 @@ jobs:
 
       - name: Zip linux release
         if: startsWith(matrix.os, 'ubuntu')
-        run: zip -r verto-x64-linux.zip verto README.md LICENCE
+        run: zip -r verto-x64-linux.zip verto README.md LICENSE
 
       - name: Zip mac release
         if: startsWith(matrix.os, 'mac')
-        run: zip -r verto-x64-macos.zip verto README.md LICENCE
+        run: zip -r verto-x64-macos.zip verto README.md LICENSE
 
       - name: Zip windows release
         if: startsWith(matrix.os, 'windows')
-        run: Compress-Archive -CompressionLevel Optimal -Force -Path verto.exe README.md LICENCE -DestinationPath verto-x64-windows.zip
+        run: Compress-Archive -CompressionLevel Optimal -Force -Path verto.exe README.md LICENSE -DestinationPath verto-x64-windows.zip
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v2
