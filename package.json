@@ -27,7 +27,7 @@
     "arweave": "^1.9.1",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
-    "community-js": "^1.0.12",
+    "community-js": "^1.0.14",
     "dotenv": "^8.2.0",
     "enquirer": "^2.3.6",
     "koa": "^2.13.0",
