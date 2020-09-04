@@ -22,7 +22,12 @@ async function sendConfirmation(
   txId: string,
   jwk: JWKInterface
 ) {
-  const confirmationTx = await client.createTransaction({}, jwk);
+  const confirmationTx = await client.createTransaction(
+    {
+      data: Math.random().toString().slice(-4),
+    },
+    jwk
+  );
 
   confirmationTx.addTag("Exchange", "Verto");
   confirmationTx.addTag("Type", "Confirmation");
