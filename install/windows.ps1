@@ -6,9 +6,9 @@ if ($args.Length -eq 1) {
 
 $VertoInstall = $env:VERTO_INSTALL
 $BinDir = if ($VertoInstall) {
-  "$VertoInstall\bin"
+  "$VertoInstall"
 } else {
-  "$Home\.verto\bin"
+  "$Home\.verto"
 }
 
 $VertoZip = "$BinDir\verto.zip"
