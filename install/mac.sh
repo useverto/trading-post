@@ -6,9 +6,9 @@ if ! command -v unzip >/dev/null; then
 fi
 
 if [ $# -eq 0 ]; then
-  release_uri="https://github.com/useverto/trading-post/releases/latest/download/verto-darwin.zip"
+  release_uri="https://github.com/useverto/trading-post/releases/latest/download/verto-x64-macos.zip"
 else
-  release_uri="https://github.com/useverto/trading-post/releases/download/${1}/verto-darwin.zip"
+  release_uri="https://github.com/useverto/trading-post/releases/download/${1}/verto-x64-macos.zip"
 fi
 
 install_dir="${VERTO_INSTALL:-$HOME/.verto}"

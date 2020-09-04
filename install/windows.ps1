@@ -19,9 +19,9 @@ $Target = 'windows'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $VertoUri = if (!$v) {
-  "https://github.com/vertoland/verto/releases/download/${v}/verto-windows.zip"
+  "https://github.com/vertoland/verto/releases/latest/download/verto-x64-windows.zip"
 } else {
-  "https://github.com/vertoland/verto/releases/download/${v}/verto-windows.zip"
+  "https://github.com/vertoland/verto/releases/download/${v}/verto-x64-windows.zip"
 }
 
 if (!(Test-Path $BinDir)) {
