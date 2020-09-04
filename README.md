@@ -52,9 +52,10 @@ As mentioned above, you'll need to stake `VRT` tokens to be a trading post. A tr
 
 #### Configuration
 
-Before deploying a trading post, you'll want to properly configure the system. You'll also need to drag & drop your keyfile to the root of this repository and make sure the name of the file is  `arweave.json`.
+Before deploying a trading post, you'll want to properly configure the system. You'll also need to drag & drop your keyfile to the root of this repository and make sure the name of the file is `arweave.json`.
 
 ##### verto.config.json
+
 The `verto.config.json` file is where the majority of your configuration will lie. You'll need to create this file before you can run a trading post. As seen in the config.example.json file, it must contain the following information:
 
 ```json
@@ -107,7 +108,7 @@ This is coming soon!
 
 #### Conclusion
 
-And that's it! Your trading post will proceed to send a genesis transaction to the exchange wallet, which will officially list it on the [gallery](https://verto.exchange/gallery)! 
+And that's it! Your trading post will proceed to send a genesis transaction to the exchange wallet, which will officially list it on the [gallery](https://verto.exchange/gallery)!
 
 If you have any questions or need to talk to someone, join our [Discord](https://discord.gg/RnWbc8Y)!
 
