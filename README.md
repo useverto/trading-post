@@ -50,14 +50,72 @@ As mentioned above, you'll need to stake `VRT` tokens to be a trading post. A tr
 
 ### Getting Started
 
-Coming soon!
+#### Configuration
 
-If you have any questions or need to talk to someone, join our [Discord](https://discord.gg/sNgJkMg)!
+Before deploying a trading post, you'll want to properly configure the system. You'll also need to drag & drop your keyfile to the root of this repository and make sure the name of the file is  `arweave.json`.
+
+##### verto.config.json
+The `verto.config.json` file is where the majority of your configuration will lie. You'll need to create this file before you can run a trading post. As seen in the config.example.json file, it must contain the following information:
+
+```json
+{
+  "genesis": {
+    "acceptedTokens": [
+      "fE2OcfjlS-sHqG5K8QvxE8wHtcqKxS-YV0bDEgxo-eI",
+      "FcM-QQpfcD0xTTzr8u4Su9QCgcvRx_JH4JSCQoFi6Ck"
+    ],
+    "tradeFee": 0.01,
+    "publicURL": "your-trading-post-domain.com"
+  },
+  "database": "./db.db",
+  "api": {
+    "port": 8080,
+    "host": "localhost"
+  }
+}
+```
+
+- acceptedTokens: This is the place for you to add all of the tokens you want your trading post to accept and exchange. To get a list of tokens officially supported, see https://verto.exchange/gallery. You can even add support for tokens not on that list!
+- tradeFee: This is the fee that your trading post will take when an exchange is made. You get to choose your own fee, but know that others may try to compete with lower fees!
+- publicURL: You'll need to add the domain that the trading post API will be accessible from in this variable. To ensure the uptime of a trading post, each trading post hosts its own API for the frontend to ping whenever a trade is initiated.
+- database: This field is where your database will be created.
+- api: If you want to modify the host and port of the API, you can do it in these variables.
+
+> As of now, this configuration cannot be changed after the genesis transaction of a trading post. We're hoping to add support for configuration changes soon!
+
+#### Running the Trading Post
+
+##### Build from source
+
+To run your trading post, you just need to type these three commands in the repository root:
+
+```shell script
+yarn
+```
+
+```shell script
+yarn build
+```
+
+```shell script
+yarn dev
+```
+
+##### Install the binary
+
+This is coming soon!
+
+#### Conclusion
+
+And that's it! Your trading post will proceed to send a genesis transaction to the exchange wallet, which will officially list it on the [gallery](https://verto.exchange/gallery)! 
+
+If you have any questions or need to talk to someone, join our [Discord](https://discord.gg/RnWbc8Y)!
 
 ## Special Thanks
 
-- [Sam Williams](https://twitter.com/samecwilliams)
+- [Sam Williams](https://github.com/samcamwilliams)
 - [Cedrik Boudreau](https://github.com/cedriking)
+- [Aidan O'Kelly](https://github.com/aidanok)
 
 ## License
 
