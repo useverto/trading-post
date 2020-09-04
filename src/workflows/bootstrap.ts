@@ -23,7 +23,9 @@ export async function bootstrap(
   // Monitor all new transactions that come into this wallet.
   log.info("Monitoring wallet for incoming transactions...");
   const timeEntries = (await getTimestamp(db))!;
-  const time = timeEntries[timeEntries.length - 1]["createdAt"];
+  const time = timeEntries[timeEntries.length - 1]["createdAt"]
+    .toString()
+    .slice(0, -3);
   let latestTxId: string;
   setInterval(async () => {
     const candidateLatestTx = (
