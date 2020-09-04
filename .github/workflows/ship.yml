@@ -31,7 +31,7 @@ jobs:
 
       - name: Generate Release Notes
         if: startsWith(matrix.os, 'ubuntu')
-        run: deno run -A https://deno.land/x/prlog@0.3.1/prlog.ts -v ${{ steps.version.outputs.tag }} -t .github/release.t.md -o release.md --auth ${{ secrets.GITHUB_TOKEN }}
+        run: deno run -A https://deno.land/x/prlog@0.3.1/prlog.ts useverto/trading-post -v ${{ steps.version.outputs.tag }} -t .github/release.t.md -o release.md --auth ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release Notes
         uses: actions/upload-artifact@v2
@@ -59,7 +59,7 @@ jobs:
 
       - name: Zip windows release
         if: startsWith(matrix.os, 'windows')
-        run: Compress-Archive -CompressionLevel Optimal -Force -Path verto.exe README.md LICENSE -DestinationPath verto-x64-windows.zip
+        run: Compress-Archive -CompressionLevel Optimal -Force -Path verto.exe, README.md, LICENSE -DestinationPath verto-x64-windows.zip
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v2
