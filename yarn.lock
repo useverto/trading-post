@@ -2590,14 +2590,6 @@ smartweave@^0.3.5:
     bignumber.js "^9.0.0"
     yargs "^15.3.1"
 
-"smartweave@https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc":
-  version "0.3.2"
-  resolved "https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc#a07150cd6228643fe252890956a8f93b3c3b260b"
-  dependencies:
-    arweave "^1.9.1"
-    bignumber.js "^9.0.0"
-    yargs "^15.3.1"
-
 source-map-support@^0.5.17, source-map-support@~0.5.12:
   version "0.5.19"
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.19.tgz#a98b62f86dcaf4f67399648c085291ab9e8fed61"

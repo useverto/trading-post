@@ -34,7 +34,7 @@
     "node-fetch": "^2.6.0",
     "rfs": "^9.0.3",
     "rotating-file-stream": "^2.1.3",
-    "smartweave": "https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc",
+    "smartweave": "^0.3.5",
     "sqlite": "^4.0.14",
     "sqlite3": "^5.0.0",
     "uuid": "^8.3.0"
