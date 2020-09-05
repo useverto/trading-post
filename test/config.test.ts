@@ -50,6 +50,10 @@ describe("Config tests", () => {
 });
 
 describe("Config validation", () => {
+  it("Wrap process exit", (done) => {
+    sinon.stub(process, 'exit');
+    done();
+  })
   it("Null checks", (done) => {
     let cloneConfig = testConfiguration;
     /**
@@ -57,7 +61,6 @@ describe("Config validation", () => {
      */
     // @ts-ignore
     cloneConfig.genesis.acceptedTokens.push(null);
-    sinon.stub(process, 'exit');
     validateConfig(cloneConfig);
     // @ts-ignore
     assert(process.exit.isSinonProxy, "Faking process exit failed");
@@ -68,4 +71,20 @@ describe("Config validation", () => {
     done();
   });
 
+  it("Trade fee check", (done) => {
+    let cloneConfig = testConfiguration;
+    /**
+     * The below ignore directive is used to simulate real-life runtime enviornment
+     */
+    // @ts-ignore
+    cloneConfig.genesis.tradeFee = "some_string";
+    validateConfig(cloneConfig);
+    // @ts-ignore
+    assert(process.exit.isSinonProxy, "Faking process exit failed");
+    // @ts-ignore
+    assert(process.exit.called, "process.exit is never called");
+    // @ts-ignore
+    assert(process.exit.calledWith(1), "process.exit code is not 1");
+    done();
+  });
 })
