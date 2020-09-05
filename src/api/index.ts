@@ -3,6 +3,7 @@ import Log from "@utils/logger";
 import createRouter from "@api/routes";
 import { v4 } from "uuid";
 import { Database } from "sqlite";
+import fetch from "node-fetch";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -30,6 +31,7 @@ http.use(async (ctx, next) => {
  * Start the trading post HTTP server
  */
 export function initAPI(
+  publicURL: string | URL,
   host?: string,
   port?: number,
   db?: Database,
@@ -41,5 +43,14 @@ export function initAPI(
   http.use(createRouter(db).routes());
   if (startItself) http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
+  checkAvailability(publicURL);
   return http;
+}
+
+export function checkAvailability(url: string | URL) {
+  let endpoint = String(url).endsWith("/") ? "ping" : "/ping";
+  fetch(`${url}/${endpoint}`).catch((err) => {
+    log.error("API is not publically accessible");
+    process.exit(1);
+  });
 }
