@@ -6,13 +6,13 @@ if ! command -v unzip >/dev/null; then
 fi
 
 if [ $# -eq 0 ]; then
-  release_uri="https://github.com/useverto/trading-post/releases/latest/download/verto-darwin.zip"
+  release_uri="https://github.com/useverto/trading-post/releases/latest/download/verto-x64-macos.zip"
 else
-  release_uri="https://github.com/useverto/trading-post/releases/download/${1}/verto-darwin.zip"
+  release_uri="https://github.com/useverto/trading-post/releases/download/${1}/verto-x64-macos.zip"
 fi
 
 install_dir="${VERTO_INSTALL:-$HOME/.verto}"
-bin_dir="$install_dir/bin"
+bin_dir="$install_dir"
 exe="$bin_dir/verto"
 
 if [ ! -d "$bin_dir" ]; then
@@ -35,6 +35,6 @@ else
   esac
   echo "Manually add the directory to your \$HOME/$shell_profile (or similar)"
   echo "  export VERTO_INSTALL=\"$install_dir\""
-  echo "  export PATH=\"\$VERTO_INSTALL/bin:\$PATH\""
+  echo "  export PATH=\"\$VERTO_INSTALL:\$PATH\""
   echo "Run '$exe --help' to get started"
 fi

@@ -9,6 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -18,29 +19,55 @@ jobs:
         with:
           node-version: 14.x
 
+      - name: Setup Deno
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: v1.3.2
+
+      - name: Get Version
+        id: version
+        run: echo "::set-output name=tag::$(node -p "require('./package.json').version")"
+
+      - name: Generate Release Notes
+        if: startsWith(matrix.os, 'ubuntu')
+        run: deno run -A https://deno.land/x/prlog@0.3.1/prlog.ts useverto/trading-post -v ${{ steps.version.outputs.tag }} -t .github/release.t.md -o release.md --auth ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Notes
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: notes
+          path: release.md
+          if-no-files-found: error
+
       - name: Install dependencies
         run: |
           npm i -g yarn
           yarn
-
-      - name: Get version # For release notes
-        id: version
-        run: echo "::set-output name=tag::$(node -p "require('./package.json').version")"
 
       - name: Package executables
         run: yarn pkg
 
       - name: Zip linux release
         if: startsWith(matrix.os, 'ubuntu')
-        run: zip -r verto-x64-linux.zip verto
+        run: |
+          sqlite3=$(find . -name node_sqlite3.node)
+          cp $sqlite3 ./node_sqlite3.node
+          zip -r verto-x64-linux.zip verto README.md LICENSE node_sqlite3.node
 
       - name: Zip mac release
         if: startsWith(matrix.os, 'mac')
-        run: zip -r verto-x64-darwin.zip deno
+        run: |
+          sqlite3=$(find . -name node_sqlite3.node)
+          cp $sqlite3 ./node_sqlite3.node
+          zip -r verto-x64-macos.zip verto README.md LICENSE node_sqlite3.node
 
       - name: Zip windows release
         if: startsWith(matrix.os, 'windows')
-        run: Compress-Archive -CompressionLevel Optimal -Force -Path verto.exe -DestinationPath verto-x64-windows.zip
+        run: |
+          $sqlite3=$(gci -filter "node_sqlite3.node" -af -s -name)
+          Compress-Archive -CompressionLevel Optimal -Force -Path verto.exe, README.md, LICENSE, $sqlite3 -DestinationPath verto-x64-windows.zip
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v2
@@ -64,5 +91,5 @@ jobs:
           allowUpdates: true
           replacesArtifacts: true
           artifacts: "release/*"
-          body: "RELEASE NOTES HERE"
+          bodyFile: "notes/release.md"
           token: ${{ secrets.GITHUB_TOKEN }}

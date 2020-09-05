@@ -6,22 +6,21 @@ if ($args.Length -eq 1) {
 
 $VertoInstall = $env:VERTO_INSTALL
 $BinDir = if ($VertoInstall) {
-  "$VertoInstall\bin"
+  "$VertoInstall"
 } else {
-  "$Home\.verto\bin"
+  "$Home\.verto"
 }
 
 $VertoZip = "$BinDir\verto.zip"
 $VertoExe = "$BinDir\verto.exe"
-$Target = 'windows'
 
 # GitHub requires TLS 1.2
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $VertoUri = if (!$v) {
-  "https://github.com/vertoland/verto/releases/download/${v}/verto-windows.zip"
+  "https://github.com/useverto/trading-post/releases/latest/download/verto-x64-windows.zip"
 } else {
-  "https://github.com/vertoland/verto/releases/download/${v}/verto-windows.zip"
+  "https://github.com/useverto/trading-post/releases/download/${v}/verto-x64-windows.zip"
 }
 
 if (!(Test-Path $BinDir)) {
