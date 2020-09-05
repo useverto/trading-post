@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/useverto/trading-post/master/verto.config.schema.json",
   "genesis": {
     "acceptedTokens": [
       "fE2OcfjlS-sHqG5K8QvxE8wHtcqKxS-YV0bDEgxo-eI",
