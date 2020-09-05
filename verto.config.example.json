@@ -5,7 +5,8 @@
       "FcM-QQpfcD0xTTzr8u4Su9QCgcvRx_JH4JSCQoFi6Ck"
     ],
     "tradeFee": 0.01,
-    "publicURL": "your-trading-post-domain.com"
+    "publicURL": "your-trading-post-domain.com",
+    "version": "0.2.0"
   },
   "database": "./db.db",
   "api": {
