@@ -2,16 +2,17 @@ name: Test
 
 on:
   push:
-    branches:
-      - master
   pull_request:
 
 jobs:
   test:
+    name: Test
+
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -35,10 +36,71 @@ jobs:
       - name: Package executables
         run: yarn pkg
 
-      - name: Upload Artifacts
+      - name: Prepare linux build
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sqlite3=$(find . -name node_sqlite3.node)
+          cp $sqlite3 ./node_sqlite3.node
+
+      - name: Prepare mac build
+        if: startsWith(matrix.os, 'mac')
+        run: |
+          sqlite3=$(find . -name node_sqlite3.node)
+          cp $sqlite3 ./node_sqlite3.node
+
+      - name: Prepare windows build
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          $sqlite3=$(gci -filter "node_sqlite3.node" -af -s -name)
+          cp $sqlite3 node_sqlite3.node
+
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.os }}
           path: |
-            ./verto
-            ./verto.exe
+            verto.exe
+            verto
+            README.md
+            LICENSE
+            node_sqlite3.node
+
+  bench:
+    name: Benchmarks
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install dependencies
+        run: |
+          npm i -g yarn
+          yarn
+
+      - name: Install hyperfine
+        run: |
+          wget https://github.com/sharkdp/hyperfine/releases/download/v1.10.0/hyperfine_1.10.0_amd64.deb
+          sudo dpkg -i hyperfine_1.10.0_amd64.deb
+
+      - name: Run benchmarks
+        run: yarn pkg && hyperfine 'node ./dist/verto.js' './verto' -i -w 5 -s full --export-markdown bench.md
+
+      - name: Get Pull Request
+        uses: jwalton/gh-find-current-pr@v1
+        id: finder
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment Benchmarks
+        uses: marocchino/sticky-pull-request-comment@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ steps.finder.outputs.pr }}
+          path: bench.md
