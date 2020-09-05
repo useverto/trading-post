@@ -8,7 +8,7 @@ import CONSTANTS from "./constants.yml";
 
 const relativeKeyPath = process.env.KEY_PATH
   ? relative(__dirname, process.env.KEY_PATH)
-  : "../arweave.json";
+  : "./arweave.json";
 
 const log = new Logger({
   level: Logger.Levels.debug,
