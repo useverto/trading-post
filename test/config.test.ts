@@ -2,8 +2,10 @@ import {
   createConfig,
   TradingPostConfig,
   loadConfig,
+  validateConfig,
 } from "../src/utils/config";
-import { assert, expect } from "chai";
+import { assert, expect, should } from "chai";
+import sinon from "sinon";
 
 let testConfiguration: TradingPostConfig;
 
@@ -44,5 +46,45 @@ describe("Config tests", () => {
       "File configuration does not match with default"
     );
     return;
+  });
+});
+
+describe("Config validation", () => {
+  it("Wrap process exit", (done) => {
+    sinon.stub(process, "exit");
+    done();
+  });
+  it("Null checks", (done) => {
+    let cloneConfig = testConfiguration;
+    /**
+     * The below ignore directive is used to simulate real-life runtime enviornment
+     */
+    // @ts-ignore
+    cloneConfig.genesis.acceptedTokens.push(null);
+    validateConfig(cloneConfig);
+    // @ts-ignore
+    assert(process.exit.isSinonProxy, "Faking process exit failed");
+    // @ts-ignore
+    assert(process.exit.called, "process.exit is never called");
+    // @ts-ignore
+    assert(process.exit.calledWith(1), "process.exit code is not 1");
+    done();
+  });
+
+  it("Trade fee check", (done) => {
+    let cloneConfig = testConfiguration;
+    /**
+     * The below ignore directive is used to simulate real-life runtime enviornment
+     */
+    // @ts-ignore
+    cloneConfig.genesis.tradeFee = "some_string";
+    validateConfig(cloneConfig);
+    // @ts-ignore
+    assert(process.exit.isSinonProxy, "Faking process exit failed");
+    // @ts-ignore
+    assert(process.exit.called, "process.exit is never called");
+    // @ts-ignore
+    assert(process.exit.calledWith(1), "process.exit code is not 1");
+    done();
   });
 });

@@ -1,0 +1,86 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/object1599307258.json",
+  "title": "Root",
+  "type": "object",
+  "required": ["genesis", "database", "api"],
+  "properties": {
+    "genesis": {
+      "$id": "#root/genesis",
+      "title": "Genesis",
+      "type": "object",
+      "required": ["acceptedTokens", "tradeFee", "publicURL", "version"],
+      "properties": {
+        "acceptedTokens": {
+          "$id": "#root/genesis/acceptedTokens",
+          "title": "Acceptedtokens",
+          "type": "array",
+          "default": [],
+          "items": {
+            "$id": "#root/genesis/acceptedTokens/items",
+            "title": "Items",
+            "type": "string",
+            "default": "",
+            "examples": ["c25-RdheC6khcACLv23-XXg1W7YuA-VSZ_1_qnNFbhw"],
+            "pattern": "^.*$"
+          }
+        },
+        "tradeFee": {
+          "$id": "#root/genesis/tradeFee",
+          "title": "Tradefee",
+          "type": "number",
+          "examples": [0.01],
+          "default": 0.0
+        },
+        "publicURL": {
+          "$id": "#root/genesis/publicURL",
+          "title": "Publicurl",
+          "type": "string",
+          "default": "",
+          "examples": ["https://example.com/"],
+          "pattern": "^.*$"
+        },
+        "version": {
+          "$id": "#root/genesis/version",
+          "title": "Version",
+          "type": "string",
+          "default": "",
+          "examples": ["0.2.0"],
+          "pattern": "^.*$"
+        }
+      }
+    },
+    "database": {
+      "$id": "#root/database",
+      "title": "Database",
+      "type": "string",
+      "default": "",
+      "examples": ["./db.db"],
+      "pattern": "^.*$"
+    },
+    "api": {
+      "$id": "#root/api",
+      "title": "Api",
+      "type": "object",
+      "required": ["port", "host"],
+      "properties": {
+        "port": {
+          "$id": "#root/api/port",
+          "title": "Port",
+          "type": "integer",
+          "examples": [8080],
+          "default": 0
+        },
+        "host": {
+          "$id": "#root/api/host",
+          "title": "Host",
+          "type": "string",
+          "default": "",
+          "examples": ["localhost"],
+          "pattern": "^.*$"
+        }
+      }
+    }
+  }
+}
