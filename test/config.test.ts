@@ -51,9 +51,9 @@ describe("Config tests", () => {
 
 describe("Config validation", () => {
   it("Wrap process exit", (done) => {
-    sinon.stub(process, 'exit');
+    sinon.stub(process, "exit");
     done();
-  })
+  });
   it("Null checks", (done) => {
     let cloneConfig = testConfiguration;
     /**
@@ -87,4 +87,4 @@ describe("Config validation", () => {
     assert(process.exit.calledWith(1), "process.exit code is not 1");
     done();
   });
-})
+});
