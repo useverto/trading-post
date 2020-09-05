@@ -56,6 +56,8 @@ export function validateConfig(obj: TradingPostConfig) {
     logValidate("trade free must be of a valid integer");
   typeof obj.genesis.tradeFee !== "number" &&
     logValidate("database location must be a string");
+  typeof obj.genesis.version !== "string" &&
+    logValidate("version must be a string");
 }
 
 /**
