@@ -6,6 +6,7 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "target": "es2015",
     "module": "es2015",
     "lib": ["es2015"],

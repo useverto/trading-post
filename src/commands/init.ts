@@ -1,5 +1,6 @@
 import { prompt } from "enquirer";
 import { createConfig, TradingPostConfig } from "@utils/config";
+import verto from "../../package.json";
 
 /**
  * Prompts user for input on fields for the configuration and writes to disk
@@ -8,7 +9,7 @@ export default async () => {
   /**
    * Prompts for input and collects response
    */
-  const response = await prompt([
+  const response: TradingPostConfig = await prompt([
     {
       type: "list",
       name: "genesis.acceptedTokens",
@@ -40,6 +41,9 @@ export default async () => {
       message: "Enter the publicly accessible url for the trading post",
     },
   ]);
+
+  response.genesis.version = verto.version;
+
   /**
    * Writes the configuration file to disk
    */
