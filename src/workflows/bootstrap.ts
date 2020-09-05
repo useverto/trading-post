@@ -38,7 +38,11 @@ export async function bootstrap(
       })
     ).data.transactions.edges[0]?.node;
 
-    if (candidateLatestTx && candidateLatestTx.block && candidateLatestTx.block.timestamp > time) {
+    if (
+      candidateLatestTx &&
+      candidateLatestTx.block &&
+      candidateLatestTx.block.timestamp > time
+    ) {
       if (candidateLatestTx.id !== latestTxId) {
         latestTxId = candidateLatestTx.id;
 
