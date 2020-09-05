@@ -68,7 +68,7 @@ The `verto.config.json` file is where the majority of your configuration will li
     "tradeFee": 0.01,
     "publicURL": "your-trading-post-domain.com"
   },
-  "database": "./db.db",
+  "database": "./path/to/a/verto.db",
   "api": {
     "port": 8080,
     "host": "localhost"
@@ -78,7 +78,7 @@ The `verto.config.json` file is where the majority of your configuration will li
 
 - acceptedTokens: This is the place for you to add all of the tokens you want your trading post to accept and exchange. To get a list of tokens officially supported, see https://verto.exchange/gallery. You can even add support for tokens not on that list!
 - tradeFee: This is the fee that your trading post will take when an exchange is made. You get to choose your own fee, but know that others may try to compete with lower fees!
-- publicURL: You'll need to add the domain that the trading post API will be accessible from in this variable. To ensure the uptime of a trading post, each trading post hosts its own API for the frontend to ping whenever a trade is initiated.
+- publicURL: You'll need to add the publically available domain/IP that the trading post API will be accessible from in this variable. To ensure the uptime of a trading post, each trading post hosts its own API for the frontend to ping whenever a trade is initiated.
 - database: This field is where your database will be created.
 - api: If you want to modify the host and port of the API, you can do it in these variables.
 
@@ -86,25 +86,54 @@ The `verto.config.json` file is where the majority of your configuration will li
 
 #### Running the Trading Post
 
-##### Build from source
-
-To run your trading post, you just need to type these three commands in the repository root:
-
-```shell script
-yarn
-```
-
-```shell script
-yarn build
-```
-
-```shell script
-yarn dev
-```
-
 ##### Install the binary
 
 This is coming soon!
+
+##### Build from source
+
+> It is recommended to use pre-built production binaries when spinning up a trading post.
+
+In order to build a trading post from source, make sure you have `git` and `node` installed on your machine.
+
+Clone the repo and make it your working directory
+
+```shell script
+git clone https://github.com/useverto/trading-post
+cd trading-post
+```
+
+Using your favourite package manager, download the required dependencies
+
+```shell script
+# using yarn
+yarn
+# using npm
+npm i
+```
+
+Now, it's time to build the trading post! It is as simple as,
+
+```shell script
+yarn prod
+```
+
+Awesome! You've successfully built the trading post!
+It is now avaliable at `./dist/verto.js`
+
+Create a verto configuration for your trading post using the below command.
+
+```shell script
+node ./dist/verto.js init
+```
+
+and finally start the trading post! :smile:
+
+```shell script
+node ./dist/verto.js --key-file /path/to/your/keyfile.json
+```
+
+Now you can sit back and enjoy while the trading post greets you with some colourful logs.
 
 #### Conclusion
 
