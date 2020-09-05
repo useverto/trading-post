@@ -28,21 +28,18 @@ export async function bootstrap(
     .slice(0, -3);
   let latestTxId: string;
   setInterval(async () => {
+    // TODO(@johnletey): Less hacky way of doing this
     const candidateLatestTx = (
       await query({
         query: tradesQuery,
         variables: {
           recipients: [walletAddr],
-          num: 1,
+          num: 50,
         },
       })
-    ).data.transactions.edges[0]?.node;
+    ).data.transactions.edges.find((tx: any) => tx.node.block)?.node;
 
-    if (
-      candidateLatestTx &&
-      candidateLatestTx.block &&
-      candidateLatestTx.block.timestamp > time
-    ) {
+    if (candidateLatestTx && candidateLatestTx.block.timestamp > time) {
       if (candidateLatestTx.id !== latestTxId) {
         latestTxId = candidateLatestTx.id;
 
