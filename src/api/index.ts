@@ -4,6 +4,8 @@ import createRouter from "@api/routes";
 import { v4 } from "uuid";
 import { Database } from "sqlite";
 import fetch from "node-fetch";
+import cors from "@koa/cors";
+import { TradingPostConfig } from "@utils/config";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -31,20 +33,17 @@ http.use(async (ctx, next) => {
  * Start the trading post HTTP server
  */
 export function initAPI(
-  publicURL: string | URL,
-  tokens: string[],
-  host?: string,
-  port?: number,
+  config: TradingPostConfig,
   db?: Database,
-  startItself: boolean = true
+  listen: boolean = true
 ) {
-  port = port || 8080;
-  host = host || "localhost";
+  const port = config.api.port || 8080;
+  const host = config.api.host || "localhost";
   const verifyID = v4();
-  http.use(createRouter(db, tokens).routes());
-  if (startItself) http.listen(port, host);
+  http.use(createRouter(db, config.genesis.acceptedTokens).routes());
+  if (listen) http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
-  checkAvailability(publicURL);
+  checkAvailability(config.genesis.publicURL);
   return http;
 }
 
