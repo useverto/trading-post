@@ -81,16 +81,17 @@ export async function genesis(
 
     try {
       deepStrictEqual(currentConfig, config);
+      return possibleGenesis[0].node.id;
     } catch {
       log.info(
         "Local config does not match latest genesis config.\n\t\tSending new genesis transaction ..."
       );
 
-      await sendGenesis(client, jwk, config);
+      return await sendGenesis(client, jwk, config);
     }
   } else {
     log.info("Sending genesis transaction ...");
 
-    await sendGenesis(client, jwk, config);
+    return await sendGenesis(client, jwk, config);
   }
 }
