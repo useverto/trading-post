@@ -7,6 +7,7 @@ describe("API tests", () => {
   it("Start server", (done) => {
     server = initAPI(
       "http://example.com",
+      [],
       "localhost",
       8080,
       undefined,

@@ -1,16 +1,40 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
-import Community from "community-js";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { GenesisConfig } from "@utils/config";
 import CONSTANTS from "../utils/constants.yml";
+import Community from "community-js";
 import { query } from "@utils/gql";
 import genesisQuery from "../queries/genesis.gql";
+import { deepStrictEqual } from "assert";
 
 const log = new Log({
   level: Log.Levels.debug,
   name: "genesis",
 });
+
+async function sendGenesis(
+  client: Arweave,
+  jwk: JWKInterface,
+  config: GenesisConfig
+) {
+  const genesisTx = await client.createTransaction(
+    {
+      data: JSON.stringify(config),
+      target: CONSTANTS.exchangeWallet,
+    },
+    jwk
+  );
+
+  genesisTx.addTag("Exchange", "Verto");
+  genesisTx.addTag("Type", "Genesis");
+  genesisTx.addTag("Content-Type", "application/json");
+
+  await client.transactions.sign(genesisTx, jwk);
+  await client.transactions.post(genesisTx);
+
+  log.info(`Sent genesis transaction.\n\t\ttxId = ${genesisTx.id}`);
+}
 
 export async function genesis(
   client: Arweave,
@@ -46,27 +70,28 @@ export async function genesis(
       `Found genesis transaction.\n\t\ttxId = ${possibleGenesis[0].node.id}`
     );
 
-    return possibleGenesis[0].node.id;
+    const currentConfig = JSON.parse(
+      (
+        await client.transactions.getData(possibleGenesis[0].node.id, {
+          decode: true,
+          string: true,
+        })
+      ).toString()
+    );
+
+    try {
+      deepStrictEqual(currentConfig, config);
+      return possibleGenesis[0].node.id;
+    } catch {
+      log.info(
+        "Local config does not match latest genesis config.\n\t\tSending new genesis transaction ..."
+      );
+
+      return await sendGenesis(client, jwk, config);
+    }
   } else {
     log.info("Sending genesis transaction ...");
 
-    const genesisTx = await client.createTransaction(
-      {
-        data: JSON.stringify(config),
-        target: CONSTANTS.exchangeWallet,
-      },
-      jwk
-    );
-
-    genesisTx.addTag("Exchange", "Verto");
-    genesisTx.addTag("Type", "Genesis");
-    genesisTx.addTag("Content-Type", "application/json");
-
-    await client.transactions.sign(genesisTx, jwk);
-    await client.transactions.post(genesisTx);
-
-    log.info(`Sent genesis transaction.\n\t\ttxId = ${genesisTx.id}`);
-
-    return genesisTx.id;
+    return await sendGenesis(client, jwk, config);
   }
 }

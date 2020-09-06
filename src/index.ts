@@ -77,7 +77,13 @@ async function RunCommand(opts: any) {
     /**
      * Instalise the trading post API
      */
-    initAPI(cnf.genesis.publicURL, cnf.api.host, cnf.api.port, connPool);
+    initAPI(
+      cnf.genesis.publicURL,
+      cnf.genesis.acceptedTokens,
+      cnf.api.host,
+      cnf.api.port,
+      connPool
+    );
     /**
      * Start the bootstrap workflow
      */
