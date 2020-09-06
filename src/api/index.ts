@@ -51,7 +51,6 @@ export function initAPI(
 export function checkAvailability(url: string | URL) {
   let endpoint = String(url).endsWith("/") ? "ping" : "/ping";
   fetch(`${url}/${endpoint}`).catch((err) => {
-    log.error("API is not publically accessible");
-    process.exit(1);
+    log.warn("API is not publically accessible");
   });
 }
