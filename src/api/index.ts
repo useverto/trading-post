@@ -6,7 +6,7 @@ import { Database } from "sqlite";
 import fetch from "node-fetch";
 import cors from "@koa/cors";
 import { TradingPostConfig } from "@utils/config";
-import CONSTANTS from "@utils/constants.yml";
+import CONSTANTS from "../utils/constants.yml";
 
 const log = new Log({
   level: Log.Levels.debug,
