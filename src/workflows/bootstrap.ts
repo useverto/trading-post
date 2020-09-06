@@ -1,5 +1,4 @@
 import Log from "@utils/logger";
-import Arweave from "arweave";
 import { Database } from "sqlite";
 import { getTimestamp } from "@utils/database";
 import { query } from "@utils/gql";
