@@ -35,6 +35,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@koa/cors@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@koa/cors/-/cors-3.1.0.tgz#618bb073438cfdbd3ebd0e648a76e33b84f3a3b2"
+  integrity sha512-7ulRC1da/rBa6kj6P4g2aJfnET3z8Uf3SWu60cjbtxTA5g8lxRdX/Bd2P92EagGwwAhANeNw8T8if99rJliR6Q==
+  dependencies:
+    vary "^1.1.2"
+
 "@koa/router@^9.4.0":
   version "9.4.0"
   resolved "https://registry.yarnpkg.com/@koa/router/-/router-9.4.0.tgz#734b64c0ae566eb5af752df71e4143edc4748e48"
@@ -319,6 +326,13 @@
     "@types/keygrip" "*"
     "@types/koa-compose" "*"
     "@types/node" "*"
+
+"@types/koa__cors@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@types/koa__cors/-/koa__cors-3.0.1.tgz#a8cf8535f0fe682c9421f1b9379837c585f8b66b"
+  integrity sha512-loqZNXliley8kncc4wrX9KMqLGN6YfiaO3a3VFX+yVkkXJwOrZU4lipdudNjw5mFyC+5hd7h9075hQWcVVpeOg==
+  dependencies:
+    "@types/koa" "*"
 
 "@types/koa__router@^8.0.2":
   version "8.0.2"
