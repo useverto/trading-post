@@ -6,10 +6,22 @@ let request: SuperTest<Test>;
 describe("API tests", () => {
   it("Start server", (done) => {
     server = initAPI(
-      "http://example.com",
-      [],
-      "localhost",
-      8080,
+      {
+        genesis: {
+          acceptedTokens: [
+            "c25-RdheC6khcACLv23-XXg1W7YuA-VSZ_1_qnNFbhw",
+            "FcM-QQpfcD0xTTzr8u4Su9QCgcvRx_JH4JSCQoFi6Ck",
+          ],
+          tradeFee: 0.01,
+          publicURL: "https://example.com/",
+          version: "0.2.0",
+        },
+        database: "./db.db",
+        api: {
+          port: 8080,
+          host: "localhost",
+        },
+      },
       undefined,
       false
     ).listen();
