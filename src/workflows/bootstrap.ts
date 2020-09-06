@@ -16,7 +16,6 @@ const log = new Log({
 });
 
 async function getLatestTxs(
-  client: Arweave,
   db: Database,
   addr: string,
   genesisTxId: string,
@@ -32,7 +31,7 @@ async function getLatestTxs(
     latestTxId = genesisTxId;
   }
 
-  const _txs = (
+  let _txs = (
     await query({
       query: tradesQuery,
       variables: {
@@ -45,12 +44,12 @@ async function getLatestTxs(
 
   let index: number = 0;
   for (let i = 0; i < _txs.length; i++) {
-    if (_txs[i] === latestTxId) {
-      index = i;
+    if (_txs[i].node.id === latestTxId) {
+      index = i + 1;
       break;
     }
   }
-  _txs.slice(index, _txs.length);
+  _txs = _txs.slice(index, _txs.length);
 
   const txs: { id: string; height: number }[] = [];
 
@@ -82,7 +81,6 @@ export async function bootstrap(
 
   setInterval(async () => {
     const txs = await getLatestTxs(
-      client,
       db,
       walletAddr,
       genesisTxId,
@@ -90,17 +88,19 @@ export async function bootstrap(
       latestTxId
     );
 
-    for (const tx of txs) {
-      try {
-        await match(client, tx.id, jwk!, db);
-      } catch (err) {
-        log.error(
-          `Failed to handle transaction.\n\t\ttxId = ${tx.id}\n\t\t${err}`
-        );
+    if (txs.length !== 0) {
+      for (const tx of txs) {
+        try {
+          await match(client, tx.id, jwk!, db);
+        } catch (err) {
+          log.error(
+            `Failed to handle transaction.\n\t\ttxId = ${tx.id}\n\t\t${err}`
+          );
+        }
       }
-    }
 
-    latestTxId = txs[-1].id;
-    latestBlockHeight = txs[-1].height;
+      latestTxId = txs[txs.length - 1].id;
+      latestBlockHeight = txs[txs.length - 1].height;
+    }
   }, 10000);
 }
