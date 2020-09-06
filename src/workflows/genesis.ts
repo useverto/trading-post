@@ -12,6 +12,21 @@ const log = new Log({
   name: "genesis",
 });
 
+// Credit: https://stackoverflow.com/questions/30476150/javascript-deep-comparison-recursively-objects-and-properties
+function isEqual(a: any, b: any): boolean {
+  if (a === b) return true;
+  if (a instanceof Date && b instanceof Date)
+    return a.getTime() === b.getTime();
+  if (!a || !b || (typeof a !== "object" && typeof b !== "object"))
+    return a === b;
+  if (a === null || a === undefined || b === null || b === undefined)
+    return false;
+  if (a.prototype !== b.prototype) return false;
+  let keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  return keys.every((k) => isEqual(a[k], b[k]));
+}
+
 export async function genesis(
   client: Arweave,
   community: Community,
@@ -45,6 +60,17 @@ export async function genesis(
     log.info(
       `Found genesis transaction.\n\t\ttxId = ${possibleGenesis[0].node.id}`
     );
+
+    const currentConfig = JSON.parse(
+      (
+        await client.transactions.getData(possibleGenesis[0].node.id, {
+          decode: true,
+          string: true,
+        })
+      ).toString()
+    );
+
+    console.log(isEqual(currentConfig, config));
   } else {
     log.info("Sending genesis transaction ...");
 
