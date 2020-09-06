@@ -2,6 +2,7 @@ import "@utils/console";
 import dotenv from "dotenv";
 import commander from "commander";
 import InitCommand from "@commands/init";
+import UpgradeCommand from "@commands/upgrade";
 import Log from "@utils/logger";
 import { initAPI } from "@api/index";
 import {
@@ -45,13 +46,23 @@ program
     "Verto trading post config",
     "verto.config.json"
   )
-  .action(RunCommand)
-  /**
-   * subcommand "init" to create a verto configuration file
-   */
+  .action(RunCommand);
+
+/**
+ * subcommand "init" to create a verto configuration file
+ */
+program
   .command("init")
   .description("generate a verto configuration file")
   .action(InitCommand);
+
+/**
+ * subcommand "upgrade" to upgrade to the latest trading post release
+ */
+program
+  .command("upgrade")
+  .description("upgrade to the latest trading post release")
+  .action(UpgradeCommand);
 
 /**
  * Parse the raw process arguments
