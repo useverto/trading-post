@@ -27,6 +27,7 @@ const config = {
     "fs",
     "path",
     "child_process",
+    "assert",
   ],
   plugins: [
     typescript(),
