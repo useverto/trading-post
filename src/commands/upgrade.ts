@@ -18,7 +18,7 @@ const installers: Installer = {
   /** darwin = macos */
   darwin: `curl -fsSL https://verto.exchange/i/mac | sh`,
   /** win32 is the platform for both Windows 32bit and 64bit */
-  win32: `iwr https://verto.exchange/i/windows | iex`,
+  win32: `PowerShell -Command "& {Invoke-WebRequest https://verto.exchange/i/windows | Invoke-Expression}"`,
 };
 
 export default async () => {
