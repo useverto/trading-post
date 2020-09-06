@@ -88,9 +88,44 @@ The `verto.config.json` file is where the majority of your configuration will li
 
 #### Running the Trading Post
 
-##### Install pre-built binary
+##### Install pre-built binaries
 
-This is coming soon!
+The trading post is distributed as standalone binaries for your operating system.
+Install these binaries via our installers -
+
+**Linux**
+
+```shell script
+curl -fsSL https://verto.exchange/i/linux | sh
+```
+
+**MacOS**
+
+```shell script
+curl -fsSL https://verto.exchange/i/mac | sh
+```
+
+**Windows**
+
+```shell script
+iwr https://verto.exchange/i/windows | iex
+```
+
+It will download releases aand unzip artifacts. You can add the binary to your PATH env variable by following the instructions after installation.
+
+Now, create a trading post config
+
+```shell script
+verto init
+```
+
+and quick start your trading post with -
+
+```shell script
+verto -k keyfile.json
+```
+
+You've successfully started a verto trading post! :smile:
 
 ##### Build from source
 
