@@ -25,6 +25,10 @@ jobs:
         with:
           deno-version: v1.3.2
 
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Get Version
         id: version
         run: echo "::set-output name=tag::$(node -p "require('./package.json').version")"
