@@ -5,7 +5,13 @@ let request: SuperTest<Test>;
 
 describe("API tests", () => {
   it("Start server", (done) => {
-    server = initAPI("https://example.com", "localhost", 8080, undefined, false).listen();
+    server = initAPI(
+      "http://example.com",
+      "localhost",
+      8080,
+      undefined,
+      false
+    ).listen();
     request = supertest(server);
     done();
   });
