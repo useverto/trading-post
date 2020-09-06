@@ -1,5 +1,5 @@
-exchangeContractSrc: c25-RdheC6khcACLv23-XXg1W7YuA-VSZ_1_qnNFbhw
-exchangeWallet: pvPWBZ8A5HLpGSEfhEmK1A3PfMgB_an8vVS6L14Hsls
+exchangeContractSrc: fE2OcfjlS-sHqG5K8QvxE8wHtcqKxS-YV0bDEgxo-eI
+exchangeWallet: aLemOhg9OGovn-0o4cOCbueiHT9VgdYnpJpq7NgMA1A
 
 # integers on the server are 32 bit so we can't user Number.MAX_SAFE_INTEGER
 maxInt: 2147483647
