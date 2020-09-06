@@ -12,9 +12,13 @@ export default function createRouter(db?: Database): Router {
    */
   router.get("/ping", async (ctx, next) => {
     ctx.body = {
-      up: true,
-      alive: process.uptime(),
+      uptime: process.uptime(),
     };
+    await next();
+  });
+
+  router.get("/orders", async (ctx, next) => {
+    
     await next();
   });
 
