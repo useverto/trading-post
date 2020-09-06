@@ -1,31 +1,17 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
-import Community from "community-js";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { GenesisConfig } from "@utils/config";
 import CONSTANTS from "../utils/constants.yml";
+import Community from "community-js";
 import { query } from "@utils/gql";
 import genesisQuery from "../queries/genesis.gql";
+import { deepStrictEqual } from "assert";
 
 const log = new Log({
   level: Log.Levels.debug,
   name: "genesis",
 });
-
-// Credit: https://stackoverflow.com/questions/30476150/javascript-deep-comparison-recursively-objects-and-properties
-function isEqual(a: any, b: any): boolean {
-  if (a === b) return true;
-  if (a instanceof Date && b instanceof Date)
-    return a.getTime() === b.getTime();
-  if (!a || !b || (typeof a !== "object" && typeof b !== "object"))
-    return a === b;
-  if (a === null || a === undefined || b === null || b === undefined)
-    return false;
-  if (a.prototype !== b.prototype) return false;
-  let keys = Object.keys(a);
-  if (keys.length !== Object.keys(b).length) return false;
-  return keys.every((k) => isEqual(a[k], b[k]));
-}
 
 async function sendGenesis(
   client: Arweave,
@@ -93,9 +79,9 @@ export async function genesis(
       ).toString()
     );
 
-    if (isEqual(currentConfig, config)) {
-      return;
-    } else {
+    try {
+      deepStrictEqual(currentConfig, config, "");
+    } catch (err) {
       log.info(
         "Local config does not match latest genesis config.\n\t\tSending new genesis transaction ..."
       );
