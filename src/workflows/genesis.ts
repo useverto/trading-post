@@ -80,7 +80,7 @@ export async function genesis(
     );
 
     try {
-      deepStrictEqual(currentConfig, config, "");
+      deepStrictEqual(currentConfig, config);
     } catch {
       log.info(
         "Local config does not match latest genesis config.\n\t\tSending new genesis transaction ..."
