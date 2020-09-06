@@ -15,7 +15,9 @@ type Installer = {
 
 const installers: Installer = {
   linux: `curl -fsSL https://verto.exchange/i/linux | sh`,
+  /** darwin = macos */
   darwin: `curl -fsSL https://verto.exchange/i/mac | sh`,
+  /** win32 is the platform for both Windows 32bit and 64bit */
   win32: `iwr https://verto.exchange/i/windows | iex`,
 };
 
