@@ -75,13 +75,13 @@ async function RunCommand(opts: any) {
      */
     const tokenModels = setupTokenTables(connPool, cnf.genesis.acceptedTokens);
     /**
+     * Instalise the trading post API
+     */
+    initAPI(cnf.genesis.publicURL, cnf.api.host, cnf.api.port, connPool);
+    /**
      * Start the bootstrap workflow
      */
     bootstrap(cnf, connPool, opts.keyFile).catch((err) => log.error(err));
-    /**
-     * Instalise the trading post API
-     */
-    initAPI(cnf.api.host, cnf.api.port, connPool);
     /**
      * Setup shutdown hook
      */
