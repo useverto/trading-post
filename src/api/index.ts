@@ -32,6 +32,7 @@ http.use(async (ctx, next) => {
  */
 export function initAPI(
   publicURL: string | URL,
+  tokens: string[],
   host?: string,
   port?: number,
   db?: Database,
@@ -40,7 +41,7 @@ export function initAPI(
   port = port || 8080;
   host = host || "localhost";
   const verifyID = v4();
-  http.use(createRouter(db).routes());
+  http.use(createRouter(db, tokens).routes());
   if (startItself) http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
   checkAvailability(publicURL);
