@@ -1,2 +1,5 @@
 exchangeContractSrc: fE2OcfjlS-sHqG5K8QvxE8wHtcqKxS-YV0bDEgxo-eI
 exchangeWallet: aLemOhg9OGovn-0o4cOCbueiHT9VgdYnpJpq7NgMA1A
+
+# integers on the server are 32 bit so we can't user Number.MAX_SAFE_INTEGER
+maxInt: 2147483647

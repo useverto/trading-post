@@ -1,17 +1,18 @@
-query($owners: [String!], $recipients: [String!], $num: Int) {
+query($recipients: [String!], $min: Int, $num: Int) {
   transactions(
-    owners: $owners
     recipients: $recipients
     tags: [
       { name: "Exchange", values: "Verto" }
       { name: "Type", values: ["Buy", "Sell"] }
     ]
+    block: { min: $min }
     first: $num
   ) {
     edges {
       node {
         id
         block {
+          height
           timestamp
         }
       }
