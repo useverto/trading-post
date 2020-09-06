@@ -1,13 +1,14 @@
-import { TradingPostConfig } from "@utils/config";
-import { Database } from "sqlite";
-import { init } from "@utils/arweave";
 import Log from "@utils/logger";
+import Arweave from "arweave";
+import { Database } from "sqlite";
+import { getTimestamp } from "@utils/database";
 import { query } from "@utils/gql";
 import tradesQuery from "../queries/trades.gql";
-import { match } from "@workflows/match";
+import CONSTANTS from "../utils/constants.yml";
+import { TradingPostConfig } from "@utils/config";
+import { init } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
-import { getTimestamp } from "@utils/database";
-import Arweave from "arweave";
+import { match } from "@workflows/match";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -19,13 +20,9 @@ async function getLatestTxs(
   db: Database,
   addr: string,
   genesisTxId: string,
-  latestBlockHeight?: number,
+  latestBlockHeight: number,
   latestTxId?: string
 ) {
-  if (!latestBlockHeight) {
-    latestBlockHeight = (await client.network.getInfo()).height;
-  }
-
   const timeEntries = await getTimestamp(db);
   const time = timeEntries[timeEntries.length - 1]["createdAt"]
     .toString()
@@ -37,33 +34,11 @@ async function getLatestTxs(
 
   const _txs = (
     await query({
-      query: `
-        query ($recipients: [String!], $min: Int) {
-          transactions(
-            recipients: $recipients
-            tags: [
-              { name: "Exchange", values: "Verto" }
-              { name: "Type", values: ["Buy", "Sell"] }
-            ]
-            block: {
-              min: $min
-            }
-            first: 2147483647
-          ) {
-            edges {
-              node {
-                id
-                block {
-                  timestamp
-                }
-              }
-            }
-          }
-        }    
-      `,
+      query: tradesQuery,
       variables: {
         recipients: [addr],
         min: latestBlockHeight,
+        num: CONSTANTS.maxInt,
       },
     })
   ).data.transactions.edges.reverse();
@@ -77,11 +52,14 @@ async function getLatestTxs(
   }
   _txs.slice(index, _txs.length);
 
-  const txs: string[] = [];
+  const txs: { id: string; height: number }[] = [];
 
   for (const tx of _txs) {
     if (tx.node.block.timestamp > time) {
-      txs.push(tx.node.id);
+      txs.push({
+        id: tx.node.id,
+        height: tx.node.block.height,
+      });
     }
   }
 
@@ -94,38 +72,35 @@ export async function bootstrap(
   keyfile?: string
 ) {
   const { client, walletAddr, community, jwk } = await init(keyfile);
+
   const genesisTxId = await genesis(client, community, jwk!, config.genesis);
-  // Monitor all new transactions that come into this wallet.
+
   log.info("Monitoring wallet for incoming transactions...");
-  const timeEntries = await getTimestamp(db);
-  const time = timeEntries[timeEntries.length - 1]["createdAt"]
-    .toString()
-    .slice(0, -3);
+
   let latestTxId: string;
+  let latestBlockHeight = (await client.network.getInfo()).height;
+
   setInterval(async () => {
-    // TODO(@johnletey): Less hacky way of doing this
-    const candidateLatestTx = (
-      await query({
-        query: tradesQuery,
-        variables: {
-          recipients: [walletAddr],
-          num: 50,
-        },
-      })
-    ).data.transactions.edges.find((tx: any) => tx.node.block)?.node;
+    const txs = await getLatestTxs(
+      client,
+      db,
+      walletAddr,
+      genesisTxId,
+      latestBlockHeight,
+      latestTxId
+    );
 
-    if (candidateLatestTx && candidateLatestTx.block.timestamp > time) {
-      if (candidateLatestTx.id !== latestTxId) {
-        latestTxId = candidateLatestTx.id;
-
-        try {
-          await match(client, latestTxId, jwk!, db);
-        } catch (err) {
-          log.error(
-            `Failed to handle transaction.\n\t\ttxId = ${latestTxId}\n\t\t${err}`
-          );
-        }
+    for (const tx of txs) {
+      try {
+        await match(client, tx.id, jwk!, db);
+      } catch (err) {
+        log.error(
+          `Failed to handle transaction.\n\t\ttxId = ${tx.id}\n\t\t${err}`
+        );
       }
     }
+
+    latestTxId = txs[-1].id;
+    latestBlockHeight = txs[-1].height;
   }, 10000);
 }
