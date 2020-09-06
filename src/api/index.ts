@@ -41,6 +41,11 @@ export function initAPI(
   const host = config.api.host || "localhost";
   const verifyID = v4();
   http.use(createRouter(db, config.genesis.acceptedTokens).routes());
+  if(config.api.allowedOrigins) {
+    http.use(cors({
+      origin: checkOriginAgainstWhitelist(config.api.allowedOrigins)
+    }))
+  }
   if (listen) http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
   checkAvailability(config.genesis.publicURL);
@@ -52,4 +57,14 @@ export function checkAvailability(url: string | URL) {
   fetch(`${url}/${endpoint}`).catch((err) => {
     log.warn("API is not publically accessible");
   });
+}
+
+function checkOriginAgainstWhitelist(whitelist: (string | URL)[]) {
+  return async (ctx: Koa.Context): Promise<string> => {
+    const requestOrigin = ctx.headers.origin;
+    if (!whitelist.includes(requestOrigin) {
+        return ctx.throw(`🙈 ${requestOrigin} is not a valid origin`);
+    }
+    return requestOrigin;
+  }
 }

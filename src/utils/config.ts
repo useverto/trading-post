@@ -11,6 +11,7 @@ const log = new Logger({
  * Trading post API Server configuration
  */
 export interface APIConfig {
+  allowedOrigins?: (string | URL)[];
   host: string;
   port: number;
 }
