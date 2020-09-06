@@ -77,6 +77,17 @@ export async function saveOrder(
   ]);
 }
 
+export async function getOrders(db: Database, tokens: string[]) {
+  let executions = tokens.map(async (token) => {
+    return {
+      token,
+      orders: await db.all<TokenInstance[]>(`SELECT * FROM "${token}"`),
+    };
+  });
+  let data = await Promise.all(executions);
+  return data;
+}
+
 /**
  * Retreive sell orders from the database and sort them by their price.
  * @param db sqlite3 connection pool
