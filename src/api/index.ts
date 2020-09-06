@@ -6,6 +6,7 @@ import { Database } from "sqlite";
 import fetch from "node-fetch";
 import cors from "@koa/cors";
 import { TradingPostConfig } from "@utils/config";
+import CONSTANTS from "@utils/constants.yml";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -41,10 +42,12 @@ export function initAPI(
   const host = config.api.host || "localhost";
   const verifyID = v4();
   http.use(createRouter(db, config.genesis.acceptedTokens).routes());
-  if(config.api.allowedOrigins) {
-    http.use(cors({
-      origin: checkOriginAgainstWhitelist(config.api.allowedOrigins)
-    }))
+  if (config.api.allowedOrigins) {
+    http.use(
+      cors({
+        origin: checkOriginAgainstWhitelist(config.api.allowedOrigins),
+      })
+    );
   }
   if (listen) http.listen(port, host);
   log.debug(`Started trading post server at port ${port}`);
@@ -60,11 +63,13 @@ export function checkAvailability(url: string | URL) {
 }
 
 function checkOriginAgainstWhitelist(whitelist: (string | URL)[]) {
+  /** Always allow verto's frontend to send in requests */
+  whitelist.push(CONSTANTS.vertoDomain);
   return async (ctx: Koa.Context): Promise<string> => {
     const requestOrigin = ctx.headers.origin;
-    if (!whitelist.includes(requestOrigin) {
-        return ctx.throw(`🙈 ${requestOrigin} is not a valid origin`);
+    if (!whitelist.includes(requestOrigin)) {
+      return ctx.throw(`🙈 ${requestOrigin} is not a valid origin`);
     }
     return requestOrigin;
-  }
+  };
 }

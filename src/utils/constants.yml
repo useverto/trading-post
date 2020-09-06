@@ -3,3 +3,5 @@ exchangeWallet: aLemOhg9OGovn-0o4cOCbueiHT9VgdYnpJpq7NgMA1A
 
 # integers on the server are 32 bit so we can't user Number.MAX_SAFE_INTEGER
 maxInt: 2147483647
+# domain of verto's frontend
+vertoDomain: https://verto.exchange/
