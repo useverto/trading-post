@@ -27,6 +27,29 @@ function isEqual(a: any, b: any): boolean {
   return keys.every((k) => isEqual(a[k], b[k]));
 }
 
+async function sendGenesis(
+  client: Arweave,
+  jwk: JWKInterface,
+  config: GenesisConfig
+) {
+  const genesisTx = await client.createTransaction(
+    {
+      data: JSON.stringify(config),
+      target: CONSTANTS.exchangeWallet,
+    },
+    jwk
+  );
+
+  genesisTx.addTag("Exchange", "Verto");
+  genesisTx.addTag("Type", "Genesis");
+  genesisTx.addTag("Content-Type", "application/json");
+
+  await client.transactions.sign(genesisTx, jwk);
+  await client.transactions.post(genesisTx);
+
+  log.info(`Sent genesis transaction.\n\t\ttxId = ${genesisTx.id}`);
+}
+
 export async function genesis(
   client: Arweave,
   community: Community,
@@ -70,25 +93,18 @@ export async function genesis(
       ).toString()
     );
 
-    console.log(isEqual(currentConfig, config));
+    if (isEqual(currentConfig, config)) {
+      return;
+    } else {
+      log.info(
+        "Local config does not match latest genesis config.\n\t\tSending new genesis transaction ..."
+      );
+
+      await sendGenesis(client, jwk, config);
+    }
   } else {
     log.info("Sending genesis transaction ...");
 
-    const genesisTx = await client.createTransaction(
-      {
-        data: JSON.stringify(config),
-        target: CONSTANTS.exchangeWallet,
-      },
-      jwk
-    );
-
-    genesisTx.addTag("Exchange", "Verto");
-    genesisTx.addTag("Type", "Genesis");
-    genesisTx.addTag("Content-Type", "application/json");
-
-    await client.transactions.sign(genesisTx, jwk);
-    await client.transactions.post(genesisTx);
-
-    log.info(`Sent genesis transaction.\n\t\ttxId = ${genesisTx.id}`);
+    await sendGenesis(client, jwk, config);
   }
 }
