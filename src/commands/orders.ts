@@ -1,6 +1,7 @@
 import { init, collectDatabase, TokenInstance } from "@utils/database";
 import { asTree } from "@utils/tree";
 import { loadConfig } from "@utils/config";
+import chalk from "chalk";
 
 /**
  * Display the trading post order book
@@ -14,8 +15,8 @@ export default async (opts: any) => {
     [token: string]: TokenInstance[] | string | { [key: string]: any };
   } = {};
   orders.forEach((element) => {
-    orderTree[element.table] =
-      element.data.length == 0 ? "No orders" : element.data;
+    let token = chalk.italic.greenBright(element.table);
+    orderTree[token] = element.data.length == 0 ? "No orders" : element.data;
   });
   console.log(asTree(orderTree, true));
 };
