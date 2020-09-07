@@ -17,5 +17,5 @@ export default async (opts: any) => {
     orderTree[element.table] =
       element.data.length == 0 ? { "No orders": 0 } : element.data;
   });
-  console.log(asTree(orderTree));
+  console.log(asTree(orderTree, true));
 };
