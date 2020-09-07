@@ -88,6 +88,20 @@ export async function getOrders(db: Database, tokens: string[]) {
   return data;
 }
 
+export async function collectDatabase(db: Database) {
+  let tables: { name: string }[] = await db.all(
+    "SELECT name FROM sqlite_master WHERE type='table'"
+  );
+  let columns = tables.map(async (table) => {
+    return {
+      table: table.name,
+      data: await db.all<any[]>(`SELECT * FROM "${table.name}"`),
+    };
+  });
+
+  let data = await Promise.all(columns);
+  return data;
+}
 /**
  * Retreive sell orders from the database and sort them by their price.
  * @param db sqlite3 connection pool
