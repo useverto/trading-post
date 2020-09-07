@@ -44,7 +44,7 @@ program
    */
   .option(
     "-c, --config <file>",
-    "Verto trading post config",
+    "Verto trading post configuration",
     "verto.config.json"
   )
   .action(RunCommand);
@@ -59,6 +59,14 @@ program
 
 program
   .command("orders")
+  /**
+   * -c, --config flag to specify verto's configuration file
+   */
+  .option(
+    "-c, --config <file>",
+    "Verto trading post configuration",
+    "verto.config.json"
+  )
   .description("Show trading post order book")
   .action(OrdersCommand);
 
