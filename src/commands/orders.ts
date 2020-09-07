@@ -15,7 +15,7 @@ export default async (opts: any) => {
     [token: string]: TokenInstance[] | string | { [key: string]: any };
   } = {};
   orders.forEach((element) => {
-    let token = chalk.italic.greenBright(element.table);
+    let token = chalk.italic.grey(element.table);
     orderTree[token] = element.data.length == 0 ? "No orders" : element.data;
   });
   console.log(asTree(orderTree, true));
