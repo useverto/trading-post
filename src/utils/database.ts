@@ -149,7 +149,7 @@ export async function getBuyOrders(
 
 /**
  * Save last alive timestamp in database
- * @param db the database conenction pool
+ * @param db the database connection pool
  */
 export async function saveTimestamp(db: Database) {
   await db.exec(`CREATE TABLE IF NOT EXISTS "__verto__" (
@@ -171,7 +171,11 @@ export async function getTimestamp(db: Database): Promise<DbTimestamp[]> {
   try {
     return await db.all<DbTimestamp[]>(`SELECT * FROM "__verto__"`);
   } catch {
-    return [{ createdAt: Date.now().toString() }];
+    await db.exec(`CREATE TABLE IF NOT EXISTS "__verto__" (
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+    await db.run(`INSERT INTO "__verto__" VALUES (?)`, [new Date()]);
+    return await getTimestamp(db);
   }
 }
 
