@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import commander from "commander";
 import InitCommand from "@commands/init";
 import UpgradeCommand from "@commands/upgrade";
+import OrdersCommand from "@commands/orders";
 import Log from "@utils/logger";
 import { initAPI } from "@api/index";
 import {
@@ -55,6 +56,11 @@ program
   .command("init")
   .description("generate a verto configuration file")
   .action(InitCommand);
+
+program
+  .command("orders")
+  .description("Show trading post order book")
+  .action(OrdersCommand);
 
 /**
  * subcommand "upgrade" to upgrade to the latest trading post release
