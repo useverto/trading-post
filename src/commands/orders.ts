@@ -6,7 +6,7 @@ import { loadConfig } from "@utils/config";
  * Display the trading post order book
  */
 export default async (opts: any) => {
-  let cnf = await loadConfig(opts.config)
+  let cnf = await loadConfig(opts.config);
   const connection = await init(cnf.database);
   let orders = await collectDatabase(connection);
   orders = orders.filter((i) => i.table !== "__verto__");
