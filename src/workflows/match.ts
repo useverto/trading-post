@@ -79,7 +79,7 @@ export async function match(
    * Parse the amount to an integer from a float
    * Eg: 10.00000222 => 10
    */
-  amnt = parseInt(amnt);
+  amnt = Math.round(amnt);
 
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
 
