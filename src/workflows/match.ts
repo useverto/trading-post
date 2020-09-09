@@ -103,11 +103,11 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = JSON.stringify({
+        const smartweaveInput = {
           function: "transfer",
           target: tx.owner.address,
           qty: Math.floor(pstAmount),
-        });
+        };
         const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
@@ -157,11 +157,11 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = JSON.stringify({
+        const smartweaveInput = {
           function: "transfer",
           target: tx.owner.address,
           qty: Math.floor(order.amnt),
-        });
+        };
         const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
@@ -208,11 +208,11 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = JSON.stringify({
+        const smartweaveInput = {
           function: "transfer",
           target: order.addr,
           qty: Math.floor(amnt),
-        });
+        };
         const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
