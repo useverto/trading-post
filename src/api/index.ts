@@ -4,6 +4,7 @@ import createRouter from "@api/routes";
 import { v4 } from "uuid";
 import { Database } from "sqlite";
 import fetch from "node-fetch";
+import cors from "@koa/cors";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -11,6 +12,8 @@ const log = new Log({
 });
 
 const http = new Koa();
+
+http.use(cors());
 
 // attach logger
 http.use(async (ctx, next) => {
