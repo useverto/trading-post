@@ -62,7 +62,6 @@ export async function match(
       : JSON.parse(tx.tags.find((tag: any) => tag.name === "Input")?.value!)[
           "qty"
         ];
-
   const tokenTag = opcode === "Buy" ? "Token" : "Contract";
   const token = tx.tags.find((tag: any) => tag.name === tokenTag)?.value!;
   const ticker = JSON.parse(
@@ -74,7 +73,7 @@ export async function match(
     ).toString()
   )["ticker"];
 
-  const rate = tx.tags.find((tag: any) => tag.name === "Rate")?.value!;
+  let rate = tx.tags.find((tag: any) => tag.name === "Rate")?.value!;
 
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
 
@@ -108,7 +107,9 @@ export async function match(
           client,
           jwk,
           token,
-          `{"function": "transfer", "target": "${tx.owner.address}", "qty": ${pstAmount}}`
+          `{"function": "transfer", "target": "${
+            tx.owner.address
+          }", "qty": ${Math.floor(pstAmount)}}`
         );
 
         log.info(
@@ -162,7 +163,9 @@ export async function match(
           client,
           jwk,
           token,
-          `{"function": "transfer", "target": "${tx.owner.address}", "qty": ${order.amnt}}`
+          `{"function": "transfer", "target": "${
+            tx.owner.address
+          }", "qty": ${Math.floor(order.amnt)}}`
         );
 
         log.info(
@@ -213,7 +216,9 @@ export async function match(
           client,
           jwk,
           token,
-          `{"function": "transfer", "target": "${order.addr}", "qty": ${amnt}}`
+          `{"function": "transfer", "target": "${
+            order.addr
+          }", "qty": ${Math.floor(amnt)}}`
         );
 
         log.info(
@@ -261,9 +266,9 @@ export async function match(
           client,
           jwk,
           token,
-          `{"function": "transfer", "target": "${order.addr}", "qty": ${
-            order.amnt * rate
-          }}`
+          `{"function": "transfer", "target": "${
+            order.addr
+          }", "qty": ${Math.floor(order.amnt * rate)}}`
         );
 
         log.info(
@@ -271,7 +276,9 @@ export async function match(
             `\n\t\tSent ${order.amnt} AR to ${tx.owner.address}` +
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${order.amnt * rate} ${ticker} to ${order.addr}` +
+            `\n\t\tSent ${Math.floor(order.amnt * rate)} ${ticker} to ${
+              order.addr
+            }` +
             `\n\t\ttxId = ${pstTx}`
         );
         /**
