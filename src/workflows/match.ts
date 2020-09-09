@@ -75,8 +75,11 @@ export async function match(
 
   let rate = tx.tags.find((tag: any) => tag.name === "Rate")?.value!;
 
+  /**
+   * Parse the amount to a integer from a float
+   * Eg: 10.00000222 => 10
+   */
   amnt = parseInt(amnt);
-  rate = parseInt(rate);
 
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
 
