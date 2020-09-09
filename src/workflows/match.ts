@@ -103,14 +103,12 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const pstTx = await interactWrite(
-          client,
-          jwk,
-          token,
-          `{"function": "transfer", "target": "${
-            tx.owner.address
-          }", "qty": ${Math.floor(pstAmount)}}`
-        );
+        const smartweaveInput = JSON.stringify({
+          function: "transfer",
+          target: tx.owner.address,
+          qty: Math.floor(pstAmount),
+        });
+        const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
           "Matched!" +
@@ -159,14 +157,12 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const pstTx = await interactWrite(
-          client,
-          jwk,
-          token,
-          `{"function": "transfer", "target": "${
-            tx.owner.address
-          }", "qty": ${Math.floor(order.amnt)}}`
-        );
+        const smartweaveInput = JSON.stringify({
+          function: "transfer",
+          target: tx.owner.address,
+          qty: Math.floor(order.amnt),
+        });
+        const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
           "Matched!" +
@@ -212,14 +208,12 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const pstTx = await interactWrite(
-          client,
-          jwk,
-          token,
-          `{"function": "transfer", "target": "${
-            order.addr
-          }", "qty": ${Math.floor(amnt)}}`
-        );
+        const smartweaveInput = JSON.stringify({
+          function: "transfer",
+          target: order.addr,
+          qty: Math.floor(amnt),
+        });
+        const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
           "Matched!" +
@@ -262,14 +256,12 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const pstTx = await interactWrite(
-          client,
-          jwk,
-          token,
-          `{"function": "transfer", "target": "${
-            order.addr
-          }", "qty": ${Math.floor(order.amnt * rate)}}`
-        );
+        const smartweaveInput = JSON.stringify({
+          function: "transfer",
+          target: order.addr,
+          qty: Math.floor(order.amnt * rate),
+        });
+        const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
           "Matched!" +
