@@ -19,7 +19,7 @@ const log = new Log({
 
 function validateAsInt(...data: (string | number)[]) {
   return !data
-    .map((x) => typeof x == "number" || !isNaN(parseFloat(x)))
+    .map((x) => Number.isInteger(typeof x == "number" ? x : parseFloat(x)))
     .includes(false);
 }
 
