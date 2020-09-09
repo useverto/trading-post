@@ -17,6 +17,12 @@ const log = new Log({
   name: "match",
 });
 
+function validateAsInt(...data: (string | number)[]) {
+  return !data
+    .map((x) => typeof x == "number" || !isNaN(parseFloat(x)))
+    .includes(false);
+}
+
 async function sendConfirmation(
   client: Arweave,
   txId: string,
@@ -62,7 +68,6 @@ export async function match(
       : JSON.parse(tx.tags.find((tag: any) => tag.name === "Input")?.value!)[
           "qty"
         ];
-
   const tokenTag = opcode === "Buy" ? "Token" : "Contract";
   const token = tx.tags.find((tag: any) => tag.name === tokenTag)?.value!;
   const ticker = JSON.parse(
@@ -76,6 +81,7 @@ export async function match(
 
   const rate = tx.tags.find((tag: any) => tag.name === "Rate")?.value!;
 
+  if (!validateAsInt(amnt, rate)) return;
   log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
 
   const tokenEntry: TokenInstance = {
