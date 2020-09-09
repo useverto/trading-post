@@ -107,7 +107,9 @@ export async function match(
           client,
           jwk,
           token,
-          `{"function": "transfer", "target": "${tx.owner.address}", "qty": ${Math.floor(pstAmount)}}`
+          `{"function": "transfer", "target": "${
+            tx.owner.address
+          }", "qty": ${Math.floor(pstAmount)}}`
         );
 
         log.info(
@@ -161,7 +163,9 @@ export async function match(
           client,
           jwk,
           token,
-          `{"function": "transfer", "target": "${tx.owner.address}", "qty": ${Math.floor(order.amnt)}}`
+          `{"function": "transfer", "target": "${
+            tx.owner.address
+          }", "qty": ${Math.floor(order.amnt)}}`
         );
 
         log.info(
@@ -212,7 +216,9 @@ export async function match(
           client,
           jwk,
           token,
-          `{"function": "transfer", "target": "${order.addr}", "qty": ${Math.floor(amnt)}}`
+          `{"function": "transfer", "target": "${
+            order.addr
+          }", "qty": ${Math.floor(amnt)}}`
         );
 
         log.info(
@@ -260,9 +266,9 @@ export async function match(
           client,
           jwk,
           token,
-          `{"function": "transfer", "target": "${order.addr}", "qty": ${
-            Math.floor(order.amnt * rate)
-          }}`
+          `{"function": "transfer", "target": "${
+            order.addr
+          }", "qty": ${Math.floor(order.amnt * rate)}}`
         );
 
         log.info(
@@ -270,7 +276,9 @@ export async function match(
             `\n\t\tSent ${order.amnt} AR to ${tx.owner.address}` +
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${Math.floor(order.amnt * rate)} ${ticker} to ${order.addr}` +
+            `\n\t\tSent ${Math.floor(order.amnt * rate)} ${ticker} to ${
+              order.addr
+            }` +
             `\n\t\ttxId = ${pstTx}`
         );
         /**
