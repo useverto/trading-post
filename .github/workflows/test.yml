@@ -90,7 +90,7 @@ jobs:
           sudo dpkg -i hyperfine_1.10.0_amd64.deb
 
       - name: Run benchmarks
-        run: yarn pkg && hyperfine 'node ./dist/verto.js' './verto' -i -w 5 -s full --export-markdown bench.md
+        run: yarn pkg && hyperfine 'node ./dist/verto.js' './verto' -i -w 10 -s full --export-markdown bench.md
 
       - name: Get Pull Request
         uses: jwalton/gh-find-current-pr@v1
