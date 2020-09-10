@@ -92,7 +92,7 @@ jobs:
       - name: Run benchmarks
         run: |
           yarn pkg
-          hyperfine 'node ./dist/verto.js -h' './verto -h' -i -w 10 -s full --export-markdown bench.md
+          hyperfine 'node ./dist/verto.js -h' './verto -h' 'node ./dist/verto.js orders' './verto orders' -i -w 10 -s full --export-markdown bench.md
 
       - name: Get Pull Request
         uses: jwalton/gh-find-current-pr@v1
