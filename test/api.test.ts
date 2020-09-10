@@ -25,6 +25,15 @@ describe("API tests", () => {
         done();
       });
   });
+  it("Test order book endpoint", (done) => {
+    request
+      .get("/orders")
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        done();
+      });
+  });
   it("Shutdown server", (done) => {
     server.close();
     done();
