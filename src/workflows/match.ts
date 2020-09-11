@@ -58,7 +58,7 @@ export async function match(
 
   let amnt =
     opcode === "Buy"
-      ? tx.quantity.ar
+      ? parseFloat(tx.quantity.ar)
       : JSON.parse(tx.tags.find((tag: any) => tag.name === "Input")?.value!)[
           "qty"
         ];
@@ -98,7 +98,7 @@ export async function match(
         const arTx = await client.createTransaction(
           {
             target: order.addr,
-            quantity: client.ar.arToWinston(amnt),
+            quantity: client.ar.arToWinston(amnt.toString()),
           },
           jwk
         );
