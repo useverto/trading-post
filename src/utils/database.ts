@@ -13,6 +13,7 @@ type Order = "Buy" | "Sell";
 export interface TokenInstance {
   txID: string;
   amnt: number;
+  received: number;
   rate?: number;
   addr: string;
   type: Order;
@@ -42,6 +43,7 @@ export function setupTokenTables(db: Database, contracts: string[]) {
     return await db.exec(`CREATE TABLE IF NOT EXISTS '${contract}' (
       txID STRING NOT NULL PRIMARY KEY,
       amnt INTEGER NOT NULL,
+      received INTEGER NOT NULL,
       rate INTEGER,
       addr STRING NOT NULL,
       type STRING NOT NULL,

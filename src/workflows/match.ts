@@ -80,6 +80,7 @@ export async function match(
   const tokenEntry: TokenInstance = {
     txID: txId,
     amnt,
+    received: 0,
     rate,
     addr: tx.owner.address,
     type: opcode,
