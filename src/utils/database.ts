@@ -69,9 +69,10 @@ export async function saveOrder(
    * NOTE: The following code is not vulnerable to sql injection since invalid table names can never be queried.
    *       The values are assigned via db.run that is capable of preventing any type of injection
    */
-  return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?, ?)`, [
+  return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?, ?, ?)`, [
     entry.txID,
     entry.amnt,
+    entry.received,
     entry.rate,
     entry.addr,
     entry.type,
