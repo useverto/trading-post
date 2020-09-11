@@ -126,6 +126,7 @@ export async function match(
            */
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
           await sendConfirmation(client, order.txID, `${amnt} AR`, jwk);
+          amnt = 0;
         } else {
           /**
            * Update an order.
@@ -135,6 +136,7 @@ export async function match(
             order.amnt - pstAmount,
             order.txID,
           ]);
+          amnt = order.amnt - pstAmount;
         }
         /**
          * Delete an order.
@@ -142,7 +144,7 @@ export async function match(
          */
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
         await sendConfirmation(client, txId, `${pstAmount} ${ticker}`, jwk);
-
+        amnt = pstAmount;
         return;
       } else {
         const arTx = await client.createTransaction(
