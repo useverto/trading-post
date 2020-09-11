@@ -126,7 +126,7 @@ export async function getSellOrders(
    * Sort orders by their rate
    */
   orders.sort((a, b) => {
-    if (a.rate && b.rate) return a.rate - b.rate;
+    if (a.rate && b.rate) return b.rate - a.rate;
     else return 0;
   });
   return orders;
