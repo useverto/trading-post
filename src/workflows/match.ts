@@ -256,11 +256,11 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = JSON.stringify({
+        const smartweaveInput = {
           function: "transfer",
           target: order.addr,
           qty: Math.floor(order.amnt * rate),
-        });
+        };
         const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
