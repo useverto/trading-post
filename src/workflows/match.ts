@@ -176,18 +176,23 @@ export async function match(
             `\n\t\tSent ${order.amnt / order.rate} AR to ${order.addr}` +
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${Math.floor(order.amnt)} ${ticker} to ${tx.owner.address}` +
+            `\n\t\tSent ${Math.floor(order.amnt)} ${ticker} to ${
+              tx.owner.address
+            }` +
             `\n\t\ttxId = ${pstTx}`
         );
         /**
          * Update an order.
          * NOTE: Table names are not subject to sql injections
          */
-        await db.run(`UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`, [
-          amnt - order.amnt / order.rate,
-          received + Math.floor(order.amnt),
-          txId,
-        ]);
+        await db.run(
+          `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
+          [
+            amnt - order.amnt / order.rate,
+            received + Math.floor(order.amnt),
+            txId,
+          ]
+        );
         amnt -= order.amnt / order.rate;
         received += Math.floor(order.amnt);
         /**
