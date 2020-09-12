@@ -127,7 +127,7 @@ verto -k keyfile.json
 
 You've successfully started a verto trading post! :smile:
 
-You can also [setup a reverse proxy](./docs/PROXY.md) with `nginx` for the trading post
+You can also [set up a reverse proxy](./docs/PROXY.md) with `nginx`.
 
 ##### Build from source
 
