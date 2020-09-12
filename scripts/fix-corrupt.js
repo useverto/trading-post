@@ -69,13 +69,13 @@ async function fixCorrupt(jwk) {
   let txs = [];
   for (const tx of _txs) {
     if (parseFloat(tx.node.quantity.ar) > 0) {
-      // console.log("AR transfer.");
+      // AR transfer.
     } else {
       if (
         tx.node.tags.find((tag) => tag.name === "Type") ||
         tx.node.tags.find((tag) => tag.name === "Exchange")
       ) {
-        // console.log("Confirmation tx.");
+        // Confirmation tx or other exchange related tx
       } else {
         const resendTx = (
           await query({
@@ -121,7 +121,7 @@ async function fixCorrupt(jwk) {
               input: JSON.parse(parsedTag),
             });
           } else {
-            // console.log("Not corrupt.");
+            // Not corrupt.
           }
         }
       }
