@@ -67,7 +67,7 @@ server {
     # Enabling ciphers
 
     access_log /var/log/nginx/access.log;
-    # Log Location. the Nginx User must have R/W permissions. Usually by ownership.
+    # Log Location. The Nginx User must have R/W permissions. Usually by ownership.
 
     location / {
         proxy_set_header Host $host;
