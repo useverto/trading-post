@@ -71,7 +71,9 @@ async function fixCorrupt(addr) {
         if (typeof parsedTag === "string") {
           txIDs.push({
             id: tx.node.id,
-            tag,
+            token: tx.node.tags.find((tag) => tag.name === "Contract").value,
+            // If you parse the tag again, it will be correct
+            input: JSON.parse(parsedTag),
           });
         } else {
           // console.log("Not corrupt.");
@@ -80,7 +82,7 @@ async function fixCorrupt(addr) {
     }
   }
 
-  // TODO(@johnletey): Send new, non-corrupt, txs.
+  // TODO(@johnletey): Send new txs.
   console.log(txIDs);
 }
 
