@@ -29,7 +29,7 @@ const maxInt = 2147483647;
 //
 
 async function fixCorrupt(addr) {
-  const _txIDs = (
+  const _txs = (
     await query({
       query: `
       query ($tradingPost: String!) {
@@ -58,8 +58,8 @@ async function fixCorrupt(addr) {
     })
   ).data.transactions.edges;
 
-  let txIDs = [];
-  for (const tx of _txIDs) {
+  let txs = [];
+  for (const tx of _txs) {
     if (parseFloat(tx.node.quantity.ar) > 0) {
       // console.log("AR transfer.");
     } else {
@@ -69,7 +69,7 @@ async function fixCorrupt(addr) {
         const tag = tx.node.tags.find((tag) => tag.name === "Input").value;
         const parsedTag = JSON.parse(tag);
         if (typeof parsedTag === "string") {
-          txIDs.push({
+          txs.push({
             id: tx.node.id,
             token: tx.node.tags.find((tag) => tag.name === "Contract").value,
             // If you parse the tag again, it will be correct
@@ -83,7 +83,7 @@ async function fixCorrupt(addr) {
   }
 
   // TODO(@johnletey): Send new txs.
-  console.log(txIDs);
+  console.log(txs);
 }
 
 fixCorrupt("WNeEQzI24ZKWslZkQT573JZ8bhatwDVx6XVDrrGbUyk");
