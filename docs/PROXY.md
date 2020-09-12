@@ -1,4 +1,4 @@
-While hosting a trading post, you might need to setup a reverse proxy
+While hosting a trading post, you might need to set up a reverse proxy.
 
 ## Nginx
 
