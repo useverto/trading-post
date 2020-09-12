@@ -81,7 +81,7 @@ server {
 }
 ```
 
-> SSL is compulsory otherwise CORS for the trading post API will be blocked. You can easily generate SSL certificates using Let's encrypt and specify the certificate file and key in the above configuration
+> SSL is compulsory otherwise CORS for the trading post API will be blocked. You can easily generate SSL certificates using Let's Encrypt and specify the certificate file and key in the above configuration
 
 **Be sure to replace YOUR-DOMAIN with your actual domain and make sure your trading post is running at port 8080.**
 
