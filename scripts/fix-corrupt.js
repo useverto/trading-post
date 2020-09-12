@@ -28,7 +28,15 @@ const maxInt = 2147483647;
 
 //
 
-async function fixCorrupt(addr) {
+const Arweave = require("arweave");
+
+async function fixCorrupt(jwk) {
+  const client = Arweave.init({
+    host: "arweave.dev",
+    port: 443,
+    protocol: "https",
+  });
+
   const _txs = (
     await query({
       query: `
@@ -53,7 +61,7 @@ async function fixCorrupt(addr) {
       }
     `,
       variables: {
-        tradingPost: addr,
+        tradingPost: await client.wallets.jwkToAddress(JSON.parse(jwk)),
       },
     })
   ).data.transactions.edges;
@@ -63,27 +71,93 @@ async function fixCorrupt(addr) {
     if (parseFloat(tx.node.quantity.ar) > 0) {
       // console.log("AR transfer.");
     } else {
-      if (tx.node.tags.find((tag) => tag.name === "Type")) {
+      if (
+        tx.node.tags.find((tag) => tag.name === "Type") ||
+        tx.node.tags.find((tag) => tag.name === "Exchange")
+      ) {
         // console.log("Confirmation tx.");
       } else {
-        const tag = tx.node.tags.find((tag) => tag.name === "Input").value;
-        const parsedTag = JSON.parse(tag);
-        if (typeof parsedTag === "string") {
-          txs.push({
-            id: tx.node.id,
-            token: tx.node.tags.find((tag) => tag.name === "Contract").value,
-            // If you parse the tag again, it will be correct
-            input: JSON.parse(parsedTag),
-          });
-        } else {
-          // console.log("Not corrupt.");
+        const resendTx = (
+          await query({
+            query: `
+            query($tradingPost: String!, $txID: [String!]!) {
+              transactions(
+                owners: [$tradingPost]
+                tags: [
+                  { name: "Exchange", values: "Verto" }
+                  { name: "Resend", values: $txID }
+                ]
+              ) {
+                edges {
+                  node {
+                    id
+                    quantity {
+                      ar
+                    }
+                    tags {
+                      name
+                      value
+                    }
+                  }
+                }
+              }
+            }            
+          `,
+            variables: {
+              tradingPost: await client.wallets.jwkToAddress(JSON.parse(jwk)),
+              txID: tx.node.id,
+            },
+          })
+        ).data.transactions.edges;
+
+        if (resendTx.length === 0) {
+          const tag = tx.node.tags.find((tag) => tag.name === "Input").value;
+          const parsedTag = JSON.parse(tag);
+          if (typeof parsedTag === "string") {
+            txs.push({
+              id: tx.node.id,
+              token: tx.node.tags.find((tag) => tag.name === "Contract").value,
+              // If you parse the tag again, it will be correct
+              input: JSON.parse(parsedTag),
+            });
+          } else {
+            // console.log("Not corrupt.");
+          }
         }
       }
     }
   }
 
-  // TODO(@johnletey): Send new txs.
-  console.log(txs);
+  console.log(`Found ${txs.length} corrupt PST transactions.`);
+  if (txs.length > 0) {
+    console.log("\n***");
+  }
+
+  for (const tx of txs) {
+    console.log(`\nResending ${tx.id} ...`);
+    const tags = {
+      Exchange: "Verto",
+      Resend: tx.id,
+      "App-Name": "SmartWeaveAction",
+      "App-Version": "0.3.0",
+      Contract: tx.token,
+      Input: JSON.stringify(tx.input),
+    };
+
+    const resendTx = await client.createTransaction(
+      {
+        data: Math.random().toString().slice(-4),
+      },
+      JSON.parse(jwk)
+    );
+    for (const [key, value] of Object.entries(tags)) {
+      resendTx.addTag(key, value);
+    }
+
+    await client.transactions.sign(resendTx, JSON.parse(jwk));
+    await client.transactions.post(resendTx);
+    console.log(`Sent: ${resendTx.id}`);
+  }
 }
 
-fixCorrupt("WNeEQzI24ZKWslZkQT573JZ8bhatwDVx6XVDrrGbUyk");
+fixCorrupt(/* pass in your keyfile */);
