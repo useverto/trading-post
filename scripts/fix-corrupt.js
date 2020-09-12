@@ -66,13 +66,12 @@ async function fixCorrupt(addr) {
       if (tx.node.tags.find((tag) => tag.name === "Type")) {
         // console.log("Confirmation tx.");
       } else {
-        const parsedTag = JSON.parse(
-          tx.node.tags.find((tag) => tag.name === "Input").value
-        );
+        const tag = tx.node.tags.find((tag) => tag.name === "Input").value;
+        const parsedTag = JSON.parse(tag);
         if (typeof parsedTag === "string") {
           txIDs.push({
             id: tx.node.id,
-            tag: tx.node.tags.find((tag) => tag.name === "Input").value,
+            tag,
           });
         } else {
           // console.log("Not corrupt.");
