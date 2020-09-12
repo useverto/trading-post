@@ -66,15 +66,23 @@ async function fixCorrupt(addr) {
       if (tx.node.tags.find((tag) => tag.name === "Type")) {
         // console.log("Confirmation tx.");
       } else {
-        txIDs.push({
-          id: tx.node.id,
-          tag: tx.node.tags.find((tag) => tag.name === "Input").value,
-        });
+        const parsedTag = JSON.parse(
+          tx.node.tags.find((tag) => tag.name === "Input").value
+        );
+        if (typeof parsedTag === "string") {
+          txIDs.push({
+            id: tx.node.id,
+            tag: tx.node.tags.find((tag) => tag.name === "Input").value,
+          });
+        } else {
+          // console.log("Not corrupt.");
+        }
       }
     }
   }
 
-  // TODO(@johnletey): Check if input tag is corrupt.
+  // TODO(@johnletey): Send new, non-corrupt, txs.
+  console.log(txIDs);
 }
 
 fixCorrupt("WNeEQzI24ZKWslZkQT573JZ8bhatwDVx6XVDrrGbUyk");
