@@ -13,11 +13,11 @@ type Order = "Buy" | "Sell";
 export interface TokenInstance {
   txID: string;
   amnt: number;
-  received: number;
   rate?: number;
   addr: string;
   type: Order;
   createdAt: Date;
+  received: number;
 }
 
 /**
@@ -43,11 +43,11 @@ export function setupTokenTables(db: Database, contracts: string[]) {
     return await db.exec(`CREATE TABLE IF NOT EXISTS '${contract}' (
       txID STRING NOT NULL PRIMARY KEY,
       amnt INTEGER NOT NULL,
-      received INTEGER NOT NULL,
       rate INTEGER,
       addr STRING NOT NULL,
       type STRING NOT NULL,
-      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      received INTEGER NOT NULL
     )`);
   });
   return contractTables;
@@ -72,11 +72,11 @@ export async function saveOrder(
   return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?, ?, ?)`, [
     entry.txID,
     entry.amnt,
-    entry.received,
     entry.rate,
     entry.addr,
     entry.type,
     entry.createdAt,
+    entry.received,
   ]);
 }
 

@@ -81,11 +81,11 @@ export async function match(
   const tokenEntry: TokenInstance = {
     txID: txId,
     amnt,
-    received,
     rate,
     addr: tx.owner.address,
     type: opcode,
     createdAt: new Date(),
+    received,
   };
   await saveOrder(db, token, tokenEntry);
 

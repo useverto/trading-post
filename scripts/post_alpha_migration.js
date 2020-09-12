@@ -1,19 +1,14 @@
-const { open, Database } = require("sqlite");
+const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 
-async function collectDatabase(db) {
+async function collectTables(db) {
   let tables = await db.all(
     "SELECT name FROM sqlite_master WHERE type='table'"
   );
-  let columns = tables.map(async (table) => {
-    return {
-      table: table.name,
-      data: await db.all(`SELECT * FROM "${table.name}"`),
-    };
-  });
 
-  let data = await Promise.all(columns);
-  return data;
+  return tables.map((table) => {
+    return table.name;
+  });
 }
 
 async function main() {
@@ -22,11 +17,12 @@ async function main() {
     driver: sqlite3.Database,
   });
 
-  let dbTables = await collectDatabase(sqlite);
-  dbTables = dbTables.filter((i) => i.table !== "__verto__");
-  dbTables.forEach(async (table) => {
+  let tables = await collectTables(sqlite);
+  tables = tables.filter((table) => table !== "__verto__");
+
+  tables.forEach(async (table) => {
     await sqlite.exec(
-      `ALTER TABLE "${table.table}" ADD COLUMN received INTEGER NOT NULL DEFAULT 0;`
+      `ALTER TABLE "${table}" ADD COLUMN received INTEGER NOT NULL DEFAULT 0;`
     );
   });
 }
