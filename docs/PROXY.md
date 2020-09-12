@@ -21,7 +21,7 @@ First, create a Nginx virtual host configuration using the follwing command:
 sudo touch /etc/nginx/sites-available/YOUR-DOMAIN
 ```
 
-> Be sure to replace YOUR-DOMAIN with your domain you plan to associate with the trading post.
+> Be sure to replace YOUR-DOMAIN with the domain you plan to associate with the trading post.
 
 **Create nginx configuration**
 
