@@ -28,7 +28,7 @@ sudo touch /etc/nginx/sites-available/YOUR-DOMAIN
 Next, we setup our nginx configuration by editing the file that we just created.
 
 ```shell script
-sudo vim /etc/nginx/sites-available/YOUR-DOMAIN
+sudo nano /etc/nginx/sites-available/YOUR-DOMAIN
 ```
 
 > You can either use `vim` or `nano` as your text editor
@@ -37,47 +37,56 @@ You can now paste the following configuration:
 
 ```nginx
 server {
-    listen 80;
-    server_name YOUR-DOMAIN www.YOUR-DOMAIN; # Edit this to your domain name
-    rewrite ^ https://$host$request_uri permanent;
+  listen 80;
+  listen [::]:80;
+  server_name YOUR-DOMAIN;
+
+  location ^~ /.well-known/acme-challenge {
+    default_type text/plain;
+    root /path/to/letsencrypt/challenge;
+  }
+
+  location / {
+    return 301 https://$host$request_uri;
+  }
 }
-
 server {
-    listen 443 ssl;
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+  server_name YOUR-DOMAIN;
 
-    server_name YOUR-DOMAIN;
-    # Edit the above _YOUR-DOMAIN_ to your domain name
+  ssl_certificate /path/to/cert.pem;
+  ssl_certificate_key /path/to/key.pem;
+  ssl_trusted_certificate /path/to/ca.pem;
+  ssl_dhparam /path/to/dhparams.pem;
 
-    ssl_certificate /path/to/fullchain.pem;
-    # Change this to the path to full path to your domains public certificate file.
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384';
+  ssl_ecdh_curve prime256v1:secp384r1;
+  ssl_prefer_server_ciphers on;
 
-    ssl_certificate_key /path/to/privkey.pem;
-    # Change this to the direct path to your domains private key certificate file.
+  add_header Strict-Transport-Security "max-age=63072000; preload;" always;
 
-    ssl_session_cache builtin:1000 shared:SSL:10m;
-    # Defining option to share SSL Connection with Passed Proxy
+  ssl_stapling on;
+  ssl_stapling_verify on;
 
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    # Defining used protocol versions.
+  resolver 1.1.1.1;
 
-    ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
-    # Defining ciphers to use.
+  ssl_session_timeout 24h;
+  ssl_session_cache shared:SSL:50m;
+  ssl_session_tickets off;
 
-    ssl_prefer_server_ciphers on;
-    # Enabling ciphers
+  access_log /var/log/nginx/access.log;
 
-    access_log /var/log/nginx/access.log;
-    # Log Location. The Nginx User must have R/W permissions. Usually by ownership.
-
-    location / {
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass http://localhost:8080;
-        # change this to the port where the trading post is running
-        proxy_read_timeout 90;
-    }
+  location / {
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass http://localhost:8080;
+    # change this to the port where the trading post is running
+    proxy_read_timeout 90;
+  }
 }
 ```
 
