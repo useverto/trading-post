@@ -127,6 +127,8 @@ verto -k keyfile.json
 
 You've successfully started a verto trading post! :smile:
 
+You can also [set up a reverse proxy](./docs/PROXY.md) with `nginx`.
+
 ##### Build from source
 
 > It is recommended to use pre-built production binaries when spinning up a trading post.
@@ -173,6 +175,8 @@ node ./dist/verto.js --key-file /path/to/your/keyfile.json
 Now you can sit back and enjoy while the trading post greets you with some colourful logs.
 
 #### Conclusion
+
+After you've started the trading post, you might want to [set up a reverse proxy](./docs/PROXY.md) for the trading post API.
 
 And that's it! Your trading post will proceed to send a genesis transaction to the exchange wallet, which will officially list it on the [gallery](https://verto.exchange/gallery)!
 
