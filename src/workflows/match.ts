@@ -123,11 +123,7 @@ export async function match(
         );
 
         if (order.amnt === pstAmount) {
-          /**
-           * Delete an order.
-           * NOTE: Table names are not subject to sql injections.
-           */
-          await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
+          await deleteOrder(db, token, order.txID);
           await sendConfirmation(
             client,
             order.txID,
@@ -144,11 +140,7 @@ export async function match(
             [order.amnt - pstAmount, order.received + amnt, order.txID]
           );
         }
-        /**
-         * Delete an order.
-         * NOTE: Table names are not subject to sql injections
-         */
-        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
+        await deleteOrder(db, token, txId);
         await sendConfirmation(
           client,
           txId,
@@ -201,11 +193,7 @@ export async function match(
         );
         amnt -= order.amnt / order.rate;
         received += Math.floor(order.amnt);
-        /**
-         * Delete an order.
-         * NOTE: Table names are not subject to sql injections
-         */
-        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
+        await deleteOrder(db, token, order.txID);
         await sendConfirmation(
           client,
           order.txID,
@@ -245,7 +233,7 @@ export async function match(
         );
 
         if (order.amnt === amnt / rate) {
-          await deleteOrder(db, token, txId);
+          await deleteOrder(db, token, order.txID);
           await sendConfirmation(
             client,
             order.txID,
@@ -266,7 +254,7 @@ export async function match(
             ]
           );
         }
-        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
+        await deleteOrder(db, token, txId);
         await sendConfirmation(
           client,
           txId,
@@ -313,11 +301,7 @@ export async function match(
         );
         amnt -= order.amnt * rate;
         received += order.amnt;
-        /**
-         * Delete an order.
-         * NOTE: Table names are not subject to sql injections
-         */
-        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
+        await deleteOrder(db, token, order.txID);
         await sendConfirmation(
           client,
           order.txID,
