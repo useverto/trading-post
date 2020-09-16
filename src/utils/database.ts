@@ -91,6 +91,14 @@ export async function getOrders(db: Database, tokens: string[]) {
   return data;
 }
 
+export async function deleteOrder(db: Database, token: string, txID: string) {
+  /**
+   * Delete an order.
+   * NOTE: Table names are not subject to sql injections
+   */
+  return await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txID]);
+}
+
 export async function collectDatabase(db: Database) {
   let tables: { name: string }[] = await db.all(
     "SELECT name FROM sqlite_master WHERE type='table'"

@@ -9,6 +9,7 @@ import {
   saveOrder,
   getSellOrders,
   getBuyOrders,
+  deleteOrder,
 } from "@utils/database";
 import { interactWrite } from "smartweave";
 
@@ -244,11 +245,7 @@ export async function match(
         );
 
         if (order.amnt === amnt / rate) {
-          /**
-           * Delete an order.
-           * NOTE: Table names are not subject to sql injections
-           */
-          await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
+          await deleteOrder(db, token, txId);
           await sendConfirmation(
             client,
             order.txID,
