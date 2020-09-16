@@ -58,10 +58,11 @@ export async function match(
 
   let amnt =
     opcode === "Buy"
-      ? tx.quantity.ar
+      ? parseFloat(tx.quantity.ar)
       : JSON.parse(tx.tags.find((tag: any) => tag.name === "Input")?.value!)[
           "qty"
         ];
+  let received = 0;
   const tokenTag = opcode === "Buy" ? "Token" : "Contract";
   const token = tx.tags.find((tag: any) => tag.name === tokenTag)?.value!;
   const ticker = JSON.parse(
@@ -84,6 +85,7 @@ export async function match(
     addr: tx.owner.address,
     type: opcode,
     createdAt: new Date(),
+    received,
   };
   await saveOrder(db, token, tokenEntry);
 
@@ -96,7 +98,7 @@ export async function match(
         const arTx = await client.createTransaction(
           {
             target: order.addr,
-            quantity: client.ar.arToWinston(amnt),
+            quantity: client.ar.arToWinston(amnt.toString()),
           },
           jwk
         );
@@ -125,23 +127,33 @@ export async function match(
            * NOTE: Table names are not subject to sql injections.
            */
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
-          await sendConfirmation(client, order.txID, `${amnt} AR`, jwk);
+          await sendConfirmation(
+            client,
+            order.txID,
+            `${order.received + amnt} AR`,
+            jwk
+          );
         } else {
           /**
            * Update an order.
            * NOTE: Table names are not subject to sql injections
            */
-          await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
-            order.amnt - pstAmount,
-            order.txID,
-          ]);
+          await db.run(
+            `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
+            [order.amnt - pstAmount, order.received + amnt, order.txID]
+          );
         }
         /**
          * Delete an order.
          * NOTE: Table names are not subject to sql injections
          */
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
-        await sendConfirmation(client, txId, `${pstAmount} ${ticker}`, jwk);
+        await sendConfirmation(
+          client,
+          txId,
+          `${received + pstAmount} ${ticker}`,
+          jwk
+        );
 
         return;
       } else {
@@ -169,18 +181,25 @@ export async function match(
             `\n\t\tSent ${order.amnt / order.rate} AR to ${order.addr}` +
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${order.amnt} ${ticker} to ${tx.owner.address}` +
+            `\n\t\tSent ${Math.floor(order.amnt)} ${ticker} to ${
+              tx.owner.address
+            }` +
             `\n\t\ttxId = ${pstTx}`
         );
         /**
          * Update an order.
          * NOTE: Table names are not subject to sql injections
          */
-        await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
-          amnt - order.amnt / order.rate,
-          txId,
-        ]);
+        await db.run(
+          `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
+          [
+            amnt - order.amnt / order.rate,
+            received + Math.floor(order.amnt),
+            txId,
+          ]
+        );
         amnt -= order.amnt / order.rate;
+        received += Math.floor(order.amnt);
         /**
          * Delete an order.
          * NOTE: Table names are not subject to sql injections
@@ -189,7 +208,7 @@ export async function match(
         await sendConfirmation(
           client,
           order.txID,
-          `${order.amnt / order.rate} AR`,
+          `${order.received + order.amnt / order.rate} AR`,
           jwk
         );
       }
@@ -220,7 +239,7 @@ export async function match(
             `\n\t\tSent ${amnt / rate} AR to ${tx.owner.address}` +
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${amnt} ${ticker} to ${order.addr}` +
+            `\n\t\tSent ${Math.floor(amnt)} ${ticker} to ${order.addr}` +
             `\n\t\ttxId = ${pstTx}`
         );
 
@@ -230,19 +249,33 @@ export async function match(
            * NOTE: Table names are not subject to sql injections
            */
           await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [order.txID]);
-          await sendConfirmation(client, order.txID, `${amnt} ${ticker}`, jwk);
+          await sendConfirmation(
+            client,
+            order.txID,
+            `${order.received + Math.floor(amnt)} ${ticker}`,
+            jwk
+          );
         } else {
           /**
            * Update an order.
            * NOTE: Table names are not subject to sql injections
            */
-          await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
-            order.amnt - amnt / rate,
-            order.txID,
-          ]);
+          await db.run(
+            `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
+            [
+              order.amnt - amnt / rate,
+              order.received + Math.floor(amnt),
+              order.txID,
+            ]
+          );
         }
         await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
-        await sendConfirmation(client, txId, `${amnt / rate} AR`, jwk);
+        await sendConfirmation(
+          client,
+          txId,
+          `${received + amnt / rate} AR`,
+          jwk
+        );
 
         return;
       } else {
@@ -256,11 +289,11 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = JSON.stringify({
+        const smartweaveInput = {
           function: "transfer",
           target: order.addr,
           qty: Math.floor(order.amnt * rate),
-        });
+        };
         const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
         log.info(
@@ -277,11 +310,12 @@ export async function match(
          * Update an order.
          * NOTE: Table names are not subject to sql injections
          */
-        await db.run(`UPDATE "${token}" SET amnt = ? WHERE txID = ?`, [
-          amnt - order.amnt * rate,
-          txId,
-        ]);
+        await db.run(
+          `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
+          [amnt - order.amnt * rate, received + order.amnt, txId]
+        );
         amnt -= order.amnt * rate;
+        received += order.amnt;
         /**
          * Delete an order.
          * NOTE: Table names are not subject to sql injections
@@ -290,7 +324,7 @@ export async function match(
         await sendConfirmation(
           client,
           order.txID,
-          `${order.amnt * rate} ${ticker}`,
+          `${order.received + order.amnt * rate} ${ticker}`,
           jwk
         );
       }
