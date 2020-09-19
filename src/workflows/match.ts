@@ -93,7 +93,7 @@ export async function match(
     const orders = await getSellOrders(db, token);
     for (const order of orders) {
       if (!order.rate) continue;
-      const pstAmount = amnt * order.rate;
+      const pstAmount = Math.floor(amnt * order.rate);
       if (order.amnt >= pstAmount) {
         const arTx = await client.createTransaction(
           {
@@ -108,7 +108,7 @@ export async function match(
         const smartweaveInput = {
           function: "transfer",
           target: tx.owner.address,
-          qty: Math.floor(pstAmount),
+          qty: pstAmount,
         };
         const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
 
@@ -312,9 +312,9 @@ export async function match(
          */
         await db.run(
           `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
-          [amnt - order.amnt * rate, received + order.amnt, txId]
+          [amnt - Math.floor(order.amnt * rate), received + order.amnt, txId]
         );
-        amnt -= order.amnt * rate;
+        amnt -= Math.floor(order.amnt * rate);
         received += order.amnt;
         /**
          * Delete an order.
@@ -324,7 +324,7 @@ export async function match(
         await sendConfirmation(
           client,
           order.txID,
-          `${order.received + order.amnt * rate} ${ticker}`,
+          `${order.received + Math.floor(order.amnt * rate)} ${ticker}`,
           jwk
         );
       }
