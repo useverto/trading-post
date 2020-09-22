@@ -106,7 +106,8 @@ export async function match(
 
         const tags = {
           Exchange: "Verto",
-          Type: "Transfer",
+          Type: "PST-Transfer",
+          Order: tx.id,
           "App-Name": "SmartWeaveAction",
           "App-Version": "0.3.0",
           Contract: token,
@@ -188,7 +189,8 @@ export async function match(
 
         const tags = {
           Exchange: "Verto",
-          Type: "Transfer",
+          Type: "PST-Transfer",
+          Order: tx.id,
           "App-Name": "SmartWeaveAction",
           "App-Version": "0.3.0",
           Contract: token,
@@ -264,7 +266,8 @@ export async function match(
 
         const tags = {
           Exchange: "Verto",
-          Type: "Transfer",
+          Type: "PST-Transfer",
+          Order: order.txID,
           "App-Name": "SmartWeaveAction",
           "App-Version": "0.3.0",
           Contract: token,
@@ -344,7 +347,8 @@ export async function match(
 
         const tags = {
           Exchange: "Verto",
-          Type: "Transfer",
+          Type: "PST-Transfer",
+          Order: order.txID,
           "App-Name": "SmartWeaveAction",
           "App-Version": "0.3.0",
           Contract: token,
