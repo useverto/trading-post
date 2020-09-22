@@ -10,7 +10,6 @@ import {
   getSellOrders,
   getBuyOrders,
 } from "@utils/database";
-import { interactWrite } from "smartweave";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -105,12 +104,30 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = {
-          function: "transfer",
-          target: tx.owner.address,
-          qty: pstAmount,
+        const tags = {
+          Exchange: "Verto",
+          Type: "Transfer",
+          "App-Name": "SmartWeaveAction",
+          "App-Version": "0.3.0",
+          Contract: token,
+          Input: JSON.stringify({
+            function: "transfer",
+            target: tx.owner.address,
+            qty: pstAmount,
+          }),
         };
-        const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
+        const pstTx = await client.createTransaction(
+          {
+            target: tx.owner.address,
+            data: Math.random().toString().slice(-4),
+          },
+          jwk
+        );
+        for (const [key, value] of Object.entries(tags)) {
+          pstTx.addTag(key, value.toString());
+        }
+        await client.transactions.sign(pstTx, jwk);
+        await client.transactions.post(pstTx);
 
         log.info(
           "Matched!" +
@@ -118,7 +135,7 @@ export async function match(
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${pstAmount} ${ticker} to ${tx.owner.address}` +
-            `\n\t\ttxId = ${pstTx}`
+            `\n\t\ttxId = ${pstTx.id}`
         );
 
         if (order.amnt === pstAmount) {
@@ -169,12 +186,30 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = {
-          function: "transfer",
-          target: tx.owner.address,
-          qty: Math.floor(order.amnt),
+        const tags = {
+          Exchange: "Verto",
+          Type: "Transfer",
+          "App-Name": "SmartWeaveAction",
+          "App-Version": "0.3.0",
+          Contract: token,
+          Input: JSON.stringify({
+            function: "transfer",
+            target: tx.owner.address,
+            qty: Math.floor(order.amnt),
+          }),
         };
-        const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
+        const pstTx = await client.createTransaction(
+          {
+            target: tx.owner.address,
+            data: Math.random().toString().slice(-4),
+          },
+          jwk
+        );
+        for (const [key, value] of Object.entries(tags)) {
+          pstTx.addTag(key, value.toString());
+        }
+        await client.transactions.sign(pstTx, jwk);
+        await client.transactions.post(pstTx);
 
         log.info(
           "Matched!" +
@@ -184,7 +219,7 @@ export async function match(
             `\n\t\tSent ${Math.floor(order.amnt)} ${ticker} to ${
               tx.owner.address
             }` +
-            `\n\t\ttxId = ${pstTx}`
+            `\n\t\ttxId = ${pstTx.id}`
         );
         /**
          * Update an order.
@@ -227,12 +262,30 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = {
-          function: "transfer",
-          target: order.addr,
-          qty: Math.floor(amnt),
+        const tags = {
+          Exchange: "Verto",
+          Type: "Transfer",
+          "App-Name": "SmartWeaveAction",
+          "App-Version": "0.3.0",
+          Contract: token,
+          Input: JSON.stringify({
+            function: "transfer",
+            target: order.addr,
+            qty: Math.floor(amnt),
+          }),
         };
-        const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
+        const pstTx = await client.createTransaction(
+          {
+            target: order.addr,
+            data: Math.random().toString().slice(-4),
+          },
+          jwk
+        );
+        for (const [key, value] of Object.entries(tags)) {
+          pstTx.addTag(key, value.toString());
+        }
+        await client.transactions.sign(pstTx, jwk);
+        await client.transactions.post(pstTx);
 
         log.info(
           "Matched!" +
@@ -240,7 +293,7 @@ export async function match(
             `\n\t\ttxId = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${Math.floor(amnt)} ${ticker} to ${order.addr}` +
-            `\n\t\ttxId = ${pstTx}`
+            `\n\t\ttxId = ${pstTx.id}`
         );
 
         if (order.amnt === amnt / rate) {
@@ -289,12 +342,30 @@ export async function match(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const smartweaveInput = {
-          function: "transfer",
-          target: order.addr,
-          qty: Math.floor(order.amnt * rate),
+        const tags = {
+          Exchange: "Verto",
+          Type: "Transfer",
+          "App-Name": "SmartWeaveAction",
+          "App-Version": "0.3.0",
+          Contract: token,
+          Input: JSON.stringify({
+            function: "transfer",
+            target: order.addr,
+            qty: Math.floor(order.amnt * rate),
+          }),
         };
-        const pstTx = await interactWrite(client, jwk, token, smartweaveInput);
+        const pstTx = await client.createTransaction(
+          {
+            target: order.addr,
+            data: Math.random().toString().slice(-4),
+          },
+          jwk
+        );
+        for (const [key, value] of Object.entries(tags)) {
+          pstTx.addTag(key, value.toString());
+        }
+        await client.transactions.sign(pstTx, jwk);
+        await client.transactions.post(pstTx);
 
         log.info(
           "Matched!" +
@@ -304,7 +375,7 @@ export async function match(
             `\n\t\tSent ${Math.floor(order.amnt * rate)} ${ticker} to ${
               order.addr
             }` +
-            `\n\t\ttxId = ${pstTx}`
+            `\n\t\ttxId = ${pstTx.id}`
         );
         /**
          * Update an order.
