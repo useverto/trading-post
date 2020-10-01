@@ -80,6 +80,4 @@ export async function cancel(
   } else {
     log.error(`Invalid order type.`);
   }
-
-  return;
 }
