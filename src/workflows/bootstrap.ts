@@ -54,12 +54,20 @@ async function getLatestTxs(
 
   for (const tx of _txs) {
     if (tx.node.block.timestamp > time) {
+      const type = tx.node.tags.find(
+        (tag: { name: string; value: string }) => tag.name === "Type"
+      ).value;
+
       txs.push({
         id: tx.node.id,
         height: tx.node.block.height,
-        type: tx.node.tags.find(
-          (tag: { name: string; value: string }) => tag.name === "Type"
-        ).value,
+        type,
+        tx:
+          type === "Cancel"
+            ? tx.node.tags.find(
+                (tag: { name: string; value: string }) => tag.name === "Order"
+              ).value
+            : undefined,
       });
     }
   }
