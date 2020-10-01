@@ -2,7 +2,7 @@ import Log from "@utils/logger";
 import { Database } from "sqlite";
 import { getTimestamp } from "@utils/database";
 import { query } from "@utils/gql";
-import tradesQuery from "../queries/trades.gql";
+import txsQuery from "../queries/txs.gql";
 import CONSTANTS from "../utils/constants.yml";
 import { TradingPostConfig } from "@utils/config";
 import { init } from "@utils/arweave";
@@ -32,7 +32,7 @@ async function getLatestTxs(
 
   let _txs = (
     await query({
-      query: tradesQuery,
+      query: txsQuery,
       variables: {
         recipients: [addr],
         min: latestBlockHeight,
@@ -50,13 +50,16 @@ async function getLatestTxs(
   }
   _txs = _txs.slice(index, _txs.length);
 
-  const txs: { id: string; height: number }[] = [];
+  const txs: { id: string; height: number; type: string; tx?: string }[] = [];
 
   for (const tx of _txs) {
     if (tx.node.block.timestamp > time) {
       txs.push({
         id: tx.node.id,
         height: tx.node.block.height,
+        type: tx.node.tags.find(
+          (tag: { name: string; value: string }) => tag.name === "Type"
+        ).value,
       });
     }
   }
