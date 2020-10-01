@@ -29,6 +29,10 @@ export async function cancel(
   const type = tx.tags.find(
     (tag: { name: string; value: string }) => tag.name === "Type"
   ).value;
+  const tokenTag = type === "Buy" ? "Token" : "Contract";
+  const token = tx.tags.find(
+    (tag: { name: string; value: string }) => tag.name === tokenTag
+  ).value;
 
   const order = await getOrder(db, txID);
 
@@ -44,6 +48,31 @@ export async function cancel(
     await client.transactions.sign(tx, jwk);
     await client.transactions.post(tx);
   } else if (type === "Sell") {
+    const tags = {
+      "App-Name": "SmartWeaveAction",
+      "App-Version": "0.3.0",
+      Contract: token,
+      Input: JSON.stringify({
+        function: "transfer",
+        target: order.addr,
+        qty: order.amnt,
+      }),
+    };
+
+    const tx = await client.createTransaction(
+      {
+        target: order.addr,
+        data: Math.random().toString().slice(-4),
+      },
+      jwk
+    );
+
+    for (const [key, value] of Object.entries(tags)) {
+      tx.addTag(key, value.toString());
+    }
+
+    await client.transactions.sign(tx, jwk);
+    await client.transactions.post(tx);
   } else {
     log.error(`Invalid order type.`);
   }
