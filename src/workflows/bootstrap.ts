@@ -7,6 +7,7 @@ import CONSTANTS from "../utils/constants.yml";
 import { TradingPostConfig } from "@utils/config";
 import { init } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
+import { cancel } from "@workflows/cancel";
 import { match } from "@workflows/match";
 
 const log = new Log({
@@ -50,7 +51,7 @@ async function getLatestTxs(
   }
   _txs = _txs.slice(index, _txs.length);
 
-  const txs: { id: string; height: number; type: string; tx?: string }[] = [];
+  const txs: { id: string; height: number; type: string; order: string }[] = [];
 
   for (const tx of _txs) {
     if (tx.node.block.timestamp > time) {
@@ -62,7 +63,7 @@ async function getLatestTxs(
         id: tx.node.id,
         height: tx.node.block.height,
         type,
-        tx:
+        order:
           type === "Cancel"
             ? tx.node.tags.find(
                 (tag: { name: string; value: string }) => tag.name === "Order"
@@ -101,7 +102,11 @@ export async function bootstrap(
     if (txs.length !== 0) {
       for (const tx of txs) {
         try {
-          await match(client, tx.id, jwk!, db);
+          if (tx.type === "Cancel") {
+            await cancel(client, tx.order, jwk!, db);
+          } else {
+            await match(client, tx.id, jwk!, db);
+          }
         } catch (err) {
           log.error(
             `Failed to handle transaction.\n\t\ttxId = ${tx.id}\n\t\t${err}`
