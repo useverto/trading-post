@@ -13,8 +13,8 @@ describe("Config tests", () => {
   it("Assign configuration", (done) => {
     testConfiguration = {
       genesis: {
-        acceptedTokens: [
-          "c25-RdheC6khcACLv23-XXg1W7YuA-VSZ_1_qnNFbhw",
+        blockedTokens: [
+          "usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A",
           "FcM-QQpfcD0xTTzr8u4Su9QCgcvRx_JH4JSCQoFi6Ck",
         ],
         tradeFee: 0.01,
