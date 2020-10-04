@@ -12,6 +12,7 @@ import {
   shutdownHook,
 } from "@utils/database";
 import { loadConfig } from "@utils/config";
+import Verto from "@verto/lib";
 import { bootstrap } from "@workflows/bootstrap";
 
 /**
@@ -98,13 +99,20 @@ async function RunCommand(opts: any) {
     /**
      * Setup database tables based on the contracts provided in the configuration
      */
-    const tokenModels = setupTokenTables(connPool, cnf.genesis.acceptedTokens);
+    const client = new Verto();
+    let tokens: string[] = (await client.getTokens()).map(
+      (token: { id: string; name: string; ticker: string }) => token.id
+    );
+    cnf.genesis.blockedTokens.map((token) => {
+      tokens.splice(tokens.indexOf(token), 1);
+    });
+    const tokenModels = setupTokenTables(connPool, tokens);
     /**
      * Instalise the trading post API
      */
     initAPI(
       cnf.genesis.publicURL,
-      cnf.genesis.acceptedTokens,
+      tokens,
       cnf.api.host,
       cnf.api.port,
       connPool
