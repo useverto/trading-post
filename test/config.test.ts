@@ -60,7 +60,7 @@ describe("Config validation", () => {
      * The below ignore directive is used to simulate real-life runtime enviornment
      */
     // @ts-ignore
-    cloneConfig.genesis.acceptedTokens.push(null);
+    cloneConfig.genesis.blockedTokens.push(null);
     validateConfig(cloneConfig);
     // @ts-ignore
     assert(process.exit.isSinonProxy, "Faking process exit failed");
