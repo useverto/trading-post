@@ -104,7 +104,10 @@ async function RunCommand(opts: any) {
       (token: { id: string; name: string; ticker: string }) => token.id
     );
     cnf.genesis.blockedTokens.map((token) => {
-      tokens.splice(tokens.indexOf(token), 1);
+      const index = tokens.indexOf(token);
+      if (index > -1) {
+        tokens.splice(index, 1);
+      }
     });
     const tokenModels = setupTokenTables(connPool, tokens);
     /**
