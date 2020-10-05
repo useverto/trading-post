@@ -1,5 +1,5 @@
-query($txId: ID!) {
-  transaction(id: $txId) {
+query($txID: ID!) {
+  transaction(id: $txID) {
     id
     owner {
       address

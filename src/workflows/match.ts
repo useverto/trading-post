@@ -49,7 +49,7 @@ export async function match(
     await query({
       query: txQuery,
       variables: {
-        txId,
+        txID: txId,
       },
     })
   ).data.transaction;

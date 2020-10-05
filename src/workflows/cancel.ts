@@ -34,7 +34,7 @@ export async function cancel(
     (tag: { name: string; value: string }) => tag.name === tokenTag
   ).value;
 
-  const order = await getOrder(db, txID);
+  const order = await getOrder(db, token, txID);
 
   if (type === "Buy") {
     const tx = await client.createTransaction(
@@ -48,7 +48,7 @@ export async function cancel(
     await client.transactions.sign(tx, jwk);
     await client.transactions.post(tx);
 
-    await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txID]);
+    await db.run(`DELETE FROM "${token}" WHERE txID = "${txID}"`);
   } else if (type === "Sell") {
     const tags = {
       "App-Name": "SmartWeaveAction",
@@ -76,7 +76,7 @@ export async function cancel(
     await client.transactions.sign(tx, jwk);
     await client.transactions.post(tx);
 
-    await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txID]);
+    await db.run(`DELETE FROM "${token}" WHERE txID = "${txID}"`);
   } else {
     log.error(`Invalid order type.`);
   }

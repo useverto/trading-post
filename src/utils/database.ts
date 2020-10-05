@@ -166,12 +166,13 @@ export async function getBuyOrders(
 
 export async function getOrder(
   db: Database,
+  token: string,
   txID: string
 ): Promise<TokenInstance> {
-  const order = await db.all<TokenInstance>(`SELECT * FROM * WHERE txID = ?`, [
-    txID,
-  ]);
-  return order;
+  const order = await db.all<TokenInstance[]>(
+    `SELECT * FROM "${token}" WHERE txID = "${txID}"`
+  );
+  return order[0];
 }
 
 /**
