@@ -49,6 +49,14 @@ export async function cancel(
     await client.transactions.post(tx);
 
     await db.run(`DELETE FROM "${token}" WHERE txID = "${txID}"`);
+
+    log.info(
+      "Cancelled!" +
+        `\n\t\torder = ${order}` +
+        "\n" +
+        `\n\t\tSent ${order.amnt} AR back to ${order.addr}` +
+        `\n\t\ttxID = ${tx.id}`
+    );
   } else if (type === "Sell") {
     const tags = {
       "App-Name": "SmartWeaveAction",
@@ -77,6 +85,22 @@ export async function cancel(
     await client.transactions.post(tx);
 
     await db.run(`DELETE FROM "${token}" WHERE txID = "${txID}"`);
+
+    const ticker = JSON.parse(
+      (
+        await client.transactions.getData(token, {
+          decode: true,
+          string: true,
+        })
+      ).toString()
+    ).ticker;
+    log.info(
+      "Cancelled!" +
+        `\n\t\torder = ${order}` +
+        "\n" +
+        `\n\t\tSent ${order.amnt} ${ticker} back to ${order.addr}` +
+        `\n\t\ttxID = ${tx.id}`
+    );
   } else {
     log.error(`Invalid order type.`);
   }
