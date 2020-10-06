@@ -52,7 +52,7 @@ export async function cancel(
 
     log.info(
       "Cancelled!" +
-        `\n\t\torder = ${order}` +
+        `\n\t\torder = ${txID}` +
         "\n" +
         `\n\t\tSent ${order.amnt} AR back to ${order.addr}` +
         `\n\t\ttxID = ${tx.id}`
@@ -96,7 +96,7 @@ export async function cancel(
     ).ticker;
     log.info(
       "Cancelled!" +
-        `\n\t\torder = ${order}` +
+        `\n\t\torder = ${txID}` +
         "\n" +
         `\n\t\tSent ${order.amnt} ${ticker} back to ${order.addr}` +
         `\n\t\ttxID = ${tx.id}`
