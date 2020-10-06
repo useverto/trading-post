@@ -169,10 +169,10 @@ export async function getOrder(
   token: string,
   txID: string
 ): Promise<TokenInstance> {
-  const order = await db.all<TokenInstance[]>(
+  const order = await db.get<TokenInstance>(
     `SELECT * FROM "${token}" WHERE txID = "${txID}"`
   );
-  return order[0];
+  return order!;
 }
 
 /**
