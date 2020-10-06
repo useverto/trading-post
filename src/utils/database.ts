@@ -164,6 +164,17 @@ export async function getBuyOrders(
   return orders;
 }
 
+export async function getOrder(
+  db: Database,
+  token: string,
+  txID: string
+): Promise<TokenInstance> {
+  const order = await db.get<TokenInstance>(
+    `SELECT * FROM "${token}" WHERE txID = "${txID}"`
+  );
+  return order!;
+}
+
 /**
  * Save last alive timestamp in database
  * @param db the database connection pool
