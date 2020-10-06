@@ -13,10 +13,20 @@ const log = new Log({
 
 export async function cancel(
   client: Arweave,
+  cancelID: string,
   txID: string,
   jwk: JWKInterface,
   db: Database
 ) {
+  const cancelTx = (
+    await query({
+      query: txQuery,
+      variables: {
+        txID: cancelID,
+      },
+    })
+  ).data.transaction;
+
   const tx = (
     await query({
       query: txQuery,
@@ -25,6 +35,11 @@ export async function cancel(
       },
     })
   ).data.transaction;
+
+  if (tx.owner.address !== cancelTx.owner.address) {
+    log.error("Sender of cancel tx isn't owner of order.");
+    return;
+  }
 
   const type = tx.tags.find(
     (tag: { name: string; value: string }) => tag.name === "Type"
@@ -102,6 +117,6 @@ export async function cancel(
         `\n\t\ttxID = ${tx.id}`
     );
   } else {
-    log.error(`Invalid order type.`);
+    log.error("Invalid order type.");
   }
 }

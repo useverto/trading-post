@@ -103,7 +103,7 @@ export async function bootstrap(
       for (const tx of txs) {
         try {
           if (tx.type === "Cancel") {
-            await cancel(client, tx.order, jwk!, db);
+            await cancel(client, tx.id, tx.order, jwk!, db);
           } else {
             await match(client, tx.id, jwk!, db);
           }
