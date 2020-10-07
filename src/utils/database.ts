@@ -86,14 +86,15 @@ export async function getOrders(db: Database) {
   );
 
   let orders: { token: string; orders: TokenInstance[] }[] = [];
-  tables.map(async (table) => {
+
+  for (const table of tables) {
     if (table.name !== "__verto__") {
       orders.push({
         token: table.name,
         orders: await db.all<TokenInstance[]>(`SELECT * FROM "${table.name}"`),
       });
     }
-  });
+  }
 
   return orders;
 }
