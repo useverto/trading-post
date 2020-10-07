@@ -44,6 +44,15 @@ export async function saveOrder(
   token: string,
   entry: TokenInstance
 ) {
+  await db.exec(`CREATE TABLE IF NOT EXISTS "${token}" (
+    txID STRING NOT NULL PRIMARY KEY,
+    amnt INTEGER NOT NULL,
+    rate INTEGER,
+    addr STRING NOT NULL,
+    type STRING NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    received INTEGER NOT NULL
+  )`);
   /**
    * Insert a token instance into the database.
    * NOTE: The following code is not vulnerable to sql injection since invalid table names can never be queried.
@@ -173,7 +182,7 @@ export async function getTimestamp(db: Database): Promise<DbTimestamp[]> {
   try {
     return await db.all<DbTimestamp[]>(`SELECT * FROM "__verto__"`);
   } catch {
-    await db.exec(`CREATE TABLE IF NOT EXISTS "__verto__" (
+    await db.exec(`CREATE TABLE "__verto__" (
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
     await db.run(`INSERT INTO "__verto__" VALUES (?)`, [new Date()]);

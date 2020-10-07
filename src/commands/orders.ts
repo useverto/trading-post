@@ -15,7 +15,8 @@ export default async (opts: any) => {
   } = {};
   orders.forEach((element) => {
     let token = chalk.italic.grey(element.token);
-    orderTree[token] = element.orders.length == 0 ? "No orders" : element.orders;
+    orderTree[token] =
+      element.orders.length == 0 ? "No orders" : element.orders;
   });
   console.log(asTree(orderTree, true));
 };
