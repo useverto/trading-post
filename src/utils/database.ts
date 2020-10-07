@@ -34,26 +34,6 @@ export async function init(db: string): Promise<Database> {
 }
 
 /**
- * Setup database tables for tokens
- * @param sequelize sqlite3 connection pool
- * @param contracts the contract IDs
- */
-export function setupTokenTables(db: Database, contracts: string[]) {
-  let contractTables = contracts.map(async (contract) => {
-    return await db.exec(`CREATE TABLE IF NOT EXISTS '${contract}' (
-      txID STRING NOT NULL PRIMARY KEY,
-      amnt INTEGER NOT NULL,
-      rate INTEGER,
-      addr STRING NOT NULL,
-      type STRING NOT NULL,
-      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      received INTEGER NOT NULL
-    )`);
-  });
-  return contractTables;
-}
-
-/**
  * Save a buy or sell order in the database
  * @param db sqlite3 connection pool
  * @param token the contract ID
@@ -99,20 +79,6 @@ export async function getOrders(db: Database) {
   return orders;
 }
 
-export async function collectDatabase(db: Database) {
-  let tables: { name: string }[] = await db.all(
-    "SELECT name FROM sqlite_master WHERE type='table'"
-  );
-  let columns = tables.map(async (table) => {
-    return {
-      table: table.name,
-      data: await db.all<any[]>(`SELECT * FROM "${table.name}"`),
-    };
-  });
-
-  let data = await Promise.all(columns);
-  return data;
-}
 /**
  * Retreive sell orders from the database and sort them by their price.
  * @param db sqlite3 connection pool
