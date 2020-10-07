@@ -7,7 +7,7 @@
     ],
     "tradeFee": 0.01,
     "publicURL": "your-trading-post-domain.com",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "database": "./db.db",
   "api": {

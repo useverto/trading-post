@@ -40,7 +40,7 @@ async function sendConfirmation(
 
 export async function match(
   client: Arweave,
-  txId: string,
+  txID: string,
   jwk: JWKInterface,
   db: Database
 ) {
@@ -48,7 +48,7 @@ export async function match(
     await query({
       query: txQuery,
       variables: {
-        txID: txId,
+        txID,
       },
     })
   ).data.transaction;
@@ -75,10 +75,10 @@ export async function match(
 
   let rate = tx.tags.find((tag: any) => tag.name === "Rate")?.value!;
 
-  log.info(`Received trade.\n\t\ttxId = ${txId}\n\t\topCode = ${opcode}`);
+  log.info(`Received trade.\n\t\ttxId = ${txID}\n\t\topCode = ${opcode}`);
 
   const tokenEntry: TokenInstance = {
-    txID: txId,
+    txID,
     amnt,
     rate,
     addr: tx.owner.address,
@@ -165,10 +165,10 @@ export async function match(
          * Delete an order.
          * NOTE: Table names are not subject to sql injections
          */
-        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
+        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txID]);
         await sendConfirmation(
           client,
-          txId,
+          txID,
           `${received + pstAmount} ${ticker}`,
           jwk
         );
@@ -232,7 +232,7 @@ export async function match(
           [
             amnt - order.amnt / order.rate,
             received + Math.floor(order.amnt),
-            txId,
+            txID,
           ]
         );
         amnt -= order.amnt / order.rate;
@@ -325,10 +325,10 @@ export async function match(
             ]
           );
         }
-        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txId]);
+        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txID]);
         await sendConfirmation(
           client,
-          txId,
+          txID,
           `${received + amnt / rate} AR`,
           jwk
         );
@@ -387,7 +387,7 @@ export async function match(
          */
         await db.run(
           `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
-          [amnt - Math.floor(order.amnt * rate), received + order.amnt, txId]
+          [amnt - Math.floor(order.amnt * rate), received + order.amnt, txID]
         );
         amnt -= Math.floor(order.amnt * rate);
         received += order.amnt;
