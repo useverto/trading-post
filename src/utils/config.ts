@@ -19,7 +19,7 @@ export interface APIConfig {
  * Trading post Genesis info
  */
 export interface GenesisConfig {
-  acceptedTokens: string[];
+  blockedTokens: string[];
   tradeFee: number;
   version: string;
   publicURL: URL | string;
@@ -48,8 +48,8 @@ const logValidate = (msg: string) => {
  * @param obj A don't-know-if-valid trading post configuration
  */
 export function validateConfig(obj: TradingPostConfig) {
-  obj.genesis.acceptedTokens &&
-    !obj.genesis.acceptedTokens.every((i) => typeof i === "string") &&
+  obj.genesis.blockedTokens &&
+    !obj.genesis.blockedTokens.every((i) => typeof i === "string") &&
     logValidate("tokens must be string and nothing else");
   obj.genesis.tradeFee &&
     typeof obj.genesis.tradeFee !== "number" &&

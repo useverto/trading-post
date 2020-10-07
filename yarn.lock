@@ -438,6 +438,17 @@
   resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.1.0.tgz#3d776127dbce7dd31fc06f86d3428b072e631eba"
   integrity sha512-gHUHI6pJaANIO2r6WcbT7+WMgbL9GZooR4tWpuBOETpDIqFNxwaJluE+6rj6VGYe8k6OkfhbHz2Fkm8kl06Igw==
 
+"@verto/lib@^0.3.0-alpha.1":
+  version "0.3.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@verto/lib/-/lib-0.3.0-alpha.1.tgz#dca6d7bf2ffebc9d237e883e657aa3323a374048"
+  integrity sha512-4qkntok9aHlZkeUdCN9Upa+Umjb22R0cQoh/vI8OhahsQdUC4RkpIHI1yiIfJffi/rhKPS/WJCpAOolApRKi1g==
+  dependencies:
+    arweave "^1.9.1"
+    community-js "^1.0.15"
+    moment "^2.28.0"
+    node-fetch "^2.6.1"
+    smartweave "^0.3.6"
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -853,6 +864,15 @@ community-js@^1.0.14:
   dependencies:
     arweave "^1.9.1"
     smartweave "^0.3.5"
+    tiny-worker "^2.3.0"
+
+community-js@^1.0.15:
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.15.tgz#06a0b144735f8215ae78d9de7d3eec540a9aef49"
+  integrity sha512-RzlgUym2HkaPwW9Z0qV3GBAOHL82SqffXf0ZA+3QeXFlIXK4Zst6/8cHfSC97bm7+vFFTOhPNWI2rmR5Iomfyw==
+  dependencies:
+    arweave "^1.9.1"
+    smartweave "^0.3.6"
     tiny-worker "^2.3.0"
 
 component-emitter@^1.2.0:
@@ -1876,6 +1896,11 @@ log-symbols@4.0.0:
   dependencies:
     chalk "^4.0.0"
 
+loglevel@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.7.0.tgz#728166855a740d59d38db01cf46f042caa041bb0"
+  integrity sha512-i2sY04nal5jDcagM3FMfG++T69GEEM8CYuOfeOIvmXzOIcwE9a/CJPR0MFM97pYMj/u10lzz7/zd7+qwhrBTqQ==
+
 magic-string@^0.25.7:
   version "0.25.7"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.25.7.tgz#3f497d6fd34c669c6798dcb821f2ef31f5445051"
@@ -2022,6 +2047,11 @@ module-alias@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/module-alias/-/module-alias-2.2.2.tgz#151cdcecc24e25739ff0aa6e51e1c5716974c0e0"
   integrity sha512-A/78XjoX2EmNvppVWEhM2oGk3x4lLxnkEA4jTbaK97QKSDjkIoOsKQlfylt/d3kKKi596Qy3NP5XrXJ6fZIC9Q==
+
+moment@^2.28.0:
+  version "2.29.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.0.tgz#fcbef955844d91deb55438613ddcec56e86a3425"
+  integrity sha512-z6IJ5HXYiuxvFTI6eiQ9dm77uE0gyy1yXNApVHqTcnIKfY9tIwEjlzsZ6u1LQXvVgKeTnv9Xm7NDvJ7lso3MtA==
 
 ms@2.0.0:
   version "2.0.0"
@@ -2696,6 +2726,16 @@ smartweave@^0.3.5:
   dependencies:
     arweave "^1.9.1"
     bignumber.js "^9.0.0"
+    yargs "^15.3.1"
+
+smartweave@^0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/smartweave/-/smartweave-0.3.6.tgz#97a78d10b2f094f78a4b6bdecb6b55c8527d6728"
+  integrity sha512-+JWkNkeZj+S1u8qwJBDypzYQwuxVuWfOlLBQQRXiEMk+9YB4z28aWIFu5PxaGYYsKK1Vwc3J9bjI5EATaRBQCQ==
+  dependencies:
+    arweave "^1.9.1"
+    bignumber.js "^9.0.0"
+    loglevel "^1.7.0"
     yargs "^15.3.1"
 
 source-map-support@^0.5.17, source-map-support@~0.5.12:

@@ -1,8 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/useverto/trading-post/master/verto.config.schema.json",
   "genesis": {
-    "acceptedTokens": [
-      "fE2OcfjlS-sHqG5K8QvxE8wHtcqKxS-YV0bDEgxo-eI",
+    "blockedTokens": [
+      "usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A",
       "FcM-QQpfcD0xTTzr8u4Su9QCgcvRx_JH4JSCQoFi6Ck"
     ],
     "tradeFee": 0.01,

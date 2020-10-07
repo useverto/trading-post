@@ -10,19 +10,19 @@
       "$id": "#root/genesis",
       "title": "Genesis",
       "type": "object",
-      "required": ["acceptedTokens", "tradeFee", "publicURL", "version"],
+      "required": ["blockedTokens", "tradeFee", "publicURL", "version"],
       "properties": {
-        "acceptedTokens": {
-          "$id": "#root/genesis/acceptedTokens",
-          "title": "Acceptedtokens",
+        "blockedTokens": {
+          "$id": "#root/genesis/blockedTokens",
+          "title": "BlockedTokens",
           "type": "array",
           "default": [],
           "items": {
-            "$id": "#root/genesis/acceptedTokens/items",
+            "$id": "#root/genesis/blockedTokens/items",
             "title": "Items",
             "type": "string",
             "default": "",
-            "examples": ["c25-RdheC6khcACLv23-XXg1W7YuA-VSZ_1_qnNFbhw"],
+            "examples": ["usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A"],
             "pattern": "^.*$"
           }
         },
