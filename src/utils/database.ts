@@ -80,15 +80,22 @@ export async function saveOrder(
   ]);
 }
 
-export async function getOrders(db: Database, tokens: string[]) {
-  let executions = tokens.map(async (token) => {
-    return {
-      token,
-      orders: await db.all<TokenInstance[]>(`SELECT * FROM "${token}"`),
-    };
+export async function getOrders(db: Database) {
+  let tables: { name: string }[] = await db.all(
+    "SELECT name FROM sqlite_master WHERE type='table'"
+  );
+
+  let orders: { token: string; orders: TokenInstance[] }[] = [];
+  tables.map(async (table) => {
+    if (table.name !== "__verto__") {
+      orders.push({
+        token: table.name,
+        orders: await db.all<TokenInstance[]>(`SELECT * FROM "${table.name}"`),
+      });
+    }
   });
-  let data = await Promise.all(executions);
-  return data;
+
+  return orders;
 }
 
 export async function collectDatabase(db: Database) {
