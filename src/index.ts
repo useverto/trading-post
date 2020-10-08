@@ -8,7 +8,6 @@ import Log from "@utils/logger";
 import { initAPI } from "@api/index";
 import { init as initDB, shutdownHook } from "@utils/database";
 import { loadConfig } from "@utils/config";
-import Verto from "@verto/lib";
 import { bootstrap } from "@workflows/bootstrap";
 
 /**
