@@ -11,7 +11,7 @@ import { loadConfig } from "@utils/config";
 import { bootstrap } from "@workflows/bootstrap";
 
 /**
- * Initialize enviornment variables from .env
+ * Initialize environment variables from .env
  */
 dotenv.config();
 

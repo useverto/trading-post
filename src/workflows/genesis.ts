@@ -33,7 +33,7 @@ async function sendGenesis(
   await client.transactions.sign(genesisTx, jwk);
   await client.transactions.post(genesisTx);
 
-  log.info(`Sent genesis transaction.\n\t\ttxId = ${genesisTx.id}`);
+  log.info(`Sent genesis transaction.\n\t\ttxID = ${genesisTx.id}`);
 }
 
 export async function genesis(
@@ -67,7 +67,7 @@ export async function genesis(
 
   if (possibleGenesis.length === 1) {
     log.info(
-      `Found genesis transaction.\n\t\ttxId = ${possibleGenesis[0].node.id}`
+      `Found genesis transaction.\n\t\ttxID = ${possibleGenesis[0].node.id}`
     );
 
     const currentConfig = JSON.parse(

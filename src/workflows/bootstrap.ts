@@ -130,7 +130,7 @@ export async function bootstrap(
           }
         } catch (err) {
           log.error(
-            `Failed to handle transaction.\n\t\ttxId = ${tx.id}\n\t\t${err}`
+            `Failed to handle transaction.\n\t\ttxID = ${tx.id}\n\t\t${err}`
           );
         }
       }
