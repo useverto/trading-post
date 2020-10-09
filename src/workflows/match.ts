@@ -81,7 +81,7 @@ export async function match(
 
   let rate = tx.tags.find(
     (tag: { name: string; value: string }) => tag.name === "Rate"
-  ).value;
+  )?.value;
 
   log.info(`Received order.\n\t\ttxID = ${txID}\n\t\ttype = ${type}`);
 
