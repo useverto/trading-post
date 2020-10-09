@@ -8,6 +8,7 @@ import { TradingPostConfig } from "@utils/config";
 import { init } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
+import txQuery from "../queries/tx.gql";
 import { match } from "@workflows/match";
 
 const log = new Log({
@@ -105,11 +106,31 @@ export async function bootstrap(
           if (tx.type === "Cancel") {
             await cancel(client, tx.id, tx.order, jwk!, db);
           } else {
-            await match(client, tx.id, jwk!, db);
+            const order = (
+              await query({
+                query: txQuery,
+                variables: {
+                  txID: tx.id,
+                },
+              })
+            ).data.transaction;
+
+            const tokenTag = tx.type === "Buy" ? "Token" : "Contract";
+            const token = order.tags.find(
+              (tag: { name: string; value: string }) => tag.name === tokenTag
+            ).value;
+
+            if (token in config.genesis.blockedTokens) {
+              log.error(
+                `Token for order is blocked.\n\t\ttxID = ${tx.id}\n\t\ttype = ${tx.type}\n\t\ttoken = ${token}`
+              );
+            } else {
+              await match(client, tx.id, jwk!, db);
+            }
           }
         } catch (err) {
           log.error(
-            `Failed to handle transaction.\n\t\ttxId = ${tx.id}\n\t\t${err}`
+            `Failed to handle transaction.\n\t\ttxID = ${tx.id}\n\t\t${err}`
           );
         }
       }

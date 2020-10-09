@@ -3,7 +3,7 @@ import { Database } from "sqlite";
 import { getOrders } from "@utils/database";
 const router = new Router();
 
-export default function createRouter(db?: Database, tokens?: string[]): Router {
+export default function createRouter(db?: Database): Router {
   router.all("/", async (ctx, next) => {
     ctx.state.db = db;
     await next();
@@ -19,7 +19,7 @@ export default function createRouter(db?: Database, tokens?: string[]): Router {
   });
 
   router.get("/orders", async (ctx, next) => {
-    ctx.body = await getOrders(db!, tokens!);
+    ctx.body = await getOrders(db!);
     await next();
   });
 

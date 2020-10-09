@@ -6,17 +6,12 @@ import UpgradeCommand from "@commands/upgrade";
 import OrdersCommand from "@commands/orders";
 import Log from "@utils/logger";
 import { initAPI } from "@api/index";
-import {
-  init as initDB,
-  setupTokenTables,
-  shutdownHook,
-} from "@utils/database";
+import { init as initDB, shutdownHook } from "@utils/database";
 import { loadConfig } from "@utils/config";
-import Verto from "@verto/lib";
 import { bootstrap } from "@workflows/bootstrap";
 
 /**
- * Initialize enviornment variables from .env
+ * Initialize environment variables from .env
  */
 dotenv.config();
 
@@ -97,29 +92,9 @@ async function RunCommand(opts: any) {
      */
     let connPool = await initDB(cnf.database);
     /**
-     * Setup database tables based on the contracts provided in the configuration
-     */
-    const client = new Verto();
-    let tokens: string[] = (await client.getTokens()).map(
-      (token: { id: string; name: string; ticker: string }) => token.id
-    );
-    cnf.genesis.blockedTokens.map((token) => {
-      const index = tokens.indexOf(token);
-      if (index > -1) {
-        tokens.splice(index, 1);
-      }
-    });
-    const tokenModels = setupTokenTables(connPool, tokens);
-    /**
      * Instalise the trading post API
      */
-    initAPI(
-      cnf.genesis.publicURL,
-      tokens,
-      cnf.api.host,
-      cnf.api.port,
-      connPool
-    );
+    initAPI(cnf.genesis.publicURL, cnf.api.host, cnf.api.port, connPool);
     /**
      * Start the bootstrap workflow
      */

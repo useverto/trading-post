@@ -34,26 +34,6 @@ export async function init(db: string): Promise<Database> {
 }
 
 /**
- * Setup database tables for tokens
- * @param sequelize sqlite3 connection pool
- * @param contracts the contract IDs
- */
-export function setupTokenTables(db: Database, contracts: string[]) {
-  let contractTables = contracts.map(async (contract) => {
-    return await db.exec(`CREATE TABLE IF NOT EXISTS '${contract}' (
-      txID STRING NOT NULL PRIMARY KEY,
-      amnt INTEGER NOT NULL,
-      rate INTEGER,
-      addr STRING NOT NULL,
-      type STRING NOT NULL,
-      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      received INTEGER NOT NULL
-    )`);
-  });
-  return contractTables;
-}
-
-/**
  * Save a buy or sell order in the database
  * @param db sqlite3 connection pool
  * @param token the contract ID
@@ -64,6 +44,15 @@ export async function saveOrder(
   token: string,
   entry: TokenInstance
 ) {
+  await db.exec(`CREATE TABLE IF NOT EXISTS "${token}" (
+    txID STRING NOT NULL PRIMARY KEY,
+    amnt INTEGER NOT NULL,
+    rate INTEGER,
+    addr STRING NOT NULL,
+    type STRING NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    received INTEGER NOT NULL
+  )`);
   /**
    * Insert a token instance into the database.
    * NOTE: The following code is not vulnerable to sql injection since invalid table names can never be queried.
@@ -80,31 +69,25 @@ export async function saveOrder(
   ]);
 }
 
-export async function getOrders(db: Database, tokens: string[]) {
-  let executions = tokens.map(async (token) => {
-    return {
-      token,
-      orders: await db.all<TokenInstance[]>(`SELECT * FROM "${token}"`),
-    };
-  });
-  let data = await Promise.all(executions);
-  return data;
-}
-
-export async function collectDatabase(db: Database) {
+export async function getOrders(db: Database) {
   let tables: { name: string }[] = await db.all(
     "SELECT name FROM sqlite_master WHERE type='table'"
   );
-  let columns = tables.map(async (table) => {
-    return {
-      table: table.name,
-      data: await db.all<any[]>(`SELECT * FROM "${table.name}"`),
-    };
-  });
 
-  let data = await Promise.all(columns);
-  return data;
+  let orders: { token: string; orders: TokenInstance[] }[] = [];
+
+  for (const table of tables) {
+    if (table.name !== "__verto__") {
+      orders.push({
+        token: table.name,
+        orders: await db.all<TokenInstance[]>(`SELECT * FROM "${table.name}"`),
+      });
+    }
+  }
+
+  return orders;
 }
+
 /**
  * Retreive sell orders from the database and sort them by their price.
  * @param db sqlite3 connection pool
@@ -199,7 +182,7 @@ export async function getTimestamp(db: Database): Promise<DbTimestamp[]> {
   try {
     return await db.all<DbTimestamp[]>(`SELECT * FROM "__verto__"`);
   } catch {
-    await db.exec(`CREATE TABLE IF NOT EXISTS "__verto__" (
+    await db.exec(`CREATE TABLE "__verto__" (
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
     await db.run(`INSERT INTO "__verto__" VALUES (?)`, [new Date()]);
