@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from "fs";
 import { URL } from "url";
 import Logger from "@utils/logger";
 
