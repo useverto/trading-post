@@ -23,6 +23,10 @@ $VertoUri = if (!$v) {
   "https://github.com/useverto/trading-post/releases/download/${v}/verto-x64-windows.zip"
 }
 
+if ($env:VERTO_URI) {
+  $VertoUri = $env:VERTO_URI
+}
+
 if (!(Test-Path $BinDir)) {
   New-Item $BinDir -ItemType Directory | Out-Null
 }
