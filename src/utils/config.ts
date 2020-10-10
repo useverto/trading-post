@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "fs/promises";
+import * as fs from 'fs';
 import { URL } from "url";
 import Logger from "@utils/logger";
 
@@ -6,6 +6,8 @@ const log = new Logger({
   name: "config",
   level: Logger.Levels.debug,
 });
+
+const { readFile, writeFile } = fs.promises;
 
 /**
  * Trading post API Server configuration
