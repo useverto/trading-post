@@ -22,7 +22,6 @@ const config = {
   external: [
     "*.gql",
     "*.yml",
-    "fs/promises",
     "util",
     "fs",
     "path",
