@@ -3,7 +3,7 @@ query($recipients: [String!], $min: Int, $num: Int) {
     recipients: $recipients
     tags: [
       { name: "Exchange", values: "Verto" }
-      { name: "Type", values: ["Buy", "Sell", "Cancel"] }
+      { name: "Type", values: ["Buy", "Sell", "Cancel", "Swap"] }
     ]
     block: { min: $min }
     first: $num

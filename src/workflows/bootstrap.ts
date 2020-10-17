@@ -8,6 +8,7 @@ import { TradingPostConfig } from "@utils/config";
 import { init } from "@utils/arweave";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
+import { swap } from "@workflows/swap";
 import txQuery from "../queries/tx.gql";
 import { match } from "@workflows/match";
 
@@ -105,6 +106,8 @@ export async function bootstrap(
         try {
           if (tx.type === "Cancel") {
             await cancel(client, tx.id, tx.order, jwk!, db);
+          } else if (tx.type === "Swap") {
+            await swap(client, tx.id, jwk!, db);
           } else {
             const order = (
               await query({
