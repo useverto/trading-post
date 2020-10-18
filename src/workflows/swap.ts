@@ -17,6 +17,28 @@ const log = new Log({
   name: "swap",
 });
 
+async function sendConfirmation(
+  client: Arweave,
+  txId: string,
+  received: string,
+  jwk: JWKInterface
+) {
+  const confirmationTx = await client.createTransaction(
+    {
+      data: Math.random().toString().slice(-4),
+    },
+    jwk
+  );
+
+  confirmationTx.addTag("Exchange", "Verto");
+  confirmationTx.addTag("Type", "Confirmation");
+  confirmationTx.addTag("Swap", txId);
+  confirmationTx.addTag("Received", received);
+
+  await client.transactions.sign(confirmationTx, jwk);
+  await client.transactions.post(confirmationTx);
+}
+
 export async function swap(
   client: Arweave,
   ethClient: Web3,
@@ -116,7 +138,12 @@ export async function swap(
 
         if (order.amnt === ethAmount) {
           await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
-          // TODO(@johnletey): Send confirmation.
+          await sendConfirmation(
+            client,
+            order.txID,
+            `${order.received + amnt} AR`,
+            jwk
+          );
         } else {
           await db.run(
             `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
@@ -124,7 +151,12 @@ export async function swap(
           );
         }
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [txID]);
-        // TODO(@johnletey): Send confirmation.
+        await sendConfirmation(
+          client,
+          txID,
+          `${received + ethAmount} ${chain}`,
+          jwk
+        );
 
         return;
       } else {
@@ -167,8 +199,14 @@ export async function swap(
         );
         amnt -= order.amnt / order.rate;
         received += order.amnt;
+
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
-        // TODO(@johnletey): Send confirmation.
+        await sendConfirmation(
+          client,
+          order.txID,
+          `${order.received + order.amnt / order.rate} AR`,
+          jwk
+        );
       }
     }
   } else {
@@ -208,7 +246,12 @@ export async function swap(
 
         if (order.amnt === amnt / rate) {
           await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
-          // TODO(@johnletey): Send confirmation.
+          await sendConfirmation(
+            client,
+            order.txID,
+            `${order.received + amnt} ${chain}`,
+            jwk
+          );
         } else {
           await db.run(
             `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
@@ -216,7 +259,12 @@ export async function swap(
           );
         }
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [txID]);
-        // TODO(@johnletey): Send confirmation.
+        await sendConfirmation(
+          client,
+          txID,
+          `${received + amnt / rate} AR`,
+          jwk
+        );
 
         return;
       } else {
@@ -260,8 +308,14 @@ export async function swap(
         );
         amnt -= order.amnt * rate;
         received += order.amnt;
+
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
-        // TODO(@johnletey): Send confirmation.
+        await sendConfirmation(
+          client,
+          order.txID,
+          `${order.received + order.amnt * rate} ${chain}`,
+          jwk
+        );
       }
     }
   }
