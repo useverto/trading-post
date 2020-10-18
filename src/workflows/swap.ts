@@ -1,5 +1,6 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
+import Web3 from "web3";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
 import { query } from "@utils/gql";
@@ -10,6 +11,7 @@ import {
   getSellOrders,
   getBuyOrders,
 } from "@utils/database";
+import { Transaction } from "ethereumjs-tx";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -18,8 +20,10 @@ const log = new Log({
 
 export async function swap(
   client: Arweave,
+  ethClient: Web3,
   txID: string,
   jwk: JWKInterface,
+  privateKey: Buffer,
   db: Database
 ) {
   const tx = (
@@ -81,6 +85,36 @@ export async function swap(
       const ethAmount = amnt * order.rate;
       // TODO(@johnletey): Implement this ...
       if (order.amnt >= ethAmount) {
+        const arTx = await client.createTransaction(
+          {
+            target: order.addr,
+            quantity: client.ar.arToWinston(amnt.toString()),
+          },
+          jwk
+        );
+        await client.transactions.sign(arTx, jwk);
+        await client.transactions.post(arTx);
+
+        const txCount = await ethClient.eth.getTransactionCount(
+          "" /* Get TP address */
+        );
+        const options = {
+          nonce: ethClient.utils.toHex(txCount),
+          to: addr,
+          value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
+          // gasLimit
+          // gasPrice
+        };
+
+        const tx = new Transaction(options);
+        tx.sign(privateKey);
+
+        const serializedTx = tx.serialize();
+        const raw = "0x" + serializedTx.toString("hex");
+
+        const ethTxID = await ethClient.eth.sendSignedTransaction(raw);
+
+        // TODO(@johnletey): Deal with the rest ...
       } else {
       }
     }
