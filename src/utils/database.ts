@@ -19,6 +19,15 @@ export interface TokenInstance {
   createdAt: Date;
   received: number;
 }
+export interface SwapInstance {
+  txID: string;
+  amnt: number;
+  rate?: number;
+  addr: string;
+  type: Order;
+  createdAt: Date;
+  received: number;
+}
 
 /**
  * Establish connection with the sqlite database.
@@ -59,6 +68,38 @@ export async function saveOrder(
    *       The values are assigned via db.run that is capable of preventing any type of injection
    */
   return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+    entry.txID,
+    entry.amnt,
+    entry.rate,
+    entry.addr,
+    entry.type,
+    entry.createdAt,
+    entry.received,
+  ]);
+}
+
+/**
+ * Save a buy or sell swap in the database
+ * @param db sqlite3 connection pool
+ * @param chain the blockchain name
+ * @param entry the swap instance
+ */
+export async function saveSwap(
+  db: Database,
+  chain: string,
+  entry: SwapInstance
+) {
+  await db.exec(`CREATE TABLE IF NOT EXISTS "${chain}" (
+    txID STRING NOT NULL PRIMARY KEY,
+    amnt INTEGER NOT NULL,
+    rate INTEGER,
+    addr STRING NOT NULL,
+    type STRING NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    received INTEGER NOT NULL
+  )`);
+
+  return await db.run(`INSERT INTO "${chain}" VALUES (?, ?, ?, ?, ?, ?, ?)`, [
     entry.txID,
     entry.amnt,
     entry.rate,

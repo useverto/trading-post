@@ -4,6 +4,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
+import { SwapInstance, saveSwap } from "@utils/database";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -38,11 +39,34 @@ export async function swap(
     ).value;
   }
 
+  let rate = tx.tags.find(
+    (tag: { name: string; value: string }) => tag.name === "Rate"
+  )?.value;
+
+  let addr =
+    type === "Buy"
+      ? tx.tags.find(
+          (tag: { name: string; value: string }) => tag.name === "Transfer"
+        ).value
+      : tx.owner.address;
+
+  let received = 0;
+
   log.info(
     `Received swap.\n\t\ttxID = ${txID}\n\t\tchain = ${chain}\n\t\ttype = ${type}`
   );
 
-  // TODO(@johnletey): Save the swap
+  const swapEntry: SwapInstance = {
+    txID,
+    amnt,
+    rate,
+    addr,
+    // @ts-ignore
+    type,
+    createdAt: new Date(),
+    received,
+  };
+  await saveSwap(db, chain, swapEntry);
 
   // TODO(@johnletey): Match the swap
 }
