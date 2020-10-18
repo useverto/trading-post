@@ -96,7 +96,8 @@ export async function swap(
         await client.transactions.post(arTx);
 
         const txCount = await ethClient.eth.getTransactionCount(
-          "" /* Get TP address */
+          ethClient.eth.accounts.privateKeyToAccount(privateKey.toString())
+            .address
         );
         const options = {
           nonce: ethClient.utils.toHex(txCount),
