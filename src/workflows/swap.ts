@@ -129,6 +129,47 @@ export async function swap(
 
         return;
       } else {
+        const arTx = await client.createTransaction(
+          {
+            target: order.addr,
+            quantity: client.ar.arToWinston(
+              (order.amnt / order.rate).toString()
+            ),
+          },
+          jwk
+        );
+        await client.transactions.sign(arTx, jwk);
+        await client.transactions.post(arTx);
+
+        const ethTx = await ethClient.eth.accounts.signTransaction(
+          {
+            to: addr,
+            value: ethClient.utils.toWei(order.amnt.toString(), "ether"),
+            // TODO(@johnletey): Maybe need to set `gas` here.
+          },
+          privateKey
+        );
+        const ethTxID = (
+          await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
+        ).transactionHash;
+
+        log.info(
+          "Matched!" +
+            `\n\t\tSent ${order.amnt / order.rate} AR to ${order.addr}` +
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n" +
+            `\n\t\tSent ${order.amnt} ${chain} to ${addr}` +
+            `\n\t\ttxID = ${ethTxID}`
+        );
+
+        await db.run(
+          `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
+          [amnt - order.amnt / order.rate, received + order.amnt, txID]
+        );
+        amnt -= order.amnt / order.rate;
+        received += order.amnt;
+        await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
+        // TODO(@johnletey): Send confirmation.
       }
     }
   } else {
