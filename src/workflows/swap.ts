@@ -4,7 +4,12 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
-import { OrderInstance, saveOrder } from "@utils/database";
+import {
+  OrderInstance,
+  saveOrder,
+  getSellOrders,
+  getBuyOrders,
+} from "@utils/database";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -68,5 +73,24 @@ export async function swap(
   };
   await saveOrder(db, chain, swapEntry);
 
-  // TODO(@johnletey): Match the swap
+  // TODO(@johnletey): Make sure chain is supported by TP.
+  if (type === "Buy") {
+    const orders = await getSellOrders(db, chain);
+    for (const order of orders) {
+      if (!order.rate) continue;
+      const ethAmount = amnt * order.rate;
+      // TODO(@johnletey): Implement this ...
+      if (order.amnt >= ethAmount) {
+      } else {
+      }
+    }
+  } else {
+    const orders = await getBuyOrders(db, chain);
+    for (const order of orders) {
+      // TODO(@johnletey): Implement this ...
+      if (order.amnt >= amnt / rate) {
+      } else {
+      }
+    }
+  }
 }

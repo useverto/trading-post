@@ -91,18 +91,18 @@ export async function getOrders(db: Database) {
 /**
  * Retreive sell orders from the database and sort them by their price.
  * @param db sqlite3 connection pool
- * @param token the contract ID
+ * @param table the table name
  */
 export async function getSellOrders(
   db: Database,
-  token: string
+  table: string
 ): Promise<OrderInstance[]> {
   /**
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
   const orders = await db.all<OrderInstance[]>(
-    `SELECT * FROM "${token}" WHERE type = "Sell"`
+    `SELECT * FROM "${table}" WHERE type = "Sell"`
   );
   if (!orders || orders?.length === 0) {
     log.info(`No sell orders to match with.`);
@@ -121,18 +121,18 @@ export async function getSellOrders(
 /**
  * Retreive buy orders from the database and sort them by date of creation.
  * @param db sqlite3 connection pool
- * @param token the contract ID
+ * @param table the table name
  */
 export async function getBuyOrders(
   db: Database,
-  token: string
+  table: string
 ): Promise<OrderInstance[]> {
   /**
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
   const orders = await db.all<OrderInstance[]>(
-    `SELECT * FROM "${token}" WHERE type = "Buy"`
+    `SELECT * FROM "${table}" WHERE type = "Buy"`
   );
   if (!orders || orders?.length === 0) {
     log.info(`No buy orders to match with.`);
@@ -149,11 +149,11 @@ export async function getBuyOrders(
 
 export async function getOrder(
   db: Database,
-  token: string,
+  table: string,
   txID: string
 ): Promise<OrderInstance> {
   const order = await db.get<OrderInstance>(
-    `SELECT * FROM "${token}" WHERE txID = "${txID}"`
+    `SELECT * FROM "${table}" WHERE txID = "${txID}"`
   );
   return order!;
 }
