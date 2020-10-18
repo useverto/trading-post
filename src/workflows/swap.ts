@@ -11,7 +11,6 @@ import {
   getSellOrders,
   getBuyOrders,
 } from "@utils/database";
-import { Transaction } from "ethereumjs-tx";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -23,7 +22,7 @@ export async function swap(
   ethClient: Web3,
   txID: string,
   jwk: JWKInterface,
-  privateKey: Buffer,
+  privateKey: string,
   db: Database
 ) {
   const tx = (
@@ -95,27 +94,40 @@ export async function swap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const txCount = await ethClient.eth.getTransactionCount(
-          ethClient.eth.accounts.privateKeyToAccount(privateKey.toString())
-            .address
+        const ethTx = await ethClient.eth.accounts.signTransaction(
+          {
+            to: addr,
+            value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
+            // TODO(@johnletey): Maybe need to set `gas` here.
+          },
+          privateKey
         );
-        const options = {
-          nonce: ethClient.utils.toHex(txCount),
-          to: addr,
-          value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
-          // gasLimit
-          // gasPrice
-        };
+        const ethTxID = (await ethClient.eth.sendSignedTransaction(
+          ethTx.rawTransaction!
+        )).transactionHash;
 
-        const tx = new Transaction(options);
-        tx.sign(privateKey);
+        log.info(
+          "Matched!" +
+            `\n\t\tSent ${amnt} AR to ${order.addr}` +
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n" +
+            `\n\t\tSent ${ethAmount} ${chain} to ${addr}` +
+            `\n\t\ttxID = ${ethTxID}`
+        );
 
-        const serializedTx = tx.serialize();
-        const raw = "0x" + serializedTx.toString("hex");
+        if (order.amnt === ethAmount) {
+          await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
+          // TODO(@johnletey): Send confirmation.
+        } else {
+          await db.run(
+            `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
+            [order.amnt - ethAmount, order.received + amnt, order.txID]
+          );
+        }
+        await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [txID]);
+        // TODO(@johnletey): Send confirmation.
 
-        const ethTxID = await ethClient.eth.sendSignedTransaction(raw);
-
-        // TODO(@johnletey): Deal with the rest ...
+        return;
       } else {
       }
     }

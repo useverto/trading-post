@@ -31,7 +31,6 @@
     "community-js": "^1.0.14",
     "dotenv": "^8.2.0",
     "enquirer": "^2.3.6",
-    "ethereumjs-tx": "^2.1.2",
     "koa": "^2.13.0",
     "node-fetch": "^2.6.1",
     "rfs": "^9.0.3",
