@@ -6,6 +6,7 @@ import txsQuery from "../queries/txs.gql";
 import CONSTANTS from "../utils/constants.yml";
 import { TradingPostConfig } from "@utils/config";
 import { init } from "@utils/arweave";
+import { init as ethInit } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
 import { swap } from "@workflows/swap";
@@ -84,6 +85,7 @@ export async function bootstrap(
   keyfile?: string
 ) {
   const { client, walletAddr, community, jwk } = await init(keyfile);
+  const { client: ethClient, privateKey } = ethInit();
 
   const genesisTxId = await genesis(client, community, jwk!, config.genesis);
 
@@ -107,7 +109,7 @@ export async function bootstrap(
           if (tx.type === "Cancel") {
             await cancel(client, tx.id, tx.order, jwk!, db);
           } else if (tx.type === "Swap") {
-            await swap(client, tx.id, jwk!, db);
+            await swap(client, ethClient, tx.id, jwk!, privateKey, db);
           } else {
             const order = (
               await query({

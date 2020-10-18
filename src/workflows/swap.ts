@@ -102,9 +102,9 @@ export async function swap(
           },
           privateKey
         );
-        const ethTxID = (await ethClient.eth.sendSignedTransaction(
-          ethTx.rawTransaction!
-        )).transactionHash;
+        const ethTxID = (
+          await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
+        ).transactionHash;
 
         log.info(
           "Matched!" +
