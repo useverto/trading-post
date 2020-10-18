@@ -18,7 +18,7 @@ const log = new Log({
 
 async function sendConfirmation(
   client: Arweave,
-  txId: string,
+  txID: string,
   received: string,
   jwk: JWKInterface
 ) {
@@ -31,7 +31,7 @@ async function sendConfirmation(
 
   confirmationTx.addTag("Exchange", "Verto");
   confirmationTx.addTag("Type", "Confirmation");
-  confirmationTx.addTag("Match", txId);
+  confirmationTx.addTag("Match", txID);
   confirmationTx.addTag("Received", received);
 
   await client.transactions.sign(confirmationTx, jwk);
