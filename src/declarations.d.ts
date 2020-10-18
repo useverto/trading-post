@@ -6,4 +6,3 @@ declare module "*.yml" {
   const content: { [x: string]: any };
   export default content;
 }
-declare module "@verto/lib";
