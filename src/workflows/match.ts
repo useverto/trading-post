@@ -5,7 +5,7 @@ import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
 import {
-  TokenInstance,
+  OrderInstance,
   saveOrder,
   getSellOrders,
   getBuyOrders,
@@ -85,7 +85,7 @@ export async function match(
 
   log.info(`Received order.\n\t\ttxID = ${txID}\n\t\ttype = ${type}`);
 
-  const tokenEntry: TokenInstance = {
+  const tokenEntry: OrderInstance = {
     txID,
     amnt,
     rate,

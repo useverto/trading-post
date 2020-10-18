@@ -1,4 +1,4 @@
-import { init, getOrders, TokenInstance } from "@utils/database";
+import { init, getOrders, OrderInstance } from "@utils/database";
 import { asTree } from "@utils/tree";
 import { loadConfig } from "@utils/config";
 import chalk from "chalk";
@@ -11,7 +11,7 @@ export default async (opts: any) => {
   const connection = await init(cnf.database);
   let orders = await getOrders(connection);
   let orderTree: {
-    [token: string]: TokenInstance[] | string | { [key: string]: any };
+    [token: string]: OrderInstance[] | string | { [key: string]: any };
   } = {};
   orders.forEach((element) => {
     let token = chalk.italic.grey(element.token);
