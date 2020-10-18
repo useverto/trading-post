@@ -82,7 +82,6 @@ export async function swap(
     for (const order of orders) {
       if (!order.rate) continue;
       const ethAmount = amnt * order.rate;
-      // TODO(@johnletey): Implement this ...
       if (order.amnt >= ethAmount) {
         const arTx = await client.createTransaction(
           {
@@ -98,7 +97,7 @@ export async function swap(
           {
             to: addr,
             value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
-            // TODO(@johnletey): Maybe need to set `gas` here.
+            // TODO(@johnletey): May need to set `gas` here.
           },
           privateKey
         );
@@ -145,7 +144,7 @@ export async function swap(
           {
             to: addr,
             value: ethClient.utils.toWei(order.amnt.toString(), "ether"),
-            // TODO(@johnletey): Maybe need to set `gas` here.
+            // TODO(@johnletey): May need to set `gas` here.
           },
           privateKey
         );
@@ -175,9 +174,94 @@ export async function swap(
   } else {
     const orders = await getBuyOrders(db, chain);
     for (const order of orders) {
-      // TODO(@johnletey): Implement this ...
       if (order.amnt >= amnt / rate) {
+        const arTx = await client.createTransaction(
+          {
+            target: tx.owner.address,
+            quantity: client.ar.arToWinston((amnt / rate).toString()),
+          },
+          jwk
+        );
+        await client.transactions.sign(arTx, jwk);
+        await client.transactions.post(arTx);
+
+        const ethTx = await ethClient.eth.accounts.signTransaction(
+          {
+            to: order.addr,
+            value: ethClient.utils.toWei(amnt.toString(), "ether"),
+            // TODO(@johnletey): May need to set `gas` here.
+          },
+          privateKey
+        );
+        const ethTxID = (
+          await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
+        ).transactionHash;
+
+        log.info(
+          "Matched!" +
+            `\n\t\tSent ${amnt / rate} AR to ${addr}` +
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n" +
+            `\n\t\tSent ${amnt} ${chain} to ${order.addr}` +
+            `\n\t\ttxID = ${ethTxID}`
+        );
+
+        if (order.amnt === amnt / rate) {
+          await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
+          // TODO(@johnletey): Send confirmation.
+        } else {
+          await db.run(
+            `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
+            [order.amnt - amnt / rate, order.received + amnt, order.txID]
+          );
+        }
+        await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [txID]);
+        // TODO(@johnletey): Send confirmation.
+
+        return;
       } else {
+        const arTx = await client.createTransaction(
+          {
+            target: tx.owner.address,
+            quantity: client.ar.arToWinston(order.amnt.toString()),
+          },
+          jwk
+        );
+        await client.transactions.sign(arTx, jwk);
+        await client.transactions.post(arTx);
+
+        const ethTx = await ethClient.eth.accounts.signTransaction(
+          {
+            to: order.addr,
+            value: ethClient.utils.toWei(
+              (order.amnt * rate).toString(),
+              "ether"
+            ),
+            // TODO(@johnletey): May need to set `gas` here.
+          },
+          privateKey
+        );
+        const ethTxID = (
+          await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
+        ).transactionHash;
+
+        log.info(
+          "Matched!" +
+            `\n\t\tSent ${order.amnt} AR to ${addr}` +
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n" +
+            `\n\t\tSent ${order.amnt * rate} ${chain} to ${order.addr}` +
+            `\n\t\ttxID = ${ethTxID}`
+        );
+
+        await db.run(
+          `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
+          [amnt - order.amnt * rate, received + order.amnt, txID]
+        );
+        amnt -= order.amnt * rate;
+        received += order.amnt;
+        await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
+        // TODO(@johnletey): Send confirmation.
       }
     }
   }
