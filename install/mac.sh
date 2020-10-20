@@ -19,6 +19,10 @@ if [ ! -d "$bin_dir" ]; then
   mkdir -p "$bin_dir"
 fi
 
+if [ $VERTO_URI ]; then 
+  release_uri=$VERTO_URI
+fi
+
 curl -#L -o "$exe.zip" "$release_uri"
 cd "$bin_dir"
 unzip -o "$exe.zip"
