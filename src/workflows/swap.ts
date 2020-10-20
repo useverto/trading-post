@@ -44,7 +44,8 @@ export async function swap(
   ethClient: Web3,
   txID: string,
   jwk: JWKInterface,
-  privateKey: string,
+  // TODO(@johnletey): Look into the type
+  sign: any,
   db: Database
 ) {
   const tx = (
@@ -115,14 +116,11 @@ export async function swap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const ethTx = await ethClient.eth.accounts.signTransaction(
-          {
-            to: addr,
-            value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
-            // TODO(@johnletey): May need to set `gas` here.
-          },
-          privateKey
-        );
+        const ethTx = await sign({
+          to: addr,
+          value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
+          // TODO(@johnletey): May need to set `gas` here.
+        });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
@@ -172,14 +170,11 @@ export async function swap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const ethTx = await ethClient.eth.accounts.signTransaction(
-          {
-            to: addr,
-            value: ethClient.utils.toWei(order.amnt.toString(), "ether"),
-            // TODO(@johnletey): May need to set `gas` here.
-          },
-          privateKey
-        );
+        const ethTx = await sign({
+          to: addr,
+          value: ethClient.utils.toWei(order.amnt.toString(), "ether"),
+          // TODO(@johnletey): May need to set `gas` here.
+        });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
@@ -223,14 +218,11 @@ export async function swap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const ethTx = await ethClient.eth.accounts.signTransaction(
-          {
-            to: order.addr,
-            value: ethClient.utils.toWei(amnt.toString(), "ether"),
-            // TODO(@johnletey): May need to set `gas` here.
-          },
-          privateKey
-        );
+        const ethTx = await sign({
+          to: order.addr,
+          value: ethClient.utils.toWei(amnt.toString(), "ether"),
+          // TODO(@johnletey): May need to set `gas` here.
+        });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
@@ -278,17 +270,11 @@ export async function swap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const ethTx = await ethClient.eth.accounts.signTransaction(
-          {
-            to: order.addr,
-            value: ethClient.utils.toWei(
-              (order.amnt * rate).toString(),
-              "ether"
-            ),
-            // TODO(@johnletey): May need to set `gas` here.
-          },
-          privateKey
-        );
+        const ethTx = await sign({
+          to: order.addr,
+          value: ethClient.utils.toWei((order.amnt * rate).toString(), "ether"),
+          // TODO(@johnletey): May need to set `gas` here.
+        });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;

@@ -85,7 +85,7 @@ export async function bootstrap(
   keyfile?: string
 ) {
   const { client, walletAddr, community, jwk } = await init(keyfile);
-  const { client: ethClient, privateKey } = ethInit();
+  const { client: ethClient, sign } = await ethInit("privatekey");
 
   const genesisTxId = await genesis(client, community, jwk!, config.genesis);
 
@@ -109,7 +109,7 @@ export async function bootstrap(
           if (tx.type === "Cancel") {
             await cancel(client, tx.id, tx.order, jwk!, db);
           } else if (tx.type === "Swap") {
-            await swap(client, ethClient, tx.id, jwk!, privateKey, db);
+            await swap(client, ethClient, tx.id, jwk!, sign, db);
           } else {
             const order = (
               await query({
