@@ -2,9 +2,11 @@ import Arweave from "arweave";
 import { JWKPublicInterface } from "arweave/node/lib/wallet";
 import Logger from "@utils/logger";
 import { relative } from "path";
-import { readFile } from "fs/promises";
+import * as fs from "fs";
 import Community from "community-js";
 import CONSTANTS from "./constants.yml";
+
+const { readFile } = fs.promises;
 
 const relativeKeyPath = process.env.KEY_PATH
   ? relative(__dirname, process.env.KEY_PATH)

@@ -19,16 +19,7 @@ const config = {
       format: "cjs",
     },
   ],
-  external: [
-    "*.gql",
-    "*.yml",
-    "fs/promises",
-    "util",
-    "fs",
-    "path",
-    "child_process",
-    "assert",
-  ],
+  external: ["*.gql", "*.yml", "util", "fs", "path", "child_process", "assert"],
   plugins: [
     typescript(),
     json(),

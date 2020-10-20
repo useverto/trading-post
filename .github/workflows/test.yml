@@ -17,6 +17,9 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v2
 
+      - name: Setup go
+        uses: actions/setup-go@v2
+
       - name: Setup node
         uses: actions/setup-node@v1
         with:
@@ -30,11 +33,14 @@ jobs:
       - name: Build source
         run: yarn build
 
-      - name: Run Tests
+      - name: Run Unit Tests
         run: yarn test
 
       - name: Package executables
         run: yarn pkg
+
+      - name: Run Integration Tests
+        run: go run ./test
 
       - name: Prepare linux build
         if: startsWith(matrix.os, 'ubuntu')
