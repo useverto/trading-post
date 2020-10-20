@@ -21,7 +21,7 @@
     "pkg:arm": "echo not implemented",
     "pkg:all": "yarn prod && pkg dist/verto.js",
     "test": "rollup -c rollup.test.js && mocha 'build/verto.test.js'",
-    "test:integration": "VERTO_URI=http://localhost:3000/verto.zip go run ./test/integration/"
+    "test:integration": "go run ./test/integration/"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",

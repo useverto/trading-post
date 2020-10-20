@@ -24,6 +24,7 @@ func Shellout(command string) (error, string, string) {
 
 func main() {
 	fmt.Println(startupText)
+	os.Setenv("VERTO_URI", "http://localhost:3000/verto.zip")
 	go ServeInstallers()
 	PrepareZip()
 	TestInstaller()
