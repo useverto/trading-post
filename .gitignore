@@ -24,6 +24,8 @@ verto.exe
 vertolinux
 verto-mac
 verto-win.exe
+verto.zip
+node_sqlite3.node
 
 # test generated artifacts
 test_artifacts/

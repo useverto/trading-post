@@ -24,6 +24,9 @@ func Shellout(command string) (error, string, string) {
 
 func main() {
 	fmt.Println(startupText)
+	go ServeInstallers()
+	PrepareZip()
+	TestInstaller()
 	for _, value := range Commands {
 		command := fmt.Sprintf("./verto %s", value)
 		err, _, _ := Shellout(command)
