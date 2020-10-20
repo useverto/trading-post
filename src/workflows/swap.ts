@@ -103,8 +103,7 @@ export async function swap(
   if (type === "Buy") {
     const orders = await getSellOrders(db, chain);
     for (const order of orders) {
-      if (!order.rate) continue;
-      const ethAmount = amnt * order.rate;
+      const ethAmount = amnt * rate;
       if (order.amnt >= ethAmount) {
         const arTx = await client.createTransaction(
           {
@@ -161,9 +160,7 @@ export async function swap(
         const arTx = await client.createTransaction(
           {
             target: order.addr,
-            quantity: client.ar.arToWinston(
-              (order.amnt / order.rate).toString()
-            ),
+            quantity: client.ar.arToWinston((order.amnt / rate).toString()),
           },
           jwk
         );
@@ -181,7 +178,7 @@ export async function swap(
 
         log.info(
           "Matched!" +
-            `\n\t\tSent ${order.amnt / order.rate} AR to ${order.addr}` +
+            `\n\t\tSent ${order.amnt / rate} AR to ${order.addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${order.amnt} ${chain} to ${addr}` +
@@ -190,16 +187,16 @@ export async function swap(
 
         await db.run(
           `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
-          [amnt - order.amnt / order.rate, received + order.amnt, txID]
+          [amnt - order.amnt / rate, received + order.amnt, txID]
         );
-        amnt -= order.amnt / order.rate;
+        amnt -= order.amnt / rate;
         received += order.amnt;
 
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
         await sendConfirmation(
           client,
           order.txID,
-          `${order.received + order.amnt / order.rate} AR`,
+          `${order.received + order.amnt / rate} AR`,
           jwk
         );
       }
@@ -207,11 +204,12 @@ export async function swap(
   } else {
     const orders = await getBuyOrders(db, chain);
     for (const order of orders) {
-      if (order.amnt >= amnt / rate) {
+      if (!order.rate) continue;
+      if (order.amnt >= amnt / order.rate) {
         const arTx = await client.createTransaction(
           {
             target: tx.owner.address,
-            quantity: client.ar.arToWinston((amnt / rate).toString()),
+            quantity: client.ar.arToWinston((amnt / order.rate).toString()),
           },
           jwk
         );
@@ -229,14 +227,14 @@ export async function swap(
 
         log.info(
           "Matched!" +
-            `\n\t\tSent ${amnt / rate} AR to ${addr}` +
+            `\n\t\tSent ${amnt / order.rate} AR to ${addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${amnt} ${chain} to ${order.addr}` +
             `\n\t\ttxID = ${ethTxID}`
         );
 
-        if (order.amnt === amnt / rate) {
+        if (order.amnt === amnt / order.rate) {
           await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
           await sendConfirmation(
             client,
@@ -247,14 +245,14 @@ export async function swap(
         } else {
           await db.run(
             `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
-            [order.amnt - amnt / rate, order.received + amnt, order.txID]
+            [order.amnt - amnt / order.rate, order.received + amnt, order.txID]
           );
         }
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [txID]);
         await sendConfirmation(
           client,
           txID,
-          `${received + amnt / rate} AR`,
+          `${received + amnt / order.rate} AR`,
           jwk
         );
 
@@ -272,7 +270,10 @@ export async function swap(
 
         const ethTx = await sign({
           to: order.addr,
-          value: ethClient.utils.toWei((order.amnt * rate).toString(), "ether"),
+          value: ethClient.utils.toWei(
+            (order.amnt * order.rate).toString(),
+            "ether"
+          ),
           // TODO(@johnletey): May need to set `gas` here.
         });
         const ethTxID = (
@@ -284,22 +285,22 @@ export async function swap(
             `\n\t\tSent ${order.amnt} AR to ${addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${order.amnt * rate} ${chain} to ${order.addr}` +
+            `\n\t\tSent ${order.amnt * order.rate} ${chain} to ${order.addr}` +
             `\n\t\ttxID = ${ethTxID}`
         );
 
         await db.run(
           `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
-          [amnt - order.amnt * rate, received + order.amnt, txID]
+          [amnt - order.amnt * order.rate, received + order.amnt, txID]
         );
-        amnt -= order.amnt * rate;
+        amnt -= order.amnt * order.rate;
         received += order.amnt;
 
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
         await sendConfirmation(
           client,
           order.txID,
-          `${order.received + order.amnt * rate} ${chain}`,
+          `${order.received + order.amnt * order.rate} ${chain}`,
           jwk
         );
       }
