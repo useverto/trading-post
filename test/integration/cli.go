@@ -4,16 +4,13 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 )
 
 const startupText = "VERTO INTEGRATION TEST SUITE 1.0"
 
-var logger = TestLogger{}
-
-type Commands struct {
-	command string
-}
+var Logger = TestLogger{}
 
 func Shellout(command string) (error, string, string) {
 	var stdout bytes.Buffer
@@ -27,9 +24,14 @@ func Shellout(command string) (error, string, string) {
 
 func main() {
 	fmt.Println(startupText)
-	err, out, _ := Shellout("./verto orders -c verto.config.example.json")
-	if err != nil {
-		log.Printf("error: %v\n", err)
+	for _, value := range Commands {
+		command := fmt.Sprintf("./verto %s", value)
+		err, _, _ := Shellout(command)
+		if err != nil {
+			log.Printf("error: %v\n", err)
+			os.Exit(1)
+		}
+		Logger.Success(command)
 	}
-	logger.Success(out)
+	StartTradingPost()
 }
