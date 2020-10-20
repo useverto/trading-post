@@ -28,13 +28,13 @@ export async function init(keyfile?: string) {
   });
   const jwk = await getJwk(keyfile);
   const walletAddr = await client.wallets.jwkToAddress(jwk!);
-  const info = await client.network.getInfo();
+  const balance = client.ar.winstonToAr(
+    await client.wallets.getBalance(walletAddr)
+  );
   log.info(
     "Created Arweave instance:\n\t\t" +
-      `wallet_address=${walletAddr}\n\t\t` +
-      `block_height=${info.height}\n\t\t` +
-      `peers=${info.peers}\n\t\t` +
-      `node_state_latency=${info.node_state_latency}`
+      `addr    = ${walletAddr}\n\t\t` +
+      `balance = ${parseFloat(balance).toFixed(3)} AR`
   );
 
   log.info("Configuring community.xyz");
