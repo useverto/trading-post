@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"time"
 )
@@ -12,7 +11,7 @@ func StartTradingPost() {
 	go func() {
 		err, stderr, _ := Shellout(command)
 		if err != nil {
-			log.Printf("error: %v\n", stderr)
+			Logger.Error(stderr)
 			os.Exit(1)
 		}
 		Logger.Success(command)
