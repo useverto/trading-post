@@ -36,7 +36,7 @@ export async function init(db: string): Promise<Database> {
 /**
  * Save a buy or sell order in the database
  * @param db sqlite3 connection pool
- * @param table the table name
+ * @param table
  * @param entry the order instance
  */
 export async function saveOrder(
@@ -91,7 +91,7 @@ export async function getOrders(db: Database) {
 /**
  * Retreive sell orders from the database and sort them by their price.
  * @param db sqlite3 connection pool
- * @param table the table name
+ * @param table
  */
 export async function getSellOrders(
   db: Database,
@@ -121,7 +121,7 @@ export async function getSellOrders(
 /**
  * Retreive buy orders from the database and sort them by date of creation.
  * @param db sqlite3 connection pool
- * @param table the table name
+ * @param table
  */
 export async function getBuyOrders(
   db: Database,
