@@ -40,7 +40,7 @@ jobs:
         run: yarn pkg
 
       - name: Run Integration Tests
-        run: go run ./test
+        run: go run ./test/integration
 
       - name: Prepare linux build
         if: startsWith(matrix.os, 'ubuntu')
