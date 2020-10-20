@@ -28,8 +28,8 @@ export async function init(keyfile: string) {
 
   log.info(
     "Created Web3 instance:\n\t\t" +
-      `wallet_address=${account.address}\n\t\t` +
-      `balance=${balance}`
+      `addr    = ${account.address}\n\t\t` +
+      `balance = ${parseFloat(balance).toFixed(3)} ETH`
   );
 
   return { client, sign: account.signTransaction };
