@@ -34,7 +34,11 @@ program
   /**
    * -k, --keyfile flag to specify the arweave keyfile location.
    */
-  .option("-k, --key-file <file>", "Arweave wallet keyfile")
+  .option("-k, --keyfile <file>", "Arweave wallet keyfile")
+  /**
+   * -eth-keyfile flag to specify ethereum private keyfile location
+   */
+  .option("--eth-keyfile <file>", "Ethereum private keyfile")
   /**
    * -c, --config flag to specify verto's configuration file
    */
