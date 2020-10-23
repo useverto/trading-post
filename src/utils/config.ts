@@ -22,10 +22,10 @@ export interface APIConfig {
  */
 export interface GenesisConfig {
   blockedTokens: string[];
+  chain: Chain;
   tradeFee: number;
   version: string;
   publicURL: URL | string;
-  chain: Chain;
 }
 
 export interface Chain {

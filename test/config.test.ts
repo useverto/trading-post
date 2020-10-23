@@ -17,6 +17,9 @@ describe("Config tests", () => {
           "usjm4PCxUd5mtaon7zc97-dt-3qf67yPyqgzLnLqk5A",
           "FcM-QQpfcD0xTTzr8u4Su9QCgcvRx_JH4JSCQoFi6Ck",
         ],
+        chain: {
+          ETH: "",
+        },
         tradeFee: 0.01,
         publicURL: "https://example.com/",
         version: "0.2.0",
