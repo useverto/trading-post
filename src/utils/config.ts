@@ -28,10 +28,8 @@ export interface GenesisConfig {
   chain: Chain;
 }
 
-type SupportedChains = "ETH";
-
 export interface Chain {
-   [chain: SupportedChains]: string;
+   [chain: string]: string;
 }
 
 /**
