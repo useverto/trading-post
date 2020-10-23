@@ -25,6 +25,13 @@ export interface GenesisConfig {
   tradeFee: number;
   version: string;
   publicURL: URL | string;
+  chain: Chain;
+}
+
+type SupportedChains = "ETH";
+
+export interface Chain {
+   [chain: SupportedChains]: string;
 }
 
 /**
