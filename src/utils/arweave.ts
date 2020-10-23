@@ -22,7 +22,10 @@ export async function init(keyfile?: string) {
     protocol: "https",
     timeout: 20000,
     logging: false,
-    logger: (msg: any) => log.debug(msg),
+    logger: (msg: any) => {
+      if (new Error().stack?.includes("smartweave")) return;
+      log.debug(msg);
+    },
   });
 
   const jwk = await getJwk(keyfile);
