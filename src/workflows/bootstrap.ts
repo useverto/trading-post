@@ -119,9 +119,14 @@ export async function bootstrap(
           if (tx.type === "Cancel") {
             await cancel(client, tx.id, tx.order, jwk!, db);
           } else if (tx.type === "Swap") {
-            // TODO(@johnletey): Check if tx.chain is in config
             if (tx.chain === "ETH") {
-              await ethSwap(client, ethClient, tx.id, jwk!, sign, db);
+              if ("ETH" in config.genesis.chain) {
+                await ethSwap(client, ethClient, tx.id, jwk!, sign, db);
+              } else {
+                log.error(
+                  `Received an ETH swap.\n\t\tConsider adding support for this.`
+                );
+              }
             }
           } else {
             const order = (

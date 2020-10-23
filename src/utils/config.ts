@@ -29,7 +29,7 @@ export interface GenesisConfig {
 }
 
 export interface Chain {
-   [chain: string]: string;
+  [chain: string]: string;
 }
 
 /**
