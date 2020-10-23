@@ -39,7 +39,7 @@ async function sendConfirmation(
   await client.transactions.post(confirmationTx);
 }
 
-export async function swap(
+export async function ethSwap(
   client: Arweave,
   ethClient: Web3,
   txID: string,
@@ -99,7 +99,6 @@ export async function swap(
   };
   await saveOrder(db, chain, swapEntry);
 
-  // TODO(@johnletey): Make sure chain is supported by TP.
   if (type === "Buy") {
     const orders = await getSellOrders(db, chain);
     for (const order of orders) {

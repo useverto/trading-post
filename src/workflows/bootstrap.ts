@@ -9,7 +9,7 @@ import { init } from "@utils/arweave";
 import { init as ethInit } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
-import { swap } from "@workflows/swap";
+import { ethSwap } from "@workflows/swap";
 import txQuery from "../queries/tx.gql";
 import { match } from "@workflows/match";
 
@@ -54,17 +54,27 @@ async function getLatestTxs(
   }
   _txs = _txs.slice(index, _txs.length);
 
-  const txs: { id: string; height: number; type: string; order: string }[] = [];
+  const txs: {
+    id: string;
+    height: number;
+    chain: string;
+    type: string;
+    order: string;
+  }[] = [];
 
   for (const tx of _txs) {
     if (tx.node.block.timestamp > time) {
       const type = tx.node.tags.find(
         (tag: { name: string; value: string }) => tag.name === "Type"
-      ).value;
+      )?.value;
+      const chain = tx.node.tags.find(
+        (tag: { name: string; value: string }) => tag.name === "Chain"
+      )?.value;
 
       txs.push({
         id: tx.node.id,
         height: tx.node.block.height,
+        chain,
         type,
         order:
           type === "Cancel"
@@ -84,10 +94,10 @@ export async function bootstrap(
   db: Database,
   keyfile?: string
 ) {
-  const { client, walletAddr, community, jwk } = await init(keyfile);
+  const { client, walletAddr, jwk } = await init(keyfile);
   const { client: ethClient, sign } = await ethInit("privatekey");
 
-  const genesisTxId = await genesis(client, community, jwk!, config.genesis);
+  const genesisTxId = await genesis(client, jwk!, config.genesis);
 
   log.info("Monitoring wallet for incoming transactions...");
 
@@ -109,7 +119,10 @@ export async function bootstrap(
           if (tx.type === "Cancel") {
             await cancel(client, tx.id, tx.order, jwk!, db);
           } else if (tx.type === "Swap") {
-            await swap(client, ethClient, tx.id, jwk!, sign, db);
+            // TODO(@johnletey): Check if tx.chain is in config
+            if (tx.chain === "ETH") {
+              await ethSwap(client, ethClient, tx.id, jwk!, sign, db);
+            }
           } else {
             const order = (
               await query({

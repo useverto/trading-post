@@ -2,8 +2,8 @@ import Log from "@utils/logger";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { GenesisConfig } from "@utils/config";
+import { readContract } from "smartweave";
 import CONSTANTS from "../utils/constants.yml";
-import Community from "community-js";
 import { query } from "@utils/gql";
 import genesisQuery from "../queries/genesis.gql";
 import { deepStrictEqual } from "assert";
@@ -36,15 +36,31 @@ async function sendGenesis(
   log.info(`Sent genesis transaction.\n\t\ttxID = ${genesisTx.id}`);
 }
 
+interface Vault {
+  balance: number;
+  start: number;
+  end: number;
+}
+
 export async function genesis(
   client: Arweave,
-  community: Community,
   jwk: JWKInterface,
   config: GenesisConfig
 ) {
   const walletAddr = await client.wallets.jwkToAddress(jwk);
 
-  const stake = await community.getVaultBalance(walletAddr);
+  const vault = (await readContract(client, CONSTANTS.exchangeContractSrc))
+    .vault;
+  let stake = 0;
+  if (walletAddr in vault) {
+    const height = (await client.network.getInfo()).height;
+    const filtered = vault[walletAddr].filter((a: Vault) => height < a.end);
+
+    stake += filtered
+      .map((a: Vault) => a.balance)
+      .reduce((a: number, b: number) => a + b, 0);
+  }
+
   if (stake <= 0) {
     log.error(
       "Stake value is <= 0." +

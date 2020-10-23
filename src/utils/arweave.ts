@@ -3,8 +3,6 @@ import { JWKPublicInterface } from "arweave/node/lib/wallet";
 import Logger from "@utils/logger";
 import { relative } from "path";
 import * as fs from "fs";
-import Community from "community-js";
-import CONSTANTS from "./constants.yml";
 
 const { readFile } = fs.promises;
 
@@ -26,25 +24,20 @@ export async function init(keyfile?: string) {
     logging: false,
     logger: (msg: any) => log.debug(msg),
   });
+
   const jwk = await getJwk(keyfile);
   const walletAddr = await client.wallets.jwkToAddress(jwk!);
   const balance = client.ar.winstonToAr(
     await client.wallets.getBalance(walletAddr)
   );
+
   log.info(
     "Created Arweave instance:\n\t\t" +
       `addr    = ${walletAddr}\n\t\t` +
       `balance = ${parseFloat(balance).toFixed(3)} AR`
   );
 
-  log.info("Configuring community.xyz");
-  const community = new Community(client, jwk);
-  log.debug(
-    `Setting community tx. community_tx=${CONSTANTS.exchangeContractSrc}`
-  );
-  await community.setCommunityTx(CONSTANTS.exchangeContractSrc);
-
-  return { client, walletAddr, community, jwk };
+  return { client, walletAddr, jwk };
 }
 
 let cachedJwk: JWKPublicInterface | undefined;
