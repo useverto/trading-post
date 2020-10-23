@@ -92,10 +92,11 @@ async function getLatestTxs(
 export async function bootstrap(
   config: TradingPostConfig,
   db: Database,
-  keyfile?: string
+  keyfile?: string,
+  ethKeyfile?: string
 ) {
   const { client, walletAddr, jwk } = await init(keyfile);
-  const { client: ethClient, sign } = await ethInit("privatekey");
+  const { client: ethClient, sign } = await ethInit(ethKeyfile);
 
   const genesisTxId = await genesis(client, jwk!, config.genesis);
 

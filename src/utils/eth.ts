@@ -1,17 +1,22 @@
 import * as fs from "fs";
+import { relative } from "path";
 import Logger from "@utils/logger";
 import Web3 from "web3";
 
 const { readFile } = fs.promises;
+
+const relativeKeyPath = process.env.KEY_PATH
+  ? relative(__dirname, process.env.KEY_PATH)
+  : "./privatekey";
 
 const log = new Logger({
   level: Logger.Levels.debug,
   name: "eth",
 });
 
-export async function init(keyfile: string) {
-  log.info(`Loading private key from: ${keyfile}`);
-  const privateKey = (await readFile(keyfile)).toString();
+export async function init(keyfile?: string) {
+  log.info(`Loading private key from: ${keyfile || relativeKeyPath}`);
+  const privateKey = (await readFile(keyfile || relativeKeyPath)).toString();
 
   // TODO(@johnletey): Switch to mainnet when done testing
   const client = new Web3(

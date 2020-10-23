@@ -102,7 +102,9 @@ async function RunCommand(opts: any) {
     /**
      * Start the bootstrap workflow
      */
-    bootstrap(cnf, connPool, opts.keyFile).catch((err) => log.error(err));
+    bootstrap(cnf, connPool, opts.keyfile, opts.ethKeyfile).catch((err) =>
+      log.error(err)
+    );
     /**
      * Setup shutdown hook
      */
