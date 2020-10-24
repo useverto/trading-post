@@ -117,7 +117,7 @@ export async function ethSwap(
         const ethTx = await sign({
           to: addr,
           value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
-          // TODO(@johnletey): May need to set `gas` here.
+          gas: 21000,
         });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
@@ -169,7 +169,7 @@ export async function ethSwap(
         const ethTx = await sign({
           to: addr,
           value: ethClient.utils.toWei(order.amnt.toString(), "ether"),
-          // TODO(@johnletey): May need to set `gas` here.
+          gas: 21000,
         });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
@@ -218,7 +218,7 @@ export async function ethSwap(
         const ethTx = await sign({
           to: order.addr,
           value: ethClient.utils.toWei(amnt.toString(), "ether"),
-          // TODO(@johnletey): May need to set `gas` here.
+          gas: 21000,
         });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
@@ -273,7 +273,7 @@ export async function ethSwap(
             (order.amnt * order.rate).toString(),
             "ether"
           ),
-          // TODO(@johnletey): May need to set `gas` here.
+          gas: 21000,
         });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
