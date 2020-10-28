@@ -96,8 +96,6 @@ export const latestTxs = async (
     })
   ).data.transactions.edges.reverse();
 
-  console.log(_txs);
-
   let index: number = 0;
   for (let i = 0; i < _txs.length; i++) {
     if (_txs[i].node.id === latest.txID) {
@@ -106,8 +104,6 @@ export const latestTxs = async (
     }
   }
   _txs = _txs.slice(index, _txs.length);
-
-  console.log(_txs);
 
   const txs: {
     id: string;
