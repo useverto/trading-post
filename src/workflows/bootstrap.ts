@@ -1,9 +1,6 @@
 import Log from "@utils/logger";
 import { Database } from "sqlite";
-import { getTimestamp } from "@utils/database";
 import { query } from "@utils/gql";
-import txsQuery from "../queries/txs.gql";
-import CONSTANTS from "../utils/constants.yml";
 import { TradingPostConfig } from "@utils/config";
 import { init, latestTxs } from "@utils/arweave";
 import { init as ethInit } from "@utils/eth";
@@ -21,13 +18,12 @@ const log = new Log({
 async function getLatestTxs(
   db: Database,
   addr: string,
-  latestBlockHeight: number,
-  latestTxId: string
+  arLatest: {
+    block: number;
+    txID: string;
+  }
 ) {
-  return await latestTxs(db, addr, {
-    block: latestBlockHeight,
-    txID: latestTxId,
-  });
+  return await latestTxs(db, addr, arLatest);
 }
 
 export async function bootstrap(
@@ -41,19 +37,20 @@ export async function bootstrap(
 
   const genesisTxId = await genesis(client, jwk!, config.genesis);
 
-  log.info("Monitoring wallet for incoming transactions...");
+  log.info("Monitoring wallets for incoming transactions...");
 
-  let latestTxId: string = genesisTxId;
-  let latestBlockHeight = (await client.network.getInfo()).height;
+  let arLatest: {
+    block: number;
+    txID: string;
+  } = {
+    block: (await client.network.getInfo()).height,
+    txID: genesisTxId,
+  };
 
   setInterval(async () => {
-    const res = await getLatestTxs(
-      db,
-      walletAddr,
-      latestBlockHeight,
-      latestTxId
-    );
+    const res = await getLatestTxs(db, walletAddr, arLatest);
     const txs = res.txs;
+    arLatest = res.latest;
 
     if (txs.length !== 0) {
       for (const tx of txs) {
@@ -99,9 +96,6 @@ export async function bootstrap(
           );
         }
       }
-
-      latestTxId = res.latest.txID;
-      latestBlockHeight = res.latest.block;
     }
   }, 10000);
 }
