@@ -5,7 +5,7 @@ import { query } from "@utils/gql";
 import txsQuery from "../queries/txs.gql";
 import CONSTANTS from "../utils/constants.yml";
 import { TradingPostConfig } from "@utils/config";
-import { init } from "@utils/arweave";
+import { init, latestTxs } from "@utils/arweave";
 import { init as ethInit } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
@@ -21,72 +21,13 @@ const log = new Log({
 async function getLatestTxs(
   db: Database,
   addr: string,
-  genesisTxId: string,
   latestBlockHeight: number,
-  latestTxId?: string
+  latestTxId: string
 ) {
-  const timeEntries = await getTimestamp(db);
-  const time = timeEntries[timeEntries.length - 1]["createdAt"]
-    .toString()
-    .slice(0, -3);
-
-  if (!latestTxId) {
-    latestTxId = genesisTxId;
-  }
-
-  let _txs = (
-    await query({
-      query: txsQuery,
-      variables: {
-        recipients: [addr],
-        min: latestBlockHeight,
-        num: CONSTANTS.maxInt,
-      },
-    })
-  ).data.transactions.edges.reverse();
-
-  let index: number = 0;
-  for (let i = 0; i < _txs.length; i++) {
-    if (_txs[i].node.id === latestTxId) {
-      index = i + 1;
-      break;
-    }
-  }
-  _txs = _txs.slice(index, _txs.length);
-
-  const txs: {
-    id: string;
-    height: number;
-    chain: string;
-    type: string;
-    order: string;
-  }[] = [];
-
-  for (const tx of _txs) {
-    if (tx.node.block.timestamp > time) {
-      const type = tx.node.tags.find(
-        (tag: { name: string; value: string }) => tag.name === "Type"
-      )?.value;
-      const chain = tx.node.tags.find(
-        (tag: { name: string; value: string }) => tag.name === "Chain"
-      )?.value;
-
-      txs.push({
-        id: tx.node.id,
-        height: tx.node.block.height,
-        chain,
-        type,
-        order:
-          type === "Cancel"
-            ? tx.node.tags.find(
-                (tag: { name: string; value: string }) => tag.name === "Order"
-              ).value
-            : undefined,
-      });
-    }
-  }
-
-  return txs;
+  return await latestTxs(db, addr, {
+    block: latestBlockHeight,
+    txID: latestTxId,
+  });
 }
 
 export async function bootstrap(
@@ -102,17 +43,17 @@ export async function bootstrap(
 
   log.info("Monitoring wallet for incoming transactions...");
 
-  let latestTxId: string;
+  let latestTxId: string = genesisTxId;
   let latestBlockHeight = (await client.network.getInfo()).height;
 
   setInterval(async () => {
-    const txs = await getLatestTxs(
+    const res = await getLatestTxs(
       db,
       walletAddr,
-      genesisTxId,
       latestBlockHeight,
       latestTxId
     );
+    const txs = res.txs;
 
     if (txs.length !== 0) {
       for (const tx of txs) {
@@ -159,8 +100,8 @@ export async function bootstrap(
         }
       }
 
-      latestTxId = txs[txs.length - 1].id;
-      latestBlockHeight = txs[txs.length - 1].height;
+      latestTxId = res.latest.txID;
+      latestBlockHeight = res.latest.block;
     }
   }, 10000);
 }
