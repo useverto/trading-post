@@ -85,31 +85,34 @@ export const latestTxs = async (
     blockNumber++
   ) {
     const block = await client.eth.getBlock(blockNumber);
-    if (blockNumber === latestBlock.number) {
+    if (block) {
       newLatest = {
         block: blockNumber,
         txID: block.transactions[0],
       };
-    }
-    let blockTxs = block.transactions.reverse();
 
-    const index = blockTxs.indexOf(latest.txID);
-    blockTxs = blockTxs.splice(index + 1, blockTxs.length);
+      let blockTxs = block.transactions.reverse();
 
-    for (const txID of blockTxs) {
-      const tx = await client.eth.getTransaction(txID);
-      if (tx.to === addr) {
-        txs.push({
-          id: txID,
-          block: blockNumber,
-          sender: tx.from,
-          type: "Swap",
-          table: "ETH",
-          amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
-        });
+      const index = blockTxs.indexOf(latest.txID);
+      blockTxs = blockTxs.splice(index + 1, blockTxs.length);
+
+      for (const txID of blockTxs) {
+        const tx = await client.eth.getTransaction(txID);
+        if (tx.to === addr) {
+          txs.push({
+            id: txID,
+            block: blockNumber,
+            sender: tx.from,
+            type: "Swap",
+            table: "ETH",
+            amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
+          });
+        }
       }
     }
   }
+
+  // console.log(newLatest);
 
   return { txs, latest: newLatest };
 };

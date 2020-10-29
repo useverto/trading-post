@@ -131,10 +131,10 @@ export const latestTxs = async (
           block: tx.node.block.height,
           sender: tx.node.owner.address,
           type,
-          table: tx.tags.find(
+          table: tx.node.tags.find(
             (tag: { name: string; value: string }) => tag.name === "Token"
           ).value,
-          arAmnt: parseFloat(tx.quantity.ar),
+          arAmnt: parseFloat(tx.node.quantity.ar),
         });
       } else if (type === "Sell") {
         txs.push({
@@ -142,15 +142,15 @@ export const latestTxs = async (
           block: tx.node.block.height,
           sender: tx.node.owner.address,
           type,
-          table: tx.tags.find(
+          table: tx.node.tags.find(
             (tag: { name: string; value: string }) => tag.name === "Contract"
           ).value,
           amnt: JSON.parse(
-            tx.tags.find(
+            tx.node.tags.find(
               (tag: { name: string; value: string }) => tag.name === "Input"
             ).value
           ).qty,
-          rate: tx.tags.find(
+          rate: tx.node.tags.find(
             (tag: { name: string; value: string }) => tag.name === "Rate"
           ).value,
         });
@@ -160,7 +160,7 @@ export const latestTxs = async (
           block: tx.node.block.height,
           sender: tx.node.owner.address,
           type,
-          order: tx.tags.find(
+          order: tx.node.tags.find(
             (tag: { name: string; value: string }) => tag.name === "Order"
           ).value,
         });
@@ -170,11 +170,11 @@ export const latestTxs = async (
           block: tx.node.block.height,
           sender: tx.node.owner.address,
           type,
-          table: tx.tags.find(
+          table: tx.node.tags.find(
             (tag: { name: string; value: string }) => tag.name === "Chain"
           ).value,
-          arAmnt: parseFloat(tx.quantity.ar),
-          rate: tx.tags.find(
+          arAmnt: parseFloat(tx.node.quantity.ar),
+          rate: tx.node.tags.find(
             (tag: { name: string; value: string }) => tag.name === "Rate"
           ).value,
         });
