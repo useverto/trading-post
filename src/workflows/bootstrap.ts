@@ -1,13 +1,11 @@
 import Log from "@utils/logger";
 import { Database } from "sqlite";
-import { query } from "@utils/gql";
 import { TradingPostConfig } from "@utils/config";
 import { init, latestTxs } from "@utils/arweave";
 import { init as ethInit, latestTxs as ethLatestTxs } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
 import { ethSwap } from "@workflows/swap";
-import txQuery from "../queries/tx.gql";
 import { match } from "@workflows/match";
 import Web3 from "web3";
 
@@ -141,7 +139,7 @@ export async function bootstrap(
                 }\n\t\ttoken = ${tx.table!}`
               );
             } else {
-              await match(client, tx.id, jwk!, db);
+              await match(client, tx, jwk!, db);
             }
           }
         } catch (err) {

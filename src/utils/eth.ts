@@ -53,7 +53,8 @@ export const latestTxs = async (
     block: number;
     sender: string;
     type: string;
-    table: string;
+    table?: string;
+    order?: string;
     arAmnt?: number;
     amnt?: number;
     rate?: number;
@@ -68,7 +69,8 @@ export const latestTxs = async (
     block: number;
     sender: string;
     type: string;
-    table: string;
+    table?: string;
+    order?: string;
     arAmnt?: number;
     amnt?: number;
     rate?: number;
