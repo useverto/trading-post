@@ -76,12 +76,21 @@ export const latestTxs = async (
     rate?: number;
   }[] = [];
 
+  const latestBlock = await client.eth.getBlock("latest");
+  let newLatest = latest;
+
   for (
     let blockNumber = latest.block;
-    blockNumber <= (await client.eth.getBlock("latest")).number;
+    blockNumber <= latestBlock.number;
     blockNumber++
   ) {
     const block = await client.eth.getBlock(blockNumber);
+    if (blockNumber === latestBlock.number) {
+      newLatest = {
+        block: blockNumber,
+        txID: block.transactions[0],
+      };
+    }
     let blockTxs = block.transactions.reverse();
 
     const index = blockTxs.indexOf(latest.txID);
@@ -100,14 +109,6 @@ export const latestTxs = async (
         });
       }
     }
-  }
-
-  let newLatest = latest;
-  if (txs.length > 0) {
-    newLatest = {
-      block: txs[txs.length - 1].block,
-      txID: txs[txs.length - 1].id,
-    };
   }
 
   return { txs, latest: newLatest };
