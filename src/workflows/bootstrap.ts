@@ -112,7 +112,21 @@ export async function bootstrap(
           } else if (tx.type === "Swap") {
             if (tx.table === "ETH") {
               if ("ETH" in config.genesis.chain) {
-                await ethSwap(client, ethClient, tx.id, jwk!, sign, db);
+                await ethSwap(
+                  client,
+                  ethClient,
+                  {
+                    id: tx.id,
+                    sender: tx.sender,
+                    table: tx.table,
+                    arAmnt: tx.arAmnt,
+                    amnt: tx.amnt,
+                    rate: tx.rate,
+                  },
+                  jwk!,
+                  sign,
+                  db
+                );
               } else {
                 log.error(
                   `Received an ETH swap.\n\t\tConsider adding support for this.`
