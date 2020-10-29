@@ -112,7 +112,5 @@ export const latestTxs = async (
     }
   }
 
-  // console.log(newLatest);
-
   return { txs, latest: newLatest };
 };
