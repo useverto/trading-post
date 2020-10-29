@@ -3,12 +3,13 @@ import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import { TradingPostConfig } from "@utils/config";
 import { init, latestTxs } from "@utils/arweave";
-import { init as ethInit } from "@utils/eth";
+import { init as ethInit, latestTxs as ethLatestTxs } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
 import { ethSwap } from "@workflows/swap";
 import txQuery from "../queries/tx.gql";
 import { match } from "@workflows/match";
+import Web3 from "web3";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -21,9 +22,42 @@ async function getLatestTxs(
   arLatest: {
     block: number;
     txID: string;
+  },
+  ethClient: Web3,
+  ethAddr: string,
+  ethLatest: {
+    block: number;
+    txID: string;
   }
-) {
-  return await latestTxs(db, addr, arLatest);
+): Promise<{
+  txs: {
+    id: string;
+    block: number;
+    sender: string;
+    type: string;
+    table?: string;
+    order?: string;
+    arAmnt?: number;
+    amnt?: number;
+    rate?: number;
+  }[];
+  arLatest: {
+    block: number;
+    txID: string;
+  };
+  ethLatest: {
+    block: number;
+    txID: string;
+  };
+}> {
+  const arRes = await latestTxs(db, addr, arLatest);
+  const ethRes = await ethLatestTxs(ethClient, ethAddr, ethLatest);
+
+  return {
+    txs: arRes.txs.concat(ethRes.txs),
+    arLatest: arRes.latest,
+    ethLatest: ethRes.latest,
+  };
 }
 
 export async function bootstrap(
@@ -32,10 +66,10 @@ export async function bootstrap(
   keyfile?: string,
   ethKeyfile?: string
 ) {
-  const { client, walletAddr, jwk } = await init(keyfile);
-  const { client: ethClient, sign } = await ethInit(ethKeyfile);
+  const { client, addr, jwk } = await init(keyfile);
+  const { client: ethClient, addr: ethAddr, sign } = await ethInit(ethKeyfile);
 
-  const genesisTxId = await genesis(client, jwk!, config.genesis);
+  await genesis(client, jwk!, config.genesis);
 
   log.info("Monitoring wallets for incoming transactions...");
 
@@ -44,21 +78,39 @@ export async function bootstrap(
     txID: string;
   } = {
     block: (await client.network.getInfo()).height,
-    txID: genesisTxId,
+    txID: await client.wallets.getLastTransactionID(addr),
+  };
+
+  const latestEthBlock = await ethClient.eth.getBlock("latest");
+  let ethLatest: {
+    block: number;
+    txID: string;
+  } = {
+    block: latestEthBlock.number,
+    txID: latestEthBlock.transactions[0],
   };
 
   setInterval(async () => {
-    const res = await getLatestTxs(db, walletAddr, arLatest);
+    const res = await getLatestTxs(
+      db,
+      addr,
+      arLatest,
+      ethClient,
+      ethAddr,
+      ethLatest
+    );
     const txs = res.txs;
-    arLatest = res.latest;
+
+    arLatest = res.arLatest;
+    ethLatest = res.ethLatest;
 
     if (txs.length !== 0) {
       for (const tx of txs) {
         try {
           if (tx.type === "Cancel") {
-            await cancel(client, tx.id, tx.order, jwk!, db);
+            await cancel(client, tx.id, tx.order!, jwk!, db);
           } else if (tx.type === "Swap") {
-            if (tx.chain === "ETH") {
+            if (tx.table === "ETH") {
               if ("ETH" in config.genesis.chain) {
                 await ethSwap(client, ethClient, tx.id, jwk!, sign, db);
               } else {
@@ -68,23 +120,11 @@ export async function bootstrap(
               }
             }
           } else {
-            const order = (
-              await query({
-                query: txQuery,
-                variables: {
-                  txID: tx.id,
-                },
-              })
-            ).data.transaction;
-
-            const tokenTag = tx.type === "Buy" ? "Token" : "Contract";
-            const token = order.tags.find(
-              (tag: { name: string; value: string }) => tag.name === tokenTag
-            ).value;
-
-            if (token in config.genesis.blockedTokens) {
+            if (tx.table! in config.genesis.blockedTokens) {
               log.error(
-                `Token for order is blocked.\n\t\ttxID = ${tx.id}\n\t\ttype = ${tx.type}\n\t\ttoken = ${token}`
+                `Token for order is blocked.\n\t\ttxID = ${tx.id}\n\t\ttype = ${
+                  tx.type
+                }\n\t\ttoken = ${tx.table!}`
               );
             } else {
               await match(client, tx.id, jwk!, db);

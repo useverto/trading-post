@@ -34,18 +34,16 @@ export async function init(keyfile?: string) {
   });
 
   const jwk = await getJwk(keyfile);
-  const walletAddr = await client.wallets.jwkToAddress(jwk!);
-  const balance = client.ar.winstonToAr(
-    await client.wallets.getBalance(walletAddr)
-  );
+  const addr = await client.wallets.jwkToAddress(jwk!);
+  const balance = client.ar.winstonToAr(await client.wallets.getBalance(addr));
 
   log.info(
     "Created Arweave instance:\n\t\t" +
-      `addr    = ${walletAddr}\n\t\t` +
+      `addr    = ${addr}\n\t\t` +
       `balance = ${parseFloat(balance).toFixed(3)} AR`
   );
 
-  return { client, walletAddr, jwk };
+  return { client, addr, jwk };
 }
 
 let cachedJwk: JWKPublicInterface | undefined;
@@ -71,9 +69,13 @@ export const latestTxs = async (
   txs: {
     id: string;
     block: number;
-    chain: string;
+    sender: string;
     type: string;
-    order: string;
+    table?: string;
+    order?: string;
+    arAmnt?: number;
+    amnt?: number;
+    rate?: number;
   }[];
   latest: {
     block: number;
@@ -108,32 +110,72 @@ export const latestTxs = async (
   const txs: {
     id: string;
     block: number;
-    chain: string;
+    sender: string;
     type: string;
-    order: string;
+    table?: string;
+    order?: string;
+    arAmnt?: number;
+    amnt?: number;
+    rate?: number;
   }[] = [];
 
   for (const tx of _txs) {
     if (tx.node.block.timestamp > time) {
       const type = tx.node.tags.find(
         (tag: { name: string; value: string }) => tag.name === "Type"
-      )?.value;
-      const chain = tx.node.tags.find(
-        (tag: { name: string; value: string }) => tag.name === "Chain"
-      )?.value;
+      ).value;
 
-      txs.push({
-        id: tx.node.id,
-        block: tx.node.block.height,
-        chain,
-        type,
-        order:
-          type === "Cancel"
-            ? tx.node.tags.find(
-                (tag: { name: string; value: string }) => tag.name === "Order"
-              ).value
-            : undefined,
-      });
+      if (type === "Buy") {
+        txs.push({
+          id: tx.node.id,
+          block: tx.node.block.height,
+          sender: tx.node.owner.address,
+          type,
+          table: tx.tags.find(
+            (tag: { name: string; value: string }) => tag.name === "Token"
+          ).value,
+          arAmnt: parseFloat(tx.quantity.ar),
+        });
+      } else if (type === "Sell") {
+        txs.push({
+          id: tx.node.id,
+          block: tx.node.block.height,
+          sender: tx.node.owner.address,
+          type,
+          table: tx.tags.find(
+            (tag: { name: string; value: string }) => tag.name === "Contract"
+          ).value,
+          amnt: JSON.parse(
+            tx.tags.find(
+              (tag: { name: string; value: string }) => tag.name === "Input"
+            ).value
+          ).qty,
+          rate: tx.tags.find(
+            (tag: { name: string; value: string }) => tag.name === "Rate"
+          ).value,
+        });
+      } else if (type === "Cancel") {
+        txs.push({
+          id: tx.node.id,
+          block: tx.node.block.height,
+          sender: tx.node.owner.address,
+          type,
+          order: tx.tags.find(
+            (tag: { name: string; value: string }) => tag.name === "Order"
+          ).value,
+        });
+      } else if (type === "Swap") {
+        txs.push({
+          id: tx.node.id,
+          block: tx.node.block.height,
+          sender: tx.node.owner.address,
+          type,
+          table: tx.tags.find(
+            (tag: { name: string; value: string }) => tag.name === "Chain"
+          ).value,
+          arAmnt: parseFloat(tx.quantity.ar),
+        });
+      }
     }
   }
 

@@ -37,5 +37,76 @@ export async function init(keyfile?: string) {
       `balance = ${parseFloat(balance).toFixed(3)} ETH`
   );
 
-  return { client, sign: account.signTransaction };
+  return { client, addr: account.address, sign: account.signTransaction };
 }
+
+export const latestTxs = async (
+  client: Web3,
+  addr: string,
+  latest: {
+    block: number;
+    txID: string;
+  }
+): Promise<{
+  txs: {
+    id: string;
+    block: number;
+    sender: string;
+    type: string;
+    table: string;
+    arAmnt?: number;
+    amnt?: number;
+    rate?: number;
+  }[];
+  latest: {
+    block: number;
+    txID: string;
+  };
+}> => {
+  const txs: {
+    id: string;
+    block: number;
+    sender: string;
+    type: string;
+    table: string;
+    arAmnt?: number;
+    amnt?: number;
+    rate?: number;
+  }[] = [];
+
+  for (
+    let blockNumber = latest.block;
+    blockNumber <= (await client.eth.getBlock("latest")).number;
+    blockNumber++
+  ) {
+    const block = await client.eth.getBlock(blockNumber);
+    let blockTxs = block.transactions.reverse();
+
+    const index = blockTxs.indexOf(latest.txID);
+    blockTxs = blockTxs.splice(index + 1, blockTxs.length);
+
+    for (const txID of blockTxs) {
+      const tx = await client.eth.getTransaction(txID);
+      if (tx.to === addr) {
+        txs.push({
+          id: txID,
+          block: blockNumber,
+          sender: tx.from,
+          type: "Swap",
+          table: "ETH",
+          amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
+        });
+      }
+    }
+  }
+
+  let newLatest = latest;
+  if (txs.length > 0) {
+    newLatest = {
+      block: txs[txs.length - 1].block,
+      txID: txs[txs.length - 1].id,
+    };
+  }
+
+  return { txs, latest: newLatest };
+};

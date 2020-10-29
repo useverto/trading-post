@@ -47,14 +47,14 @@ export async function genesis(
   jwk: JWKInterface,
   config: GenesisConfig
 ) {
-  const walletAddr = await client.wallets.jwkToAddress(jwk);
+  const addr = await client.wallets.jwkToAddress(jwk);
 
   const vault = (await readContract(client, CONSTANTS.exchangeContractSrc))
     .vault;
   let stake = 0;
-  if (walletAddr in vault) {
+  if (addr in vault) {
     const height = (await client.network.getInfo()).height;
-    const filtered = vault[walletAddr].filter((a: Vault) => height < a.end);
+    const filtered = vault[addr].filter((a: Vault) => height < a.end);
 
     stake += filtered
       .map((a: Vault) => a.balance)
@@ -75,8 +75,8 @@ export async function genesis(
     await query({
       query: genesisQuery,
       variables: {
-        owners: [walletAddr],
-        recipients: [CONSTANTS.exchangeWallet],
+        addr,
+        exchange: CONSTANTS.exchangeWallet,
       },
     })
   ).data.transactions.edges;
@@ -97,17 +97,14 @@ export async function genesis(
 
     try {
       deepStrictEqual(currentConfig, config);
-      return possibleGenesis[0].node.id;
     } catch {
       log.info(
         "Local config does not match latest genesis config.\n\t\tSending new genesis transaction ..."
       );
-
-      return await sendGenesis(client, jwk, config);
+      await sendGenesis(client, jwk, config);
     }
   } else {
     log.info("Sending genesis transaction ...");
-
-    return await sendGenesis(client, jwk, config);
+    await sendGenesis(client, jwk, config);
   }
 }
