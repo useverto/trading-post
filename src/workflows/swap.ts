@@ -3,8 +3,6 @@ import Arweave from "arweave";
 import Web3 from "web3";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
-import { query } from "@utils/gql";
-import txQuery from "../queries/tx.gql";
 import {
   OrderInstance,
   saveOrder,
