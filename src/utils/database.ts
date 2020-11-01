@@ -139,10 +139,11 @@ export async function getBuyOrders(
     return [];
   }
   /**
-   * Sort the orders by their date of creation
+   * Sort orders by their rate
    */
   orders.sort((a, b) => {
-    return +new Date(a.createdAt) - +new Date(b.createdAt);
+    if (a.rate && b.rate) return a.rate - b.rate;
+    else return 0;
   });
   return orders;
 }
