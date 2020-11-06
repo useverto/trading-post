@@ -9,7 +9,7 @@ const _brightRed = "\u001b[31;1m"
 type TestLogger struct{}
 
 func (logger *TestLogger) Success(out string) {
-	fmt.Println(_brightGreen, "OK", _reset, "Pass", out)
+	fmt.Println(_brightGreen, "OK", _reset, "Pass => ", out)
 }
 
 func (logger *TestLogger) Error(out string) {

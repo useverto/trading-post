@@ -26,6 +26,7 @@ func main() {
 	fmt.Println(startupText)
 	os.Setenv("VERTO_URI", "http://localhost:3000/verto.zip")
 	go ServeInstallers()
+	Build()
 	PrepareZip()
 	TestInstaller()
 	for _, value := range Commands {
@@ -37,5 +38,6 @@ func main() {
 		}
 		Logger.Success(command)
 	}
-	StartTradingPost()
+	go StartTradingPost()
+	RunLibTest()
 }
