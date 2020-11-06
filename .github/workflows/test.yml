@@ -41,6 +41,8 @@ jobs:
 
       - name: Run Integration Tests
         run: yarn test:integration
+        env:
+          KEYFILE: ${{ secrets.KEYFILE }}
 
       - name: Prepare linux build
         if: startsWith(matrix.os, 'ubuntu')
