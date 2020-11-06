@@ -7,7 +7,7 @@ import (
 
 func StartTradingPost() {
 	ch := make(chan bool, 1)
-	command := "./verto -c verto.config.example.json -k arweave.json"
+	command := "./verto -c verto.config.example.json -k arweave-keyfile.json"
 	go func() {
 		err, stderr, _ := Shellout(command)
 		if err != nil {

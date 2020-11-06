@@ -8,8 +8,9 @@ logs
 # nodejs modules
 node_modules
 
-# arweave keyfule
+# arweave keyfiles
 arweave.json
+arweave-keyfile.json
 
 # verto config files
 config.json

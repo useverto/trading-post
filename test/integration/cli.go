@@ -29,6 +29,7 @@ func main() {
 	Build()
 	PrepareZip()
 	TestInstaller()
+	SetupKeyFile()
 	for _, value := range Commands {
 		command := fmt.Sprintf("./verto %s", value)
 		err, _, _ := Shellout(command)

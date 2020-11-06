@@ -5,5 +5,5 @@ let vrt = new Verto(null, null, {
 });
 
 (async () => {
-  await vrt.getTradingPosts();
+  console.log(await vrt.getTradingPosts());
 })();
