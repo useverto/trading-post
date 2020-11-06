@@ -20,6 +20,10 @@ install_dir="${VERTO_INSTALL:-$HOME/.verto}"
 bin_dir="$install_dir"
 exe="$bin_dir/verto"
 
+if [ $VERTO_URI ]; then 
+  release_uri=$VERTO_URI
+fi
+
 if [ ! -d "$bin_dir" ]; then
   mkdir -p "$bin_dir"
 fi
