@@ -99,10 +99,20 @@ export async function ethSwap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const ethTx = await sign({
+        const gasPrice = parseFloat(
+          ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
+        );
+        const gas = await ethClient.eth.estimateGas({
           to: addr,
           value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
-          gas: 21000,
+        });
+        const ethTx = await sign({
+          to: addr,
+          value: ethClient.utils.toWei(
+            (ethAmount - gas * gasPrice).toString(),
+            "ether"
+          ),
+          gas,
         });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
@@ -151,10 +161,20 @@ export async function ethSwap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const ethTx = await sign({
+        const gasPrice = parseFloat(
+          ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
+        );
+        const gas = await ethClient.eth.estimateGas({
           to: addr,
           value: ethClient.utils.toWei(order.amnt.toString(), "ether"),
-          gas: 21000,
+        });
+        const ethTx = await sign({
+          to: addr,
+          value: ethClient.utils.toWei(
+            (order.amnt - gas * gasPrice).toString(),
+            "ether"
+          ),
+          gas,
         });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
@@ -200,10 +220,20 @@ export async function ethSwap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const ethTx = await sign({
+        const gasPrice = parseFloat(
+          ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
+        );
+        const gas = await ethClient.eth.estimateGas({
           to: order.addr,
           value: ethClient.utils.toWei(amnt.toString(), "ether"),
-          gas: 21000,
+        });
+        const ethTx = await sign({
+          to: order.addr,
+          value: ethClient.utils.toWei(
+            (amnt - gas * gasPrice).toString(),
+            "ether"
+          ),
+          gas,
         });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
@@ -252,13 +282,23 @@ export async function ethSwap(
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
-        const ethTx = await sign({
+        const gasPrice = parseFloat(
+          ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
+        );
+        const gas = await ethClient.eth.estimateGas({
           to: order.addr,
           value: ethClient.utils.toWei(
             (order.amnt * order.rate).toString(),
             "ether"
           ),
-          gas: 21000,
+        });
+        const ethTx = await sign({
+          to: order.addr,
+          value: ethClient.utils.toWei(
+            (order.amnt * order.rate - gas * gasPrice).toString(),
+            "ether"
+          ),
+          gas,
         });
         const ethTxID = (
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
