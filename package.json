@@ -20,11 +20,13 @@
     "pkg:win": "yarn prod && pkg -t node14-win dist/verto.js",
     "pkg:arm": "echo not implemented",
     "pkg:all": "yarn prod && pkg dist/verto.js",
-    "test": "rollup -c rollup.test.js && mocha 'build/verto.test.js'"
+    "test": "rollup -c rollup.test.js && mocha 'build/verto.test.js'",
+    "test:integration": "go run ./test/integration/"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
     "@koa/router": "^9.4.0",
+    "@verto/lib": "^0.6.2",
     "arweave": "^1.9.1",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",

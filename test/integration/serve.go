@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-
 )
 
 func ServeInstallers() <-chan bool {
