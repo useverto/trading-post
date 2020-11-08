@@ -16,7 +16,9 @@ const log = new Logger({
 
 export async function init(keyfile?: string) {
   log.info(`Loading private key from: ${keyfile || relativeKeyPath}`);
-  const privateKey = (await readFile(keyfile || relativeKeyPath)).toString();
+  const privateKey = (await readFile(keyfile || relativeKeyPath))
+    .toString()
+    .split("\n")[0];
 
   const client = new Web3(
     new Web3.providers.HttpProvider(
