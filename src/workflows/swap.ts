@@ -38,6 +38,14 @@ async function sendConfirmation(
   await client.transactions.post(confirmationTx);
 }
 
+function roundEth(eth: number): string {
+  const str = eth.toString();
+  const amntBeforeDecimal = str.split(".")[0].length;
+  return parseFloat(str)
+    .toFixed(18 - amntBeforeDecimal)
+    .toString();
+}
+
 export async function ethSwap(
   client: Arweave,
   ethClient: Web3,
@@ -104,12 +112,12 @@ export async function ethSwap(
         );
         const gas = await ethClient.eth.estimateGas({
           to: addr,
-          value: ethClient.utils.toWei(ethAmount.toString(), "ether"),
+          value: ethClient.utils.toWei(roundEth(ethAmount), "ether"),
         });
         const ethTx = await sign({
           to: addr,
           value: ethClient.utils.toWei(
-            (ethAmount - gas * gasPrice).toString(),
+            roundEth(ethAmount - gas * gasPrice),
             "ether"
           ),
           gas,
@@ -123,7 +131,9 @@ export async function ethSwap(
             `\n\t\tSent ${amnt} AR to ${order.addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${ethAmount} ${chain} to ${addr}` +
+            `\n\t\tSent ${roundEth(
+              ethAmount - gas * gasPrice
+            )} ${chain} to ${addr}` +
             `\n\t\ttxID = ${ethTxID}`
         );
 
@@ -145,7 +155,7 @@ export async function ethSwap(
         await sendConfirmation(
           client,
           tx.id,
-          `${received + ethAmount} ${chain}`,
+          `${received + roundEth(ethAmount - gas * gasPrice)} ${chain}`,
           jwk
         );
 
@@ -166,12 +176,12 @@ export async function ethSwap(
         );
         const gas = await ethClient.eth.estimateGas({
           to: addr,
-          value: ethClient.utils.toWei(order.amnt.toString(), "ether"),
+          value: ethClient.utils.toWei(roundEth(order.amnt), "ether"),
         });
         const ethTx = await sign({
           to: addr,
           value: ethClient.utils.toWei(
-            (order.amnt - gas * gasPrice).toString(),
+            roundEth(order.amnt - gas * gasPrice),
             "ether"
           ),
           gas,
@@ -185,7 +195,9 @@ export async function ethSwap(
             `\n\t\tSent ${order.amnt / rate!} AR to ${order.addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${order.amnt} ${chain} to ${addr}` +
+            `\n\t\tSent ${roundEth(
+              order.amnt - gas * gasPrice
+            )} ${chain} to ${addr}` +
             `\n\t\ttxID = ${ethTxID}`
         );
 
@@ -225,12 +237,12 @@ export async function ethSwap(
         );
         const gas = await ethClient.eth.estimateGas({
           to: order.addr,
-          value: ethClient.utils.toWei(amnt.toString(), "ether"),
+          value: ethClient.utils.toWei(roundEth(amnt), "ether"),
         });
         const ethTx = await sign({
           to: order.addr,
           value: ethClient.utils.toWei(
-            (amnt - gas * gasPrice).toString(),
+            roundEth(amnt - gas * gasPrice),
             "ether"
           ),
           gas,
@@ -244,7 +256,9 @@ export async function ethSwap(
             `\n\t\tSent ${amnt / order.rate} AR to ${addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${amnt} ${chain} to ${order.addr}` +
+            `\n\t\tSent ${roundEth(amnt - gas * gasPrice)} ${chain} to ${
+              order.addr
+            }` +
             `\n\t\ttxID = ${ethTxID}`
         );
 
@@ -253,7 +267,7 @@ export async function ethSwap(
           await sendConfirmation(
             client,
             order.txID,
-            `${order.received + amnt} ${chain}`,
+            `${order.received + roundEth(amnt - gas * gasPrice)} ${chain}`,
             jwk
           );
         } else {
@@ -288,14 +302,14 @@ export async function ethSwap(
         const gas = await ethClient.eth.estimateGas({
           to: order.addr,
           value: ethClient.utils.toWei(
-            (order.amnt * order.rate).toString(),
+            roundEth(order.amnt * order.rate),
             "ether"
           ),
         });
         const ethTx = await sign({
           to: order.addr,
           value: ethClient.utils.toWei(
-            (order.amnt * order.rate - gas * gasPrice).toString(),
+            roundEth(order.amnt * order.rate - gas * gasPrice),
             "ether"
           ),
           gas,
@@ -309,7 +323,9 @@ export async function ethSwap(
             `\n\t\tSent ${order.amnt} AR to ${addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${order.amnt * order.rate} ${chain} to ${order.addr}` +
+            `\n\t\tSent ${roundEth(
+              order.amnt * order.rate - gas * gasPrice
+            )} ${chain} to ${order.addr}` +
             `\n\t\ttxID = ${ethTxID}`
         );
 
@@ -324,7 +340,9 @@ export async function ethSwap(
         await sendConfirmation(
           client,
           order.txID,
-          `${order.received + order.amnt * order.rate} ${chain}`,
+          `${
+            order.received + roundEth(order.amnt * order.rate - gas * gasPrice)
+          } ${chain}`,
           jwk
         );
       }
