@@ -55,7 +55,17 @@ async function getLatestTxs(
     rate?: number;
   }[] = [];
   if (counter == 60) {
-    const store = await getTxStore(db);
+    let store: {
+      txHash: string;
+      chain: string;
+      createdAt: Date;
+    }[];
+    try {
+      store = await getTxStore(db);
+    } catch {
+      store = [];
+    }
+
     for (const entry of store) {
       const tx = await client.eth.getTransaction(entry.txHash);
       if (tx.blockNumber) {
