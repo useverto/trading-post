@@ -169,13 +169,13 @@ export const latestTxs = async (
           (tag: { name: string; value: string }) => tag.name === "Hash"
         );
         if (hashTag) {
-          await saveHash(
-            db,
-            tx.node.tags.find(
+          await saveHash(db, {
+            txHash: hashTag.value,
+            chain: tx.node.tags.find(
               (tag: { name: string; value: string }) => tag.name === "Chain"
             ).value,
-            { txHash: hashTag.value, createdAt: new Date() }
-          );
+            createdAt: new Date(),
+          });
         } else {
           txs.push({
             id: tx.node.id,

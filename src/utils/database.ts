@@ -218,31 +218,43 @@ export async function shutdownHook(db: Database): Promise<void> {
   });
 }
 
-/**
- * Save a buy or sell order in the database
- * @param db sqlite3 connection pool
- * @param chain
- * @param entry the tx instance
- */
 export async function saveHash(
   db: Database,
-  chain: string,
   entry: {
     txHash: string;
+    chain: string;
     createdAt: Date;
   }
 ) {
-  await db.exec(`CREATE TABLE IF NOT EXISTS "${chain}_STORE" (
+  await db.exec(`CREATE TABLE IF NOT EXISTS "TX_STORE" (
     txHash STRING NOT NULL PRIMARY KEY,
+    chain STRING NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
   )`);
-  /**
-   * Insert a token instance into the database.
-   * NOTE: The following code is not vulnerable to sql injection since invalid table names can never be queried.
-   *       The values are assigned via db.run that is capable of preventing any type of injection
-   */
-  return await db.run(`INSERT INTO "${chain}_STORE" VALUES (?, ?)`, [
+
+  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?)`, [
     entry.txHash,
+    entry.chain,
     entry.createdAt,
   ]);
+}
+
+export async function getTxStore(
+  db: Database
+): Promise<
+  {
+    txHash: string;
+    chain: string;
+    createdAt: Date;
+  }[]
+> {
+  const store = await db.all<
+    {
+      txHash: string;
+      chain: string;
+      createdAt: Date;
+    }[]
+  >(`SELECT * FROM "TX_STORE"`);
+
+  return store;
 }
