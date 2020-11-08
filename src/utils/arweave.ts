@@ -174,7 +174,7 @@ export const latestTxs = async (
             chain: tx.node.tags.find(
               (tag: { name: string; value: string }) => tag.name === "Chain"
             ).value,
-            createdAt: new Date(),
+            sender: tx.node.owner.address,
           });
         } else {
           txs.push({

@@ -1,7 +1,7 @@
 import Log from "@utils/logger";
 import { Database } from "sqlite";
 import { TradingPostConfig } from "@utils/config";
-import { init, latestTxs } from "@utils/arweave";
+import { getChainAddr, init, latestTxs } from "@utils/arweave";
 import { init as ethInit } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
@@ -23,6 +23,7 @@ async function getLatestTxs(
     txID: string;
   },
   client: Web3,
+  ethAddr: string,
   counter: number
 ): Promise<{
   txs: {
@@ -58,7 +59,7 @@ async function getLatestTxs(
     let store: {
       txHash: string;
       chain: string;
-      createdAt: Date;
+      sender: string;
     }[];
     try {
       store = await getTxStore(db);
@@ -68,6 +69,16 @@ async function getLatestTxs(
 
     for (const entry of store) {
       const tx = await client.eth.getTransaction(entry.txHash);
+
+      if (tx.from !== (await getChainAddr(entry.sender, entry.chain))) {
+        // tx is invalid
+        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+      }
+      if (tx.to !== ethAddr) {
+        // tx is invalid
+        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+      }
+
       if (tx.blockNumber) {
         ethRes.push({
           id: entry.txHash,
@@ -112,7 +123,14 @@ export async function bootstrap(
   let counter = 60;
 
   setInterval(async () => {
-    const res = await getLatestTxs(db, addr, latest, ethClient, counter);
+    const res = await getLatestTxs(
+      db,
+      addr,
+      latest,
+      ethClient,
+      ethAddr,
+      counter
+    );
     const txs = res.txs;
 
     latest = res.latest;

@@ -223,19 +223,19 @@ export async function saveHash(
   entry: {
     txHash: string;
     chain: string;
-    createdAt: Date;
+    sender: string;
   }
 ) {
   await db.exec(`CREATE TABLE IF NOT EXISTS "TX_STORE" (
     txHash STRING NOT NULL PRIMARY KEY,
     chain STRING NOT NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    sender STRING NOT NULL
   )`);
 
   return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?)`, [
     entry.txHash,
     entry.chain,
-    entry.createdAt,
+    entry.sender,
   ]);
 }
 
@@ -245,14 +245,14 @@ export async function getTxStore(
   {
     txHash: string;
     chain: string;
-    createdAt: Date;
+    sender: string;
   }[]
 > {
   const store = await db.all<
     {
       txHash: string;
       chain: string;
-      createdAt: Date;
+      sender: string;
     }[]
   >(`SELECT * FROM "TX_STORE"`);
 
