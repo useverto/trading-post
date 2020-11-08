@@ -22,7 +22,8 @@ async function getLatestTxs(
     block: number;
     txID: string;
   },
-  client: Web3
+  client: Web3,
+  counter: number
 ): Promise<{
   txs: {
     id: string;
@@ -53,19 +54,21 @@ async function getLatestTxs(
     amnt?: number;
     rate?: number;
   }[] = [];
-  const store = await getTxStore(db);
-  for (const entry of store) {
-    const tx = await client.eth.getTransaction(entry.txHash);
-    if (tx.blockNumber) {
-      ethRes.push({
-        id: entry.txHash,
-        block: tx.blockNumber,
-        sender: tx.from,
-        type: "Swap",
-        table: entry.chain,
-        amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
-      });
-      await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+  if (counter == 60) {
+    const store = await getTxStore(db);
+    for (const entry of store) {
+      const tx = await client.eth.getTransaction(entry.txHash);
+      if (tx.blockNumber) {
+        ethRes.push({
+          id: entry.txHash,
+          block: tx.blockNumber,
+          sender: tx.from,
+          type: "Swap",
+          table: entry.chain,
+          amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
+        });
+        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+      }
     }
   }
 
@@ -96,11 +99,18 @@ export async function bootstrap(
     txID: await client.wallets.getLastTransactionID(addr),
   };
 
+  let counter = 60;
+
   setInterval(async () => {
-    const res = await getLatestTxs(db, addr, latest, ethClient);
+    const res = await getLatestTxs(db, addr, latest, ethClient, counter);
     const txs = res.txs;
 
     latest = res.latest;
+    if (counter == 60) {
+      counter = 0;
+    } else {
+      counter++;
+    }
 
     if (txs.length !== 0) {
       for (const tx of txs) {
