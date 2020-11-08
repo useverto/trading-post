@@ -63,8 +63,6 @@ export const latestTxs = async (
     txID: string;
   };
 }> => {
-  log.warn("yo ...");
-
   const txs: {
     id: string;
     block: number;
