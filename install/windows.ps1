@@ -23,7 +23,6 @@ $VertoUri = if (!$v) {
   "https://github.com/useverto/trading-post/releases/download/${v}/verto-x64-windows.zip"
 }
 
-Write-Output $env:VERTO_URI
 if ($env:VERTO_URI) {
   $VertoUri = $env:VERTO_URI
 }

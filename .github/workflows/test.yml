@@ -40,7 +40,9 @@ jobs:
         run: yarn pkg
 
       - name: Run Integration Tests
-        run: go run ./test
+        run: yarn test:integration
+        env:
+          KEYFILE: ${{ secrets.KEYFILE }}
 
       - name: Prepare linux build
         if: startsWith(matrix.os, 'ubuntu')
