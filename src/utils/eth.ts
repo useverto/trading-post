@@ -18,10 +18,9 @@ export async function init(keyfile?: string) {
   log.info(`Loading private key from: ${keyfile || relativeKeyPath}`);
   const privateKey = (await readFile(keyfile || relativeKeyPath)).toString();
 
-  // TODO(@johnletey): Switch to mainnet when done testing
   const client = new Web3(
     new Web3.providers.HttpProvider(
-      "https://rinkeby.infura.io/v3/3bf0fb3706b942138503176dc1b1d545"
+      "https://:8bebd45d5f054e939b419779c2c95074@mainnet.infura.io/v3/c556e0ff7c86470abb716b006dc25404"
     )
   );
 
@@ -64,6 +63,8 @@ export const latestTxs = async (
     txID: string;
   };
 }> => {
+  log.warn("yo ...");
+
   const txs: {
     id: string;
     block: number;
