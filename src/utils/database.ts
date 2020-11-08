@@ -10,7 +10,7 @@ const log = new Logger({
 type Order = "Buy" | "Sell";
 
 // We need to declare an interface for our model that is basically what our class would be
-export interface TokenInstance {
+export interface OrderInstance {
   txID: string;
   amnt: number;
   rate?: number;
@@ -36,15 +36,15 @@ export async function init(db: string): Promise<Database> {
 /**
  * Save a buy or sell order in the database
  * @param db sqlite3 connection pool
- * @param token the contract ID
- * @param entry the token instance
+ * @param table
+ * @param entry the order instance
  */
 export async function saveOrder(
   db: Database,
-  token: string,
-  entry: TokenInstance
+  table: string,
+  entry: OrderInstance
 ) {
-  await db.exec(`CREATE TABLE IF NOT EXISTS "${token}" (
+  await db.exec(`CREATE TABLE IF NOT EXISTS "${table}" (
     txID STRING NOT NULL PRIMARY KEY,
     amnt INTEGER NOT NULL,
     rate INTEGER,
@@ -58,7 +58,7 @@ export async function saveOrder(
    * NOTE: The following code is not vulnerable to sql injection since invalid table names can never be queried.
    *       The values are assigned via db.run that is capable of preventing any type of injection
    */
-  return await db.run(`INSERT INTO "${token}" VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+  return await db.run(`INSERT INTO "${table}" VALUES (?, ?, ?, ?, ?, ?, ?)`, [
     entry.txID,
     entry.amnt,
     entry.rate,
@@ -74,13 +74,13 @@ export async function getOrders(db: Database) {
     "SELECT name FROM sqlite_master WHERE type='table'"
   );
 
-  let orders: { token: string; orders: TokenInstance[] }[] = [];
+  let orders: { token: string; orders: OrderInstance[] }[] = [];
 
   for (const table of tables) {
     if (table.name !== "__verto__") {
       orders.push({
         token: table.name,
-        orders: await db.all<TokenInstance[]>(`SELECT * FROM "${table.name}"`),
+        orders: await db.all<OrderInstance[]>(`SELECT * FROM "${table.name}"`),
       });
     }
   }
@@ -91,18 +91,18 @@ export async function getOrders(db: Database) {
 /**
  * Retreive sell orders from the database and sort them by their price.
  * @param db sqlite3 connection pool
- * @param token the contract ID
+ * @param table
  */
 export async function getSellOrders(
   db: Database,
-  token: string
-): Promise<TokenInstance[]> {
+  table: string
+): Promise<OrderInstance[]> {
   /**
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
-  const orders = await db.all<TokenInstance[]>(
-    `SELECT * FROM "${token}" WHERE type = "Sell"`
+  const orders = await db.all<OrderInstance[]>(
+    `SELECT * FROM "${table}" WHERE type = "Sell"`
   );
   if (!orders || orders?.length === 0) {
     log.info(`No sell orders to match with.`);
@@ -121,39 +121,40 @@ export async function getSellOrders(
 /**
  * Retreive buy orders from the database and sort them by date of creation.
  * @param db sqlite3 connection pool
- * @param token the contract ID
+ * @param table
  */
 export async function getBuyOrders(
   db: Database,
-  token: string
-): Promise<TokenInstance[]> {
+  table: string
+): Promise<OrderInstance[]> {
   /**
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
-  const orders = await db.all<TokenInstance[]>(
-    `SELECT * FROM "${token}" WHERE type = "Buy"`
+  const orders = await db.all<OrderInstance[]>(
+    `SELECT * FROM "${table}" WHERE type = "Buy"`
   );
   if (!orders || orders?.length === 0) {
     log.info(`No buy orders to match with.`);
     return [];
   }
   /**
-   * Sort the orders by their date of creation
+   * Sort orders by their rate
    */
   orders.sort((a, b) => {
-    return +new Date(a.createdAt) - +new Date(b.createdAt);
+    if (a.rate && b.rate) return a.rate - b.rate;
+    else return 0;
   });
   return orders;
 }
 
 export async function getOrder(
   db: Database,
-  token: string,
+  table: string,
   txID: string
-): Promise<TokenInstance> {
-  const order = await db.get<TokenInstance>(
-    `SELECT * FROM "${token}" WHERE txID = "${txID}"`
+): Promise<OrderInstance> {
+  const order = await db.get<OrderInstance>(
+    `SELECT * FROM "${table}" WHERE txID = "${txID}"`
   );
   return order!;
 }

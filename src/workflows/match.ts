@@ -2,10 +2,8 @@ import Log from "@utils/logger";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
-import { query } from "@utils/gql";
-import txQuery from "../queries/tx.gql";
 import {
-  TokenInstance,
+  OrderInstance,
   saveOrder,
   getSellOrders,
   getBuyOrders,
@@ -18,7 +16,7 @@ const log = new Log({
 
 async function sendConfirmation(
   client: Arweave,
-  txId: string,
+  txID: string,
   received: string,
   jwk: JWKInterface
 ) {
@@ -31,7 +29,7 @@ async function sendConfirmation(
 
   confirmationTx.addTag("Exchange", "Verto");
   confirmationTx.addTag("Type", "Confirmation");
-  confirmationTx.addTag("Match", txId);
+  confirmationTx.addTag("Match", txID);
   confirmationTx.addTag("Received", received);
 
   await client.transactions.sign(confirmationTx, jwk);
@@ -40,36 +38,23 @@ async function sendConfirmation(
 
 export async function match(
   client: Arweave,
-  txID: string,
+  tx: {
+    id: string;
+    sender: string;
+    type: string;
+    table?: string;
+    arAmnt?: number;
+    amnt?: number;
+    rate?: number;
+  },
   jwk: JWKInterface,
   db: Database
 ) {
-  const tx = (
-    await query({
-      query: txQuery,
-      variables: {
-        txID,
-      },
-    })
-  ).data.transaction;
+  const type = tx.type;
 
-  const type = tx.tags.find(
-    (tag: { name: string; value: string }) => tag.name === "Type"
-  ).value;
-
-  let amnt =
-    type === "Buy"
-      ? parseFloat(tx.quantity.ar)
-      : JSON.parse(
-          tx.tags.find(
-            (tag: { name: string; value: string }) => tag.name === "Input"
-          ).value
-        ).qty;
+  let amnt = type === "Buy" ? tx.arAmnt! : tx.amnt!;
   let received = 0;
-  const tokenTag = type === "Buy" ? "Token" : "Contract";
-  const token = tx.tags.find(
-    (tag: { name: string; value: string }) => tag.name === tokenTag
-  ).value;
+  const token = tx.table!;
   const ticker = JSON.parse(
     (
       await client.transactions.getData(token, {
@@ -79,17 +64,16 @@ export async function match(
     ).toString()
   ).ticker;
 
-  let rate = tx.tags.find(
-    (tag: { name: string; value: string }) => tag.name === "Rate"
-  )?.value;
+  let rate = tx.rate;
 
-  log.info(`Received order.\n\t\ttxID = ${txID}\n\t\ttype = ${type}`);
+  log.info(`Received order.\n\t\ttxID = ${tx.id}\n\t\ttype = ${type}`);
 
-  const tokenEntry: TokenInstance = {
-    txID,
+  const tokenEntry: OrderInstance = {
+    txID: tx.id,
     amnt,
     rate,
-    addr: tx.owner.address,
+    addr: tx.sender,
+    // @ts-ignore
     type,
     createdAt: new Date(),
     received,
@@ -121,13 +105,13 @@ export async function match(
           Contract: token,
           Input: JSON.stringify({
             function: "transfer",
-            target: tx.owner.address,
+            target: tx.sender,
             qty: pstAmount,
           }),
         };
         const pstTx = await client.createTransaction(
           {
-            target: tx.owner.address,
+            target: tx.sender,
             data: Math.random().toString().slice(-4),
           },
           jwk
@@ -143,7 +127,7 @@ export async function match(
             `\n\t\tSent ${amnt} AR to ${order.addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${pstAmount} ${ticker} to ${tx.owner.address}` +
+            `\n\t\tSent ${pstAmount} ${ticker} to ${tx.sender}` +
             `\n\t\ttxID = ${pstTx.id}`
         );
 
@@ -173,10 +157,10 @@ export async function match(
          * Delete an order.
          * NOTE: Table names are not subject to sql injections
          */
-        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txID]);
+        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [tx.id]);
         await sendConfirmation(
           client,
-          txID,
+          tx.id,
           `${received + pstAmount} ${ticker}`,
           jwk
         );
@@ -204,13 +188,13 @@ export async function match(
           Contract: token,
           Input: JSON.stringify({
             function: "transfer",
-            target: tx.owner.address,
+            target: tx.sender,
             qty: Math.floor(order.amnt),
           }),
         };
         const pstTx = await client.createTransaction(
           {
-            target: tx.owner.address,
+            target: tx.sender,
             data: Math.random().toString().slice(-4),
           },
           jwk
@@ -226,9 +210,7 @@ export async function match(
             `\n\t\tSent ${order.amnt / order.rate} AR to ${order.addr}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${Math.floor(order.amnt)} ${ticker} to ${
-              tx.owner.address
-            }` +
+            `\n\t\tSent ${Math.floor(order.amnt)} ${ticker} to ${tx.sender}` +
             `\n\t\ttxID = ${pstTx.id}`
         );
         /**
@@ -240,7 +222,7 @@ export async function match(
           [
             amnt - order.amnt / order.rate,
             received + Math.floor(order.amnt),
-            txID,
+            tx.id,
           ]
         );
         amnt -= order.amnt / order.rate;
@@ -261,11 +243,11 @@ export async function match(
   } else if (type === "Sell") {
     const orders = await getBuyOrders(db, token);
     for (const order of orders) {
-      if (order.amnt >= amnt / rate) {
+      if (order.amnt >= amnt / rate!) {
         const arTx = await client.createTransaction(
           {
-            target: tx.owner.address,
-            quantity: client.ar.arToWinston((amnt / rate).toString()),
+            target: tx.sender,
+            quantity: client.ar.arToWinston((amnt / rate!).toString()),
           },
           jwk
         );
@@ -300,14 +282,14 @@ export async function match(
 
         log.info(
           "Matched!" +
-            `\n\t\tSent ${amnt / rate} AR to ${tx.owner.address}` +
+            `\n\t\tSent ${amnt / rate!} AR to ${tx.sender}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${Math.floor(amnt)} ${ticker} to ${order.addr}` +
             `\n\t\ttxID = ${pstTx.id}`
         );
 
-        if (order.amnt === amnt / rate) {
+        if (order.amnt === amnt / rate!) {
           /**
            * Delete an order.
            * NOTE: Table names are not subject to sql injections
@@ -327,17 +309,17 @@ export async function match(
           await db.run(
             `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
             [
-              order.amnt - amnt / rate,
+              order.amnt - amnt / rate!,
               order.received + Math.floor(amnt),
               order.txID,
             ]
           );
         }
-        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [txID]);
+        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [tx.id]);
         await sendConfirmation(
           client,
-          txID,
-          `${received + amnt / rate} AR`,
+          tx.id,
+          `${received + amnt / rate!} AR`,
           jwk
         );
 
@@ -345,7 +327,7 @@ export async function match(
       } else {
         const arTx = await client.createTransaction(
           {
-            target: tx.owner.address,
+            target: tx.sender,
             quantity: client.ar.arToWinston(order.amnt.toString()),
           },
           jwk
@@ -363,7 +345,7 @@ export async function match(
           Input: JSON.stringify({
             function: "transfer",
             target: order.addr,
-            qty: Math.floor(order.amnt * rate),
+            qty: Math.floor(order.amnt * rate!),
           }),
         };
         const pstTx = await client.createTransaction(
@@ -381,10 +363,10 @@ export async function match(
 
         log.info(
           "Matched!" +
-            `\n\t\tSent ${order.amnt} AR to ${tx.owner.address}` +
+            `\n\t\tSent ${order.amnt} AR to ${tx.sender}` +
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
-            `\n\t\tSent ${Math.floor(order.amnt * rate)} ${ticker} to ${
+            `\n\t\tSent ${Math.floor(order.amnt * rate!)} ${ticker} to ${
               order.addr
             }` +
             `\n\t\ttxID = ${pstTx.id}`
@@ -395,9 +377,9 @@ export async function match(
          */
         await db.run(
           `UPDATE "${token}" SET amnt = ?, received = ? WHERE txID = ?`,
-          [amnt - Math.floor(order.amnt * rate), received + order.amnt, txID]
+          [amnt - Math.floor(order.amnt * rate!), received + order.amnt, tx.id]
         );
-        amnt -= Math.floor(order.amnt * rate);
+        amnt -= Math.floor(order.amnt * rate!);
         received += order.amnt;
         /**
          * Delete an order.
@@ -407,7 +389,7 @@ export async function match(
         await sendConfirmation(
           client,
           order.txID,
-          `${order.received + Math.floor(order.amnt * rate)} ${ticker}`,
+          `${order.received + Math.floor(order.amnt * rate!)} ${ticker}`,
           jwk
         );
       }

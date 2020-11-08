@@ -1,7 +1,7 @@
-query($owners: [String!], $recipients: [String!]) {
+query($addr: String!, $exchange: String!) {
   transactions(
-    owners: $owners
-    recipients: $recipients
+    owners: [$addr]
+    recipients: [$exchange]
     tags: [
       { name: "Exchange", values: "Verto" }
       { name: "Type", values: "Genesis" }
