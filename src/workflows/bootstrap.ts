@@ -26,7 +26,8 @@ async function getLatestTxs(
   ethLatest: {
     block: number;
     txID: string;
-  }
+  },
+  counter: number
 ): Promise<{
   txs: {
     id: string;
@@ -49,7 +50,12 @@ async function getLatestTxs(
   };
 }> {
   const arRes = await latestTxs(db, addr, arLatest);
-  const ethRes = await ethLatestTxs(ethClient, ethAddr, ethLatest);
+  let ethRes;
+  if (counter == 30) {
+    ethRes = await ethLatestTxs(ethClient, ethAddr, ethLatest);
+  } else {
+    ethRes = { txs: [], latest: ethLatest };
+  }
 
   return {
     txs: arRes.txs.concat(ethRes.txs),
@@ -88,6 +94,8 @@ export async function bootstrap(
     txID: latestEthBlock.transactions[0],
   };
 
+  let counter = 30;
+
   setInterval(async () => {
     const res = await getLatestTxs(
       db,
@@ -95,12 +103,19 @@ export async function bootstrap(
       arLatest,
       ethClient,
       ethAddr,
-      ethLatest
+      ethLatest,
+      counter
     );
     const txs = res.txs;
 
     arLatest = res.arLatest;
     ethLatest = res.ethLatest;
+
+    if (counter == 30) {
+      counter = 0;
+    } else {
+      counter++;
+    }
 
     if (txs.length !== 0) {
       for (const tx of txs) {
