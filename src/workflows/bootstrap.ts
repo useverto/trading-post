@@ -2,12 +2,9 @@ import Log from "@utils/logger";
 import { Database } from "sqlite";
 import { TradingPostConfig } from "@utils/config";
 import { init, latestTxs } from "@utils/arweave";
-import { init as ethInit, latestTxs as ethLatestTxs } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
-import { ethSwap } from "@workflows/swap";
 import { match } from "@workflows/match";
-import Web3 from "web3";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -20,14 +17,7 @@ async function getLatestTxs(
   arLatest: {
     block: number;
     txID: string;
-  },
-  ethClient: Web3,
-  ethAddr: string,
-  ethLatest: {
-    block: number;
-    txID: string;
-  },
-  counter: number
+  }
 ): Promise<{
   txs: {
     id: string;
@@ -44,23 +34,12 @@ async function getLatestTxs(
     block: number;
     txID: string;
   };
-  ethLatest: {
-    block: number;
-    txID: string;
-  };
 }> {
   const arRes = await latestTxs(db, addr, arLatest);
-  let ethRes;
-  if (counter == 30) {
-    ethRes = await ethLatestTxs(ethClient, ethAddr, ethLatest);
-  } else {
-    ethRes = { txs: [], latest: ethLatest };
-  }
 
   return {
-    txs: arRes.txs.concat(ethRes.txs),
+    txs: arRes.txs,
     arLatest: arRes.latest,
-    ethLatest: ethRes.latest,
   };
 }
 
@@ -71,7 +50,6 @@ export async function bootstrap(
   ethKeyfile?: string
 ) {
   const { client, addr, jwk } = await init(keyfile);
-  const { client: ethClient, addr: ethAddr, sign } = await ethInit(ethKeyfile);
 
   await genesis(client, jwk!, config.genesis);
 
@@ -85,37 +63,11 @@ export async function bootstrap(
     txID: await client.wallets.getLastTransactionID(addr),
   };
 
-  const latestEthBlock = await ethClient.eth.getBlock("latest");
-  let ethLatest: {
-    block: number;
-    txID: string;
-  } = {
-    block: latestEthBlock.number,
-    txID: latestEthBlock.transactions[0],
-  };
-
-  let counter = 30;
-
   setInterval(async () => {
-    const res = await getLatestTxs(
-      db,
-      addr,
-      arLatest,
-      ethClient,
-      ethAddr,
-      ethLatest,
-      counter
-    );
+    const res = await getLatestTxs(db, addr, arLatest);
     const txs = res.txs;
 
     arLatest = res.arLatest;
-    ethLatest = res.ethLatest;
-
-    if (counter == 30) {
-      counter = 0;
-    } else {
-      counter++;
-    }
 
     if (txs.length !== 0) {
       for (const tx of txs) {
@@ -123,29 +75,6 @@ export async function bootstrap(
           if (tx.type === "Cancel") {
             await cancel(client, tx.id, tx.order!, jwk!, db);
           } else if (tx.type === "Swap") {
-            if (tx.table === "ETH") {
-              if ("ETH" in config.genesis.chain) {
-                await ethSwap(
-                  client,
-                  ethClient,
-                  {
-                    id: tx.id,
-                    sender: tx.sender,
-                    table: tx.table,
-                    arAmnt: tx.arAmnt,
-                    amnt: tx.amnt,
-                    rate: tx.rate,
-                  },
-                  jwk!,
-                  sign,
-                  db
-                );
-              } else {
-                log.error(
-                  `Received an ETH swap.\n\t\tConsider adding support for this.`
-                );
-              }
-            }
           } else {
             if (tx.table! in config.genesis.blockedTokens) {
               log.error(
