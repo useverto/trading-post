@@ -232,7 +232,7 @@ export async function saveHash(
     sender STRING NOT NULL
   )`);
 
-  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?)`, [
+  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?, ?)`, [
     entry.txHash,
     entry.chain,
     entry.sender,
