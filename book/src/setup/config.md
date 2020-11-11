@@ -2,8 +2,6 @@
 
 Before deploying a trading post, you'll want to properly configure the system. You'll also need to drag & drop your keyfile to the root of this repository and make sure the name of the file is `arweave.json`.
 
-
-
 ## verto.config.json
 
 The `verto.config.json` file is where the majority of your configuration will lie. You'll need to create this file before you can run a trading post. As seen in the config.example.json file, it must contain the following information:

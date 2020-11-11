@@ -1,4 +1,3 @@
-
 ## Build from source
 
 > It is recommended to use pre-built production binaries when running a trading post.
