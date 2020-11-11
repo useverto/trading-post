@@ -217,3 +217,44 @@ export async function shutdownHook(db: Database): Promise<void> {
     process.exit(99);
   });
 }
+
+export async function saveHash(
+  db: Database,
+  entry: {
+    txHash: string;
+    chain: string;
+    sender: string;
+  }
+) {
+  await db.exec(`CREATE TABLE IF NOT EXISTS "TX_STORE" (
+    txHash STRING NOT NULL PRIMARY KEY,
+    chain STRING NOT NULL,
+    sender STRING NOT NULL
+  )`);
+
+  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?, ?)`, [
+    entry.txHash,
+    entry.chain,
+    entry.sender,
+  ]);
+}
+
+export async function getTxStore(
+  db: Database
+): Promise<
+  {
+    txHash: string;
+    chain: string;
+    sender: string;
+  }[]
+> {
+  const store = await db.all<
+    {
+      txHash: string;
+      chain: string;
+      sender: string;
+    }[]
+  >(`SELECT * FROM "TX_STORE"`);
+
+  return store;
+}

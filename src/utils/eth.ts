@@ -21,9 +21,7 @@ export async function init(keyfile?: string) {
     .split("\n")[0];
 
   const client = new Web3(
-    new Web3.providers.HttpProvider(
-      "https://:8bebd45d5f054e939b419779c2c95074@mainnet.infura.io/v3/c556e0ff7c86470abb716b006dc25404"
-    )
+    "https://eth-mainnet.alchemyapi.io/v2/U5zYjOBafrwXy-2jZY6HMa0lOrsFge9K"
   );
 
   const account = client.eth.accounts.privateKeyToAccount(privateKey);
@@ -40,78 +38,3 @@ export async function init(keyfile?: string) {
 
   return { client, addr: account.address, sign: account.signTransaction };
 }
-
-export const latestTxs = async (
-  client: Web3,
-  addr: string,
-  latest: {
-    block: number;
-    txID: string;
-  }
-): Promise<{
-  txs: {
-    id: string;
-    block: number;
-    sender: string;
-    type: string;
-    table?: string;
-    order?: string;
-    arAmnt?: number;
-    amnt?: number;
-    rate?: number;
-  }[];
-  latest: {
-    block: number;
-    txID: string;
-  };
-}> => {
-  const txs: {
-    id: string;
-    block: number;
-    sender: string;
-    type: string;
-    table?: string;
-    order?: string;
-    arAmnt?: number;
-    amnt?: number;
-    rate?: number;
-  }[] = [];
-
-  const latestBlock = await client.eth.getBlock("latest");
-  let newLatest = latest;
-
-  for (
-    let blockNumber = latest.block;
-    blockNumber <= latestBlock.number;
-    blockNumber++
-  ) {
-    const block = await client.eth.getBlock(blockNumber);
-    if (block) {
-      newLatest = {
-        block: blockNumber,
-        txID: block.transactions[0],
-      };
-
-      let blockTxs = block.transactions.reverse();
-
-      const index = blockTxs.indexOf(latest.txID);
-      blockTxs = blockTxs.splice(index + 1, blockTxs.length);
-
-      for (const txID of blockTxs) {
-        const tx = await client.eth.getTransaction(txID);
-        if (tx.to === addr) {
-          txs.push({
-            id: txID,
-            block: blockNumber,
-            sender: tx.from,
-            type: "Swap",
-            table: "ETH",
-            amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
-          });
-        }
-      }
-    }
-  }
-
-  return { txs, latest: newLatest };
-};

@@ -4,7 +4,7 @@ import Logger from "@utils/logger";
 import { relative } from "path";
 import * as fs from "fs";
 import { Database } from "sqlite";
-import { getTimestamp } from "@utils/database";
+import { getTimestamp, getTxStore, saveHash } from "@utils/database";
 import { query } from "@utils/gql";
 import txsQuery from "../queries/txs.gql";
 import CONSTANTS from "../utils/constants.yml";
@@ -165,19 +165,37 @@ export const latestTxs = async (
           ).value,
         });
       } else if (type === "Swap") {
-        txs.push({
-          id: tx.node.id,
-          block: tx.node.block.height,
-          sender: tx.node.owner.address,
-          type,
-          table: tx.node.tags.find(
-            (tag: { name: string; value: string }) => tag.name === "Chain"
-          ).value,
-          arAmnt: parseFloat(tx.node.quantity.ar),
-          rate: tx.node.tags.find(
-            (tag: { name: string; value: string }) => tag.name === "Rate"
-          ).value,
-        });
+        const hashTag = tx.node.tags.find(
+          (tag: { name: string; value: string }) => tag.name === "Hash"
+        );
+        if (hashTag) {
+          const store = await getTxStore(db);
+          if (store.find((element) => element.txHash === hashTag.value)) {
+            // don't do anything, already parsed
+          } else {
+            await saveHash(db, {
+              txHash: hashTag.value,
+              chain: tx.node.tags.find(
+                (tag: { name: string; value: string }) => tag.name === "Chain"
+              ).value,
+              sender: tx.node.owner.address,
+            });
+          }
+        } else {
+          txs.push({
+            id: tx.node.id,
+            block: tx.node.block.height,
+            sender: tx.node.owner.address,
+            type,
+            table: tx.node.tags.find(
+              (tag: { name: string; value: string }) => tag.name === "Chain"
+            ).value,
+            arAmnt: parseFloat(tx.node.quantity.ar),
+            rate: tx.node.tags.find(
+              (tag: { name: string; value: string }) => tag.name === "Rate"
+            ).value,
+          });
+        }
       }
     }
   }
