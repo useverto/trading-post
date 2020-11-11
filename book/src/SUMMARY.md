@@ -8,4 +8,4 @@
   - [Spinning it up](./setup/spin.md)
 - [Advance](./dev/build.md)
   - [Build from source](./dev/build.md)
-
+  - [Proxy](./dev/proxy.md)
