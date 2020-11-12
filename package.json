@@ -21,7 +21,7 @@
     "pkg:arm": "echo not implemented",
     "pkg:all": "yarn prod && pkg dist/verto.js",
     "test": "rollup -c rollup.test.js && mocha 'build/verto.test.js'",
-    "test:integration": "KEYFILE=$(cat arweave.json) ruby ./e2e/main.rb"
+    "test:integration": "ruby ./e2e/main.rb"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
