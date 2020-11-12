@@ -1,0 +1,19 @@
+query($exchange: String!) {
+  transactions(
+    recipients: [$exchange]
+    tags: [
+      { name: "Exchange", values: "Verto" }
+      { name: "Type", values: "Token" }
+    ]
+    first: 2147483647
+  ) {
+    edges {
+      node {
+        tags {
+          name
+          value
+        }
+      }
+    }
+  }
+}
