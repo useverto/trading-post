@@ -1,0 +1,12 @@
+[book]
+title = "Verto Trading Post Book"
+authors = ["Verto Authors"]
+description = "Documentation for running a trading post"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "build"
+
+[output.html]
+mathjax-support = true
