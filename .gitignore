@@ -8,8 +8,10 @@ logs
 # nodejs modules
 node_modules
 
-# arweave keyfule
+# arweave keyfiles
 arweave.json
+arweave-keyfile.json
+privatekey
 
 # verto config files
 config.json
@@ -24,6 +26,8 @@ verto.exe
 vertolinux
 verto-mac
 verto-win.exe
+verto.zip
+node_sqlite3.node
 
 # test generated artifacts
 test_artifacts/

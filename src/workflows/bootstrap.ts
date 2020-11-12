@@ -1,15 +1,14 @@
 import Log from "@utils/logger";
 import { Database } from "sqlite";
-import { getTimestamp } from "@utils/database";
-import { query } from "@utils/gql";
-import txsQuery from "../queries/txs.gql";
-import CONSTANTS from "../utils/constants.yml";
 import { TradingPostConfig } from "@utils/config";
-import { init } from "@utils/arweave";
+import { getChainAddr, init, latestTxs } from "@utils/arweave";
+import { init as ethInit } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
-import txQuery from "../queries/tx.gql";
+import { ethSwap } from "@workflows/swap";
 import { match } from "@workflows/match";
+import Web3 from "web3";
+import { getTxStore } from "@utils/database";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -19,113 +18,166 @@ const log = new Log({
 async function getLatestTxs(
   db: Database,
   addr: string,
-  genesisTxId: string,
-  latestBlockHeight: number,
-  latestTxId?: string
-) {
-  const timeEntries = await getTimestamp(db);
-  const time = timeEntries[timeEntries.length - 1]["createdAt"]
-    .toString()
-    .slice(0, -3);
+  latest: {
+    block: number;
+    txID: string;
+  },
+  client: Web3,
+  ethAddr: string,
+  counter: number
+): Promise<{
+  txs: {
+    id: string;
+    block: number;
+    sender: string;
+    type: string;
+    table?: string;
+    order?: string;
+    arAmnt?: number;
+    amnt?: number;
+    rate?: number;
+  }[];
+  latest: {
+    block: number;
+    txID: string;
+  };
+}> {
+  const arRes = await latestTxs(db, addr, latest);
 
-  if (!latestTxId) {
-    latestTxId = genesisTxId;
-  }
+  const ethRes: {
+    id: string;
+    block: number;
+    sender: string;
+    type: string;
+    table?: string;
+    order?: string;
+    arAmnt?: number;
+    amnt?: number;
+    rate?: number;
+  }[] = [];
+  if (counter == 60) {
+    let store: {
+      txHash: string;
+      chain: string;
+      sender: string;
+    }[];
+    try {
+      store = await getTxStore(db);
+    } catch {
+      store = [];
+    }
 
-  let _txs = (
-    await query({
-      query: txsQuery,
-      variables: {
-        recipients: [addr],
-        min: latestBlockHeight,
-        num: CONSTANTS.maxInt,
-      },
-    })
-  ).data.transactions.edges.reverse();
+    for (const entry of store) {
+      const tx = await client.eth.getTransaction(entry.txHash);
 
-  let index: number = 0;
-  for (let i = 0; i < _txs.length; i++) {
-    if (_txs[i].node.id === latestTxId) {
-      index = i + 1;
-      break;
+      if (tx.from !== (await getChainAddr(entry.sender, entry.chain))) {
+        // tx is invalid
+        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+      }
+      if (tx.to !== ethAddr) {
+        // tx is invalid
+        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+      }
+
+      if (tx.blockNumber) {
+        ethRes.push({
+          id: entry.txHash,
+          block: tx.blockNumber,
+          sender: tx.from,
+          type: "Swap",
+          table: entry.chain,
+          amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
+        });
+        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+      }
     }
   }
-  _txs = _txs.slice(index, _txs.length);
 
-  const txs: { id: string; height: number; type: string; order: string }[] = [];
-
-  for (const tx of _txs) {
-    if (tx.node.block.timestamp > time) {
-      const type = tx.node.tags.find(
-        (tag: { name: string; value: string }) => tag.name === "Type"
-      ).value;
-
-      txs.push({
-        id: tx.node.id,
-        height: tx.node.block.height,
-        type,
-        order:
-          type === "Cancel"
-            ? tx.node.tags.find(
-                (tag: { name: string; value: string }) => tag.name === "Order"
-              ).value
-            : undefined,
-      });
-    }
-  }
-
-  return txs;
+  return {
+    txs: arRes.txs.concat(ethRes),
+    latest: arRes.latest,
+  };
 }
 
 export async function bootstrap(
   config: TradingPostConfig,
   db: Database,
-  keyfile?: string
+  keyfile?: string,
+  ethKeyfile?: string
 ) {
-  const { client, walletAddr, community, jwk } = await init(keyfile);
+  const { client, addr, jwk } = await init(keyfile);
+  const { client: ethClient, addr: ethAddr, sign } = await ethInit(ethKeyfile);
 
-  const genesisTxId = await genesis(client, community, jwk!, config.genesis);
+  await genesis(client, jwk!, config.genesis);
 
-  log.info("Monitoring wallet for incoming transactions...");
+  log.info("Monitoring wallets for incoming transactions...");
 
-  let latestTxId: string;
-  let latestBlockHeight = (await client.network.getInfo()).height;
+  let latest: {
+    block: number;
+    txID: string;
+  } = {
+    block: (await client.network.getInfo()).height,
+    txID: await client.wallets.getLastTransactionID(addr),
+  };
+
+  let counter = 60;
 
   setInterval(async () => {
-    const txs = await getLatestTxs(
+    const res = await getLatestTxs(
       db,
-      walletAddr,
-      genesisTxId,
-      latestBlockHeight,
-      latestTxId
+      addr,
+      latest,
+      ethClient,
+      ethAddr,
+      counter
     );
+    const txs = res.txs;
+
+    latest = res.latest;
+    if (counter == 60) {
+      counter = 0;
+    } else {
+      counter++;
+    }
 
     if (txs.length !== 0) {
       for (const tx of txs) {
         try {
           if (tx.type === "Cancel") {
-            await cancel(client, tx.id, tx.order, jwk!, db);
+            await cancel(client, tx.id, tx.order!, jwk!, db);
+          } else if (tx.type === "Swap") {
+            if (tx.table === "ETH") {
+              if ("ETH" in config.genesis.chain) {
+                await ethSwap(
+                  client,
+                  ethClient,
+                  {
+                    id: tx.id,
+                    sender: tx.sender,
+                    table: tx.table,
+                    arAmnt: tx.arAmnt,
+                    amnt: tx.amnt,
+                    rate: tx.rate,
+                  },
+                  jwk!,
+                  sign,
+                  db
+                );
+              } else {
+                log.error(
+                  `Received an ETH swap.\n\t\tConsider adding support for this.`
+                );
+              }
+            }
           } else {
-            const order = (
-              await query({
-                query: txQuery,
-                variables: {
-                  txID: tx.id,
-                },
-              })
-            ).data.transaction;
-
-            const tokenTag = tx.type === "Buy" ? "Token" : "Contract";
-            const token = order.tags.find(
-              (tag: { name: string; value: string }) => tag.name === tokenTag
-            ).value;
-
-            if (token in config.genesis.blockedTokens) {
+            if (tx.table! in config.genesis.blockedTokens) {
               log.error(
-                `Token for order is blocked.\n\t\ttxID = ${tx.id}\n\t\ttype = ${tx.type}\n\t\ttoken = ${token}`
+                `Token for order is blocked.\n\t\ttxID = ${tx.id}\n\t\ttype = ${
+                  tx.type
+                }\n\t\ttoken = ${tx.table!}`
               );
             } else {
-              await match(client, tx.id, jwk!, db);
+              await match(client, tx, jwk!, db);
             }
           }
         } catch (err) {
@@ -134,9 +186,6 @@ export async function bootstrap(
           );
         }
       }
-
-      latestTxId = txs[txs.length - 1].id;
-      latestBlockHeight = txs[txs.length - 1].height;
     }
   }, 10000);
 }
