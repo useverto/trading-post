@@ -17,8 +17,10 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v2
 
-      - name: Setup go
-        uses: actions/setup-go@v2
+      - name: Setup ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: "2.7"
 
       - name: Setup node
         uses: actions/setup-node@v1
