@@ -51,6 +51,7 @@ ENV['VERTO_URI'] = 'http://localhost:3000/verto.zip'
 
 Thread.new {serve()}
 setup_contract()
+build()
 zip()
 install()
 setup_keyfile()
