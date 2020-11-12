@@ -25,11 +25,34 @@ class String
 end
 
 def exec_cmd(str)
-	puts "----- #{str} -----"
+	puts "$ #{str.cyan.italic}"
 	Open3.popen3(str) do |stdin, stdout, stderr, wait_thr|
 	  exit_status = wait_thr.value
 	  unless exit_status.success?
-	    abort "FAIL #{str}"
+	    abort "Fail".red
 	  end
 	end
+end
+
+def exec_with_timeout(cmd, timeout)
+  pid = Process.spawn(cmd, {[:err,:out] => :close, :pgroup => true})
+  begin
+    Timeout.timeout(timeout) do
+      Process.waitpid(pid, 0)
+      $?.exitstatus == 0
+    end
+  rescue Timeout::Error
+    Process.kill(15, -Process.getpgid(pid))
+    false
+  end
+end
+
+def exec_bash(str)
+	puts "$ bash -c #{str.cyan.italic}"
+	Open3.popen3("bash", "-c", str) do |stdin, stdout, stderr, wait_thr|
+	  exit_status = wait_thr.value
+	  unless exit_status.success?
+	    abort "Fail".red
+	  end
+	 end
 end
