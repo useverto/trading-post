@@ -57,4 +57,4 @@ install()
 setup_keyfile()
 exec_cmd("./verto orders -c verto.config.example.json")
 Thread.new {exec_with_timeout("./verto -c verto.config.example.json -k arweave-keyfile.json", 60000)}
-exec_cmd("node ./test/integration/lib.js")
+exec_cmd("node ./e2e/lib.js")
