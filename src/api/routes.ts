@@ -2,6 +2,7 @@ import Router from "@koa/router";
 import { Database } from "sqlite";
 import { getOrders } from "@utils/database";
 import { getPairs } from "./gecko/pairs";
+import { getTickers } from "./gecko/tickers";
 const router = new Router();
 
 export default function createRouter(db?: Database): Router {
@@ -30,6 +31,7 @@ export default function createRouter(db?: Database): Router {
   });
 
   router.get("/tickers", async (ctx, next) => {
+    ctx.body = await getTickers();
     await next();
   });
 

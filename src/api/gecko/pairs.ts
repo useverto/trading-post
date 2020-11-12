@@ -2,7 +2,7 @@ import { GQLEdgeInterface } from "types";
 import { query } from "@utils/gql";
 import Arweave from "arweave";
 
-const getAll = async () => {
+export const getAll = async () => {
   let hasNextPage = true;
   let edges: GQLEdgeInterface[] = [];
   let cursor: string = "";
@@ -26,6 +26,12 @@ const getAll = async () => {
               cursor
               node {
                 id
+                block {
+                  timestamp
+                }
+                quantity {
+                  ar
+                }
                 tags {
                   name
                   value
@@ -33,7 +39,7 @@ const getAll = async () => {
               }
             }
           }
-        }      
+        }
       `,
       })
     ).data.transactions;
@@ -61,13 +67,13 @@ export async function getPairs() {
     target: string;
   }[] = [];
   const res = await getAll();
-  for (const entry of res) {
-    const type = entry.node.tags.find((tag) => tag.name === "Type")?.value;
-    const token = entry.node.tags.find(
+  for (const edge of res) {
+    const type = edge.node.tags.find((tag) => tag.name === "Type")?.value;
+    const token = edge.node.tags.find(
       (tag) => tag.name === (type === "Buy" ? "Token" : "Contract")
     )?.value!;
 
-    if (tokens.find((entry) => entry.ticker_id === token)) continue;
+    if (tokens.find((edge) => edge.ticker_id === token)) continue;
 
     const buf = await client.transactions.getData(token, {
       decode: true,
