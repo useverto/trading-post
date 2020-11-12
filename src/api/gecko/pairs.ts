@@ -10,8 +10,8 @@ export async function getPairs() {
   const currencies = await query({
     query: tokensQuery,
     variables: {
-      exchange: CONSTANTS.exchangeWallet
-    }
+      exchange: CONSTANTS.exchangeWallet,
+    },
   });
 
   return {
