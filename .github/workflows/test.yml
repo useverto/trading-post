@@ -20,7 +20,7 @@ jobs:
       - name: Setup ruby
         uses: actions/setup-ruby@v1
         with:
-            ruby-version: '2.7'
+          ruby-version: "2.7"
 
       - name: Setup node
         uses: actions/setup-node@v1
