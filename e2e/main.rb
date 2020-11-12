@@ -21,7 +21,7 @@ def reset_contract
 end
 
 def serve
-	WEBrick::HTTPServer.new(:Port => 3000, :DocumentRoot => Dir.pwd, :Logger => WEBrick::Log.new("/dev/null"),
+	WEBrick::HTTPServer.new(:Port => 3000, :DocumentRoot => Dir.pwd, :Logger => WEBrick::Log.new(File::NULL),
 	  :AccessLog => []).start
 end
 
