@@ -1,7 +1,7 @@
 import { GQLEdgeInterface } from "types";
 import { query } from "@utils/gql";
 import Arweave from "arweave";
-import exchangeWallet from "../../utils/constants.yml";
+import CONSTANTS from "../../utils/constants.yml";
 
 export const allGenesisTxs = async () => {
   let hasNextPage = true;
@@ -14,7 +14,7 @@ export const allGenesisTxs = async () => {
         query: `
         query {
           transactions(
-            recipients: [${exchangeWallet}]
+            recipients: ["${CONSTANTS.exchangeWallet}"]
             tags: [
               { name: "Exchange", values: "Verto" }
               { name: "Type", values: "Genesis" }
@@ -55,19 +55,35 @@ export const allTradingPostConfigs = async () => {
     port: 443,
     protocol: "https",
   });
-  const res = await allGenesisTxs;
-  let allConfigs = [];
+
+  const res = await allGenesisTxs();
+
+  let posts: {
+    genesis: string;
+    address: string;
+    endpoint: string;
+  }[] = [];
   for (const edge of res) {
     const id = edge.node.id;
+
+    if (posts.find((element) => element.address === edge.node.owner.address))
+      continue;
+
     const buf = await client.transactions.getData(id, {
       decode: true,
       string: true,
     });
     const config = JSON.parse(buf.toString());
-    allConfigs.push({
-      txID: id,
+
+    let endpoint = config.publicURL.startsWith("https://")
+      ? config.publicURL
+      : "https://" + config.publicURL;
+    endpoint = endpoint.endsWith("/") ? endpoint : endpoint + "/";
+
+    posts.push({
+      genesis: id,
       address: edge.node.owner.address,
-      endpoint: config.publicURL,
+      endpoint,
     });
   }
 };
