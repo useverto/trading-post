@@ -8,7 +8,6 @@ export const allGenesisTxs = async () => {
   let edges: GQLEdgeInterface[] = [];
   let cursor: string = "";
 
-
   while (hasNextPage) {
     const res = (
       await query({
@@ -48,7 +47,7 @@ export const allGenesisTxs = async () => {
   }
 
   return edges;
-}
+};
 
 export const allTradingPostConfigs = async () => {
   const client = new Arweave({
@@ -68,7 +67,7 @@ export const allTradingPostConfigs = async () => {
     allConfigs.push({
       txID: id,
       address: edge.node.owner.address,
-      endpoint: config.publicURL
+      endpoint: config.publicURL,
     });
   }
-}
+};
