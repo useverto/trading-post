@@ -106,8 +106,8 @@ export const getOrderBooks = async () => {
         .json();
       for (const elem of orders) {
         if (orderBook.find((entry) => entry.token === elem.token)) {
-          const index = orderBook.indexOf(
-            orderBook.find((entry) => entry.token === elem.token)!
+          const index = orderBook.findIndex(
+            (entry) => entry.token === elem.token
           );
           orderBook[index].orders.concat(elem.orders);
         } else {
@@ -120,4 +120,36 @@ export const getOrderBooks = async () => {
   }
 
   return orderBook;
+};
+
+export const getOrderBook = async (token: string, depth: number) => {
+  const res = await getOrderBooks();
+
+  if (res.find((elem) => elem.token === token)) {
+    const index = res.findIndex((elem) => elem.token === token);
+    const orders = res[index].orders.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+
+    const bids: (number | undefined)[][] = [];
+    for (const order of orders
+      .filter((elem) => elem.type === "Buy")
+      .slice(0, depth / 2)) {
+      bids.push([order.rate, order.amnt]);
+    }
+
+    const asks: (number | undefined)[][] = [];
+    for (const order of orders
+      .filter((elem) => elem.type === "Sell")
+      .slice(0, depth / 2)) {
+      asks.push([order.rate, order.amnt]);
+    }
+
+    return {
+      ticker_id: token,
+      timestamp: orders[0].createdAt,
+      bids,
+      asks,
+    };
+  }
 };
