@@ -5,7 +5,7 @@ import CONSTANTS from "../../utils/constants.yml";
 import { OrderInstance } from "@utils/database";
 import fetch from "node-fetch";
 
-export const getAll = async () => {
+const getAll = async () => {
   let hasNextPage = true;
   let edges: GQLEdgeInterface[] = [];
   let cursor: string = "";
@@ -51,7 +51,7 @@ export const getAll = async () => {
   return edges;
 };
 
-export const getConfigs = async () => {
+const getConfigs = async () => {
   const client = new Arweave({
     host: "arweave.net",
     port: 443,
@@ -93,7 +93,7 @@ export const getConfigs = async () => {
   return posts;
 };
 
-export const getOrderBooks = async () => {
+const getOrderBooks = async () => {
   const res = await getConfigs();
 
   let orderBook: { token: string; orders: OrderInstance[] }[] = [];

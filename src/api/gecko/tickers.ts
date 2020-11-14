@@ -52,7 +52,7 @@ const getVolume = async (
   return sum;
 };
 
-const getConfirmations = async () => {
+export const getConfirmations = async () => {
   let hasNextPage = true;
   let edges: GQLEdgeInterface[] = [];
   let cursor: string = "";
