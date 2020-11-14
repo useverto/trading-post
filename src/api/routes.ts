@@ -3,6 +3,7 @@ import { Database } from "sqlite";
 import { getOrders } from "@utils/database";
 import { getPairs } from "./gecko/pairs";
 import { getTickers } from "./gecko/tickers";
+import { getOrderBooks } from "./gecko/orderbook";
 const router = new Router();
 
 export default function createRouter(db?: Database): Router {
@@ -36,6 +37,9 @@ export default function createRouter(db?: Database): Router {
   });
 
   router.get("/orderbook", async (ctx, next) => {
+    const id = ctx.query["ticker_id"];
+    const depth = ctx.query["ticker_id"] || 100;
+    ctx.body = await getOrderBooks();
     await next();
   });
 

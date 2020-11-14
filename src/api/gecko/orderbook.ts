@@ -2,8 +2,10 @@ import { GQLEdgeInterface } from "types";
 import { query } from "@utils/gql";
 import Arweave from "arweave";
 import CONSTANTS from "../../utils/constants.yml";
+import { OrderInstance } from "@utils/database";
+import fetch from "node-fetch";
 
-export const allGenesisTxs = async () => {
+export const getAll = async () => {
   let hasNextPage = true;
   let edges: GQLEdgeInterface[] = [];
   let cursor: string = "";
@@ -49,20 +51,21 @@ export const allGenesisTxs = async () => {
   return edges;
 };
 
-export const allTradingPostConfigs = async () => {
+export const getConfigs = async () => {
   const client = new Arweave({
     host: "arweave.net",
     port: 443,
     protocol: "https",
   });
 
-  const res = await allGenesisTxs();
+  const res = await getAll();
 
   let posts: {
     genesis: string;
     address: string;
     endpoint: string;
   }[] = [];
+
   for (const edge of res) {
     const id = edge.node.id;
 
@@ -86,4 +89,35 @@ export const allTradingPostConfigs = async () => {
       endpoint,
     });
   }
+
+  return posts;
+};
+
+export const getOrderBooks = async () => {
+  const res = await getConfigs();
+
+  let orderBook: { token: string; orders: OrderInstance[] }[] = [];
+  for (const post of res) {
+    try {
+      let orders: { token: string; orders: OrderInstance[] }[] = await (
+        await fetch(`${post.endpoint}orders`)
+      )
+        .clone()
+        .json();
+      for (const elem of orders) {
+        if (orderBook.find((entry) => entry.token === elem.token)) {
+          const index = orderBook.indexOf(
+            orderBook.find((entry) => entry.token === elem.token)!
+          );
+          orderBook[index].orders.concat(elem.orders);
+        } else {
+          orderBook.push(elem);
+        }
+      }
+    } catch {
+      //
+    }
+  }
+
+  return orderBook;
 };
