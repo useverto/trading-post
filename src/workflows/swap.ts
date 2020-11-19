@@ -134,6 +134,7 @@ export async function ethSwap(
         log.info(
           "Matched!" +
             `\n\t\tSent ${amnt} AR to ${order.addr}` +
+            // @ts-ignore
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${roundEth(
@@ -215,6 +216,7 @@ export async function ethSwap(
         log.info(
           "Matched!" +
             `\n\t\tSent ${order.amnt / rate!} AR to ${order.addr}` +
+            // @ts-ignore
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${roundEth(
@@ -293,6 +295,7 @@ export async function ethSwap(
         log.info(
           "Matched!" +
             `\n\t\tSent ${amnt / order.rate} AR to ${addr}` +
+            // @ts-ignore
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${roundEth(amnt - gas * gasPrice)} ${chain} to ${
@@ -377,6 +380,7 @@ export async function ethSwap(
         log.info(
           "Matched!" +
             `\n\t\tSent ${order.amnt} AR to ${addr}` +
+            // @ts-ignore
             `\n\t\ttxID = ${arTx.id}` +
             "\n" +
             `\n\t\tSent ${roundEth(
