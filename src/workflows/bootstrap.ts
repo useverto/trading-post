@@ -159,6 +159,7 @@ export async function bootstrap(
                     id: tx.id,
                     sender: tx.sender,
                     table: tx.table,
+                    token: tx.token,
                     arAmnt: tx.arAmnt,
                     amnt: tx.amnt,
                     rate: tx.rate,

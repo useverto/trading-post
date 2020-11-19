@@ -18,6 +18,7 @@ export interface OrderInstance {
   type: Order;
   createdAt: Date;
   received: number;
+  token?: string;
 }
 
 /**
@@ -51,22 +52,27 @@ export async function saveOrder(
     addr STRING NOT NULL,
     type STRING NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    received INTEGER NOT NULL
+    received INTEGER NOT NULL,
+    token STRING
   )`);
   /**
    * Insert a token instance into the database.
    * NOTE: The following code is not vulnerable to sql injection since invalid table names can never be queried.
    *       The values are assigned via db.run that is capable of preventing any type of injection
    */
-  return await db.run(`INSERT INTO "${table}" VALUES (?, ?, ?, ?, ?, ?, ?)`, [
-    entry.txID,
-    entry.amnt,
-    entry.rate,
-    entry.addr,
-    entry.type,
-    entry.createdAt,
-    entry.received,
-  ]);
+  return await db.run(
+    `INSERT INTO "${table}" VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      entry.txID,
+      entry.amnt,
+      entry.rate,
+      entry.addr,
+      entry.type,
+      entry.createdAt,
+      entry.received,
+      entry.token,
+    ]
+  );
 }
 
 export async function getOrders(db: Database) {
