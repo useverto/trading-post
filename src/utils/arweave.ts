@@ -72,6 +72,7 @@ export const latestTxs = async (
     sender: string;
     type: string;
     table?: string;
+    token?: string;
     order?: string;
     arAmnt?: number;
     amnt?: number;
@@ -113,6 +114,7 @@ export const latestTxs = async (
     sender: string;
     type: string;
     table?: string;
+    token?: string;
     order?: string;
     arAmnt?: number;
     amnt?: number;
@@ -177,6 +179,9 @@ export const latestTxs = async (
               txHash: hashTag.value,
               chain: tx.node.tags.find(
                 (tag: { name: string; value: string }) => tag.name === "Chain"
+              ).value,
+              token: tx.node.tags.find(
+                (tag: { name: string; value: string }) => tag.name === "Token"
               ).value,
               sender: tx.node.owner.address,
             });

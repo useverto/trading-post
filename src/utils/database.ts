@@ -223,18 +223,21 @@ export async function saveHash(
   entry: {
     txHash: string;
     chain: string;
+    token?: string;
     sender: string;
   }
 ) {
   await db.exec(`CREATE TABLE IF NOT EXISTS "TX_STORE" (
     txHash STRING NOT NULL PRIMARY KEY,
     chain STRING NOT NULL,
+    token STRING,
     sender STRING NOT NULL
   )`);
 
-  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?, ?)`, [
+  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?, ?, ?)`, [
     entry.txHash,
     entry.chain,
+    entry.token,
     entry.sender,
   ]);
 }
@@ -245,6 +248,7 @@ export async function getTxStore(
   {
     txHash: string;
     chain: string;
+    token?: string;
     sender: string;
   }[]
 > {
@@ -252,6 +256,7 @@ export async function getTxStore(
     {
       txHash: string;
       chain: string;
+      token?: string;
       sender: string;
     }[]
   >(`SELECT * FROM "TX_STORE"`);

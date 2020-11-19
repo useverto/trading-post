@@ -32,6 +32,7 @@ async function getLatestTxs(
     sender: string;
     type: string;
     table?: string;
+    token?: string;
     order?: string;
     arAmnt?: number;
     amnt?: number;
@@ -50,6 +51,7 @@ async function getLatestTxs(
     sender: string;
     type: string;
     table?: string;
+    token?: string;
     order?: string;
     arAmnt?: number;
     amnt?: number;
@@ -59,6 +61,7 @@ async function getLatestTxs(
     let store: {
       txHash: string;
       chain: string;
+      token?: string;
       sender: string;
     }[];
     try {
@@ -86,6 +89,7 @@ async function getLatestTxs(
           sender: tx.from,
           type: "Swap",
           table: entry.chain,
+          token: entry.token,
           amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
         });
         await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
