@@ -1,17 +1,17 @@
 ## Start a trading post
 
-Now, create a trading post config
+Starting your trading post is as simple as:
 
 ```shell script
-verto init
+verto
 ```
 
-and quick start your trading post with -
+If you want to start without having copying your keyfile to the project root, you can run with:
 
 ```shell script
 verto -k keyfile.json
 ```
 
-You've successfully started a verto trading post! :smile:
+Congratulations! You've successfully started a verto trading post! 🦔
 
-You can also [set up a reverse proxy](./docs/PROXY.md) with `nginx`.
+You can also [set up a reverse proxy](./docs/PROXY.md) with `nginx` for hosting your API.
