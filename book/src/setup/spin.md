@@ -14,4 +14,4 @@ verto -k keyfile.json
 
 Congratulations! You've successfully started a verto trading post! 🦔
 
-You can also [set up a reverse proxy](./docs/PROXY.md) with `nginx` for hosting your API.
+You can also [set up a reverse proxy](./docs/proxy.md) with `nginx` for hosting your API.
