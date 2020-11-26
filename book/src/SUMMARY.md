@@ -1,11 +1,11 @@
 # Summary
 
-[Trading Post](index.md)
+[Introduction](index.md)
 
 - [Getting Started](./setup/config.md)
-  - [Setup](./setup/config.md)
   - [Installation](./setup/installation.md)
-  - [Spinning it up](./setup/spin.md)
-- [Advance](./dev/build.md)
+  - [Setup](./setup/config.md)
+  - [Running](./setup/spin.md)
+- [Advanced](./dev/build.md)
   - [Build from source](./dev/build.md)
   - [Proxy](./dev/proxy.md)

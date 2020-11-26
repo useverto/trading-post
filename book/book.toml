@@ -1,7 +1,7 @@
 [book]
 title = "Verto Trading Post Book"
 authors = ["Verto Authors"]
-description = "Documentation for running a trading post"
+description = "Documentation to run a trading post on the Verto Protocol"
 multilingual = false
 src = "src"
 
