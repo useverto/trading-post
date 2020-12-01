@@ -31,7 +31,7 @@ async function request(graphql: string) {
     },
     body: graphql,
   };
-  let res = await fetch("https://arweave.dev/graphql", requestOptions);
+  let res = await fetch("https://arweave.net/graphql", requestOptions);
   return await res.clone().json();
 }
 

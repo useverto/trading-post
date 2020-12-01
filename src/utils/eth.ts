@@ -21,7 +21,7 @@ export async function init(keyfile?: string) {
     .split("\n")[0];
 
   const client = new Web3(
-    "https://eth-mainnet.alchemyapi.io/v2/U5zYjOBafrwXy-2jZY6HMa0lOrsFge9K"
+    "https://eth-rinkeby.alchemyapi.io/v2/U5zYjOBafrwXy-2jZY6HMa0lOrsFge9K"
   );
 
   const account = client.eth.accounts.privateKeyToAccount(privateKey);

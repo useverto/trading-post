@@ -22,7 +22,7 @@ const log = new Logger({
 
 export async function init(keyfile?: string) {
   const client = new Arweave({
-    host: "arweave.dev",
+    host: "arweave.net",
     port: 443,
     protocol: "https",
     timeout: 20000,
@@ -171,7 +171,17 @@ export const latestTxs = async (
           (tag: { name: string; value: string }) => tag.name === "Hash"
         );
         if (hashTag) {
-          const store = await getTxStore(db);
+          let store: {
+            txHash: string;
+            chain: string;
+            token?: string;
+            sender: string;
+          }[];
+          try {
+            store = await getTxStore(db);
+          } catch {
+            store = [];
+          }
           if (store.find((element) => element.txHash === hashTag.value)) {
             // don't do anything, already parsed
           } else {
@@ -182,7 +192,7 @@ export const latestTxs = async (
               ).value,
               token: tx.node.tags.find(
                 (tag: { name: string; value: string }) => tag.name === "Token"
-              ).value,
+              )?.value,
               sender: tx.node.owner.address,
             });
           }
