@@ -131,12 +131,17 @@ export async function ethSwap(
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
 
+        let arString = "";
+        if (!order.token) {
+          arString =
+            `\n\t\tSent ${amnt} AR to ${order.addr}` +
+            // @ts-ignore
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n";
+        }
         log.info(
           "Matched!" +
-            // `\n\t\tSent ${amnt} AR to ${order.addr}` +
-            // // @ts-ignore
-            // `\n\t\ttxID = ${arTx.id}` +
-            // "\n" +
+            arString +
             `\n\t\tSent ${roundEth(
               ethAmount - gas * gasPrice
             )} ${chain} to ${addr}` +
@@ -213,12 +218,17 @@ export async function ethSwap(
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
 
+        let arString = "";
+        if (!order.token) {
+          arString =
+            `\n\t\tSent ${order.amnt / rate!} AR to ${order.addr}` +
+            // @ts-ignore
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n";
+        }
         log.info(
           "Matched!" +
-            // `\n\t\tSent ${order.amnt / rate!} AR to ${order.addr}` +
-            // // @ts-ignore
-            // `\n\t\ttxID = ${arTx.id}` +
-            // "\n" +
+            arString +
             `\n\t\tSent ${roundEth(
               order.amnt - gas * gasPrice
             )} ${chain} to ${addr}` +
@@ -292,12 +302,17 @@ export async function ethSwap(
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
 
+        let arString = "";
+        if (!tx.token) {
+          arString =
+            `\n\t\tSent ${amnt / order.rate} AR to ${addr}` +
+            // @ts-ignore
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n";
+        }
         log.info(
           "Matched!" +
-            // `\n\t\tSent ${amnt / order.rate} AR to ${addr}` +
-            // // @ts-ignore
-            // `\n\t\ttxID = ${arTx.id}` +
-            // "\n" +
+            arString +
             `\n\t\tSent ${roundEth(amnt - gas * gasPrice)} ${chain} to ${
               order.addr
             }` +
@@ -377,12 +392,17 @@ export async function ethSwap(
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
 
+        let arString = "";
+        if (!tx.token) {
+          arString =
+            `\n\t\tSent ${order.amnt} AR to ${addr}` +
+            // @ts-ignore
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n";
+        }
         log.info(
           "Matched!" +
-            // `\n\t\tSent ${order.amnt} AR to ${addr}` +
-            // // @ts-ignore
-            // `\n\t\ttxID = ${arTx.id}` +
-            // "\n" +
+            arString +
             `\n\t\tSent ${roundEth(
               order.amnt * order.rate - gas * gasPrice
             )} ${chain} to ${order.addr}` +
