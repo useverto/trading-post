@@ -1,5 +1,6 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
+import Transaction from "arweave/node/lib/transaction";
 import Web3 from "web3";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
@@ -100,8 +101,9 @@ export async function ethSwap(
     for (const order of orders) {
       const ethAmount = amnt * rate!;
       if (order.amnt >= ethAmount) {
+        let arTx: Transaction;
         if (!order.token) {
-          const arTx = await client.createTransaction(
+          arTx = await client.createTransaction(
             {
               target: order.addr,
               quantity: client.ar.arToWinston(amnt.toString()),
@@ -187,8 +189,9 @@ export async function ethSwap(
 
         return;
       } else {
+        let arTx: Transaction;
         if (!order.token) {
-          const arTx = await client.createTransaction(
+          arTx = await client.createTransaction(
             {
               target: order.addr,
               quantity: client.ar.arToWinston((order.amnt / rate!).toString()),
@@ -271,8 +274,9 @@ export async function ethSwap(
     for (const order of orders) {
       if (!order.rate) continue;
       if (order.amnt >= amnt / order.rate) {
+        let arTx: Transaction;
         if (!tx.token) {
-          const arTx = await client.createTransaction(
+          arTx = await client.createTransaction(
             {
               target: addr,
               quantity: client.ar.arToWinston((amnt / order.rate).toString()),
@@ -358,8 +362,9 @@ export async function ethSwap(
 
         return;
       } else {
+        let arTx: Transaction;
         if (!tx.token) {
-          const arTx = await client.createTransaction(
+          arTx = await client.createTransaction(
             {
               target: addr,
               quantity: client.ar.arToWinston(order.amnt.toString()),
