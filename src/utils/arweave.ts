@@ -176,12 +176,13 @@ export const latestTxs = async (
             chain: string;
             token?: string;
             sender: string;
-          }[];
+          }[] = [];
           try {
-            store = await getTxStore(db);
+            store = await db.all(`SELECT * FROM "TX_STORE"`);
           } catch {
-            store = [];
+            // do nothing
           }
+
           if (store.find((element) => element.txHash === hashTag.value)) {
             // don't do anything, already parsed
           } else {

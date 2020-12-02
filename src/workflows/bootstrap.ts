@@ -58,18 +58,7 @@ async function getLatestTxs(
     rate?: number;
   }[] = [];
   if (counter == 60) {
-    let store: {
-      txHash: string;
-      chain: string;
-      token?: string;
-      sender: string;
-    }[];
-    try {
-      store = await getTxStore(db);
-    } catch {
-      store = [];
-    }
-
+    const store = await getTxStore(db);
     for (const entry of store) {
       const tx = await client.eth.getTransaction(entry.txHash);
 
@@ -92,7 +81,9 @@ async function getLatestTxs(
           token: entry.token,
           amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
         });
-        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+        await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+          entry.txHash,
+        ]);
       }
     }
   }

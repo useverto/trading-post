@@ -235,13 +235,15 @@ export async function saveHash(
 ) {
   await db.exec(`CREATE TABLE IF NOT EXISTS "TX_STORE" (
     txHash STRING NOT NULL PRIMARY KEY,
+    parsed INTEGER NOT NULL DEFAULT 0,
     chain STRING NOT NULL,
     token STRING,
     sender STRING NOT NULL
   )`);
 
-  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?, ?, ?)`, [
+  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?, ?, ?, ?)`, [
     entry.txHash,
+    0,
     entry.chain,
     entry.token,
     entry.sender,
@@ -258,14 +260,17 @@ export async function getTxStore(
     sender: string;
   }[]
 > {
-  const store = await db.all<
-    {
-      txHash: string;
-      chain: string;
-      token?: string;
-      sender: string;
-    }[]
-  >(`SELECT * FROM "TX_STORE"`);
+  let store: {
+    txHash: string;
+    chain: string;
+    token?: string;
+    sender: string;
+  }[] = [];
+  try {
+    store = await db.all(`SELECT * FROM "TX_STORE" WHERE parsed = 0`);
+  } catch {
+    // do nothing
+  }
 
   return store;
 }
