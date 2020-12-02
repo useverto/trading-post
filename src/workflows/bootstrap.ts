@@ -64,11 +64,15 @@ async function getLatestTxs(
 
       if (tx.from !== (await getChainAddr(entry.sender, entry.chain))) {
         // tx is invalid
-        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+        await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+          entry.txHash,
+        ]);
       }
       if (tx.to !== ethAddr) {
         // tx is invalid
-        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+        await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+          entry.txHash,
+        ]);
       }
 
       if (tx.blockNumber) {
