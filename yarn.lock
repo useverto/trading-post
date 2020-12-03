@@ -4109,10 +4109,10 @@ smartweave@^0.4.11:
     loglevel "^1.7.0"
     yargs "^16.1.0"
 
-smartweave@^0.4.12:
-  version "0.4.12"
-  resolved "https://registry.yarnpkg.com/smartweave/-/smartweave-0.4.12.tgz#e9c770867ab5eb36940637db264620974e2c19b6"
-  integrity sha512-EMaRLV7ZT0kafU+XDlNH7EBKIJO1PfRXe4yOKu1IVN279uMHCRaEywioo7eHQ2WjCryr168X07ndpFA6l1fgkA==
+smartweave@^0.4.13:
+  version "0.4.13"
+  resolved "https://registry.yarnpkg.com/smartweave/-/smartweave-0.4.13.tgz#d5da11332199acd7e3548b8d553f68d52b60c0e9"
+  integrity sha512-xf+ACoQ37sejfYJvl+G4Glc69P3m5iT29kwRuC7w8rBRSdhyZeHSssJMbYpFzaQtu4AcGy1YUnyPh+1iPQv3hQ==
   dependencies:
     "@weavery/clarity" "^0.1.5"
     arweave "^1.9.1"

@@ -8,6 +8,7 @@ import { getTimestamp, getTxStore, saveHash } from "@utils/database";
 import { query } from "@utils/gql";
 import txsQuery from "../queries/txs.gql";
 import CONSTANTS from "../utils/constants.yml";
+import { readContract } from "smartweave";
 
 const { readFile } = fs.promises;
 
@@ -59,6 +60,7 @@ export async function getJwk(keyfile?: string) {
 }
 
 export const latestTxs = async (
+  client: Arweave,
   db: Database,
   addr: string,
   latest: {
@@ -139,23 +141,28 @@ export const latestTxs = async (
           arAmnt: parseFloat(tx.node.quantity.ar),
         });
       } else if (type === "Sell") {
-        txs.push({
-          id: tx.node.id,
-          block: tx.node.block.height,
-          sender: tx.node.owner.address,
-          type,
-          table: tx.node.tags.find(
-            (tag: { name: string; value: string }) => tag.name === "Contract"
-          ).value,
-          amnt: JSON.parse(
-            tx.node.tags.find(
-              (tag: { name: string; value: string }) => tag.name === "Input"
-            ).value
-          ).qty,
-          rate: tx.node.tags.find(
-            (tag: { name: string; value: string }) => tag.name === "Rate"
-          ).value,
-        });
+        const contract = tx.node.tags.find(
+          (tag: { name: string; value: string }) => tag.name === "Contract"
+        ).value;
+        const res = await readContract(client, contract, undefined, true);
+
+        if (res.valid[tx.node.id]) {
+          txs.push({
+            id: tx.node.id,
+            block: tx.node.block.height,
+            sender: tx.node.owner.address,
+            type,
+            table: contract,
+            amnt: JSON.parse(
+              tx.node.tags.find(
+                (tag: { name: string; value: string }) => tag.name === "Input"
+              ).value
+            ).qty,
+            rate: tx.node.tags.find(
+              (tag: { name: string; value: string }) => tag.name === "Rate"
+            ).value,
+          });
+        }
       } else if (type === "Cancel") {
         txs.push({
           id: tx.node.id,

@@ -9,6 +9,7 @@ import { ethSwap } from "@workflows/swap";
 import { match } from "@workflows/match";
 import Web3 from "web3";
 import { getTxStore } from "@utils/database";
+import Arweave from "arweave";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -16,13 +17,14 @@ const log = new Log({
 });
 
 async function getLatestTxs(
+  client: Arweave,
   db: Database,
   addr: string,
   latest: {
     block: number;
     txID: string;
   },
-  client: Web3,
+  ethClient: Web3,
   ethAddr: string,
   counter: number
 ): Promise<{
@@ -43,7 +45,7 @@ async function getLatestTxs(
     txID: string;
   };
 }> {
-  const arRes = await latestTxs(db, addr, latest);
+  const arRes = await latestTxs(client, db, addr, latest);
 
   const ethRes: {
     id: string;
@@ -60,7 +62,7 @@ async function getLatestTxs(
   if (counter == 60) {
     const store = await getTxStore(db);
     for (const entry of store) {
-      const tx = await client.eth.getTransaction(entry.txHash);
+      const tx = await ethClient.eth.getTransaction(entry.txHash);
 
       if (tx.from !== (await getChainAddr(entry.sender, entry.chain))) {
         // tx is invalid
@@ -83,7 +85,7 @@ async function getLatestTxs(
           type: "Swap",
           table: entry.chain,
           token: entry.token,
-          amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
+          amnt: parseFloat(ethClient.utils.fromWei(tx.value, "ether")),
         });
         await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
           entry.txHash,
@@ -126,6 +128,7 @@ export async function bootstrap(
 
   setInterval(async () => {
     const res = await getLatestTxs(
+      client,
       db,
       addr,
       latest,

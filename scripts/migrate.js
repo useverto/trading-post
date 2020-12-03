@@ -23,9 +23,7 @@ async function main() {
   let tables = await collectTables(sqlite);
 
   tables.forEach(async (table) => {
-    await sqlite.exec(
-      `ALTER TABLE "${table}" ADD COLUMN token STRING;`
-    );
+    await sqlite.exec(`ALTER TABLE "${table}" ADD COLUMN token STRING;`);
   });
 }
 
