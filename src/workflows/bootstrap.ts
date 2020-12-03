@@ -105,7 +105,10 @@ export async function bootstrap(
   ethKeyfile?: string
 ) {
   const { client, addr, jwk } = await init(keyfile);
-  const { client: ethClient, addr: ethAddr, sign } = await ethInit(ethKeyfile);
+  const { client: ethClient, addr: ethAddr, sign } = await ethInit(
+    ethKeyfile,
+    config.genesis.chain["ETH"].node
+  );
 
   await genesis(client, jwk!, config.genesis);
 
