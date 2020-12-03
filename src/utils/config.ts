@@ -31,7 +31,7 @@ export interface GenesisConfig {
 export interface Chain {
   [chain: string]: {
     addr: string;
-    node: string;
+    node?: string;
   };
 }
 
