@@ -1,5 +1,6 @@
 import Log from "@utils/logger";
 import Arweave from "arweave";
+import Transaction from "arweave/node/lib/transaction";
 import Web3 from "web3";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { Database } from "sqlite";
@@ -10,6 +11,7 @@ import {
   getBuyOrders,
 } from "@utils/database";
 import { getArAddr, getChainAddr } from "@utils/arweave";
+import { match } from "./match";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -53,6 +55,7 @@ export async function ethSwap(
     id: string;
     sender: string;
     table: string;
+    token?: string;
     arAmnt?: number;
     amnt?: number;
     rate?: number;
@@ -87,6 +90,7 @@ export async function ethSwap(
     addr,
     // @ts-ignore
     type,
+    token: tx.token,
     createdAt: new Date(),
     received,
   };
@@ -97,15 +101,18 @@ export async function ethSwap(
     for (const order of orders) {
       const ethAmount = amnt * rate!;
       if (order.amnt >= ethAmount) {
-        const arTx = await client.createTransaction(
-          {
-            target: order.addr,
-            quantity: client.ar.arToWinston(amnt.toString()),
-          },
-          jwk
-        );
-        await client.transactions.sign(arTx, jwk);
-        await client.transactions.post(arTx);
+        let arTx: Transaction;
+        if (!order.token) {
+          arTx = await client.createTransaction(
+            {
+              target: order.addr,
+              quantity: client.ar.arToWinston(amnt.toString()),
+            },
+            jwk
+          );
+          await client.transactions.sign(arTx, jwk);
+          await client.transactions.post(arTx);
+        }
 
         const gasPrice = parseFloat(
           ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
@@ -126,11 +133,17 @@ export async function ethSwap(
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
 
+        let arString = "";
+        if (!order.token) {
+          arString =
+            `\n\t\tSent ${amnt} AR to ${order.addr}` +
+            // @ts-ignore
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n";
+        }
         log.info(
           "Matched!" +
-            `\n\t\tSent ${amnt} AR to ${order.addr}` +
-            `\n\t\ttxID = ${arTx.id}` +
-            "\n" +
+            arString +
             `\n\t\tSent ${roundEth(
               ethAmount - gas * gasPrice
             )} ${chain} to ${addr}` +
@@ -139,12 +152,27 @@ export async function ethSwap(
 
         if (order.amnt === ethAmount) {
           await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
-          await sendConfirmation(
-            client,
-            order.txID,
-            `${order.received + amnt} AR`,
-            jwk
-          );
+          if (order.token) {
+            await match(
+              client,
+              {
+                id: order.txID,
+                sender: order.addr,
+                type: "Buy",
+                table: order.token,
+                arAmnt: order.received + amnt,
+              },
+              jwk,
+              db
+            );
+          } else {
+            await sendConfirmation(
+              client,
+              order.txID,
+              `${order.received + amnt} AR`,
+              jwk
+            );
+          }
         } else {
           await db.run(
             `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
@@ -161,15 +189,18 @@ export async function ethSwap(
 
         return;
       } else {
-        const arTx = await client.createTransaction(
-          {
-            target: order.addr,
-            quantity: client.ar.arToWinston((order.amnt / rate!).toString()),
-          },
-          jwk
-        );
-        await client.transactions.sign(arTx, jwk);
-        await client.transactions.post(arTx);
+        let arTx: Transaction;
+        if (!order.token) {
+          arTx = await client.createTransaction(
+            {
+              target: order.addr,
+              quantity: client.ar.arToWinston((order.amnt / rate!).toString()),
+            },
+            jwk
+          );
+          await client.transactions.sign(arTx, jwk);
+          await client.transactions.post(arTx);
+        }
 
         const gasPrice = parseFloat(
           ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
@@ -190,11 +221,17 @@ export async function ethSwap(
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
 
+        let arString = "";
+        if (!order.token) {
+          arString =
+            `\n\t\tSent ${order.amnt / rate!} AR to ${order.addr}` +
+            // @ts-ignore
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n";
+        }
         log.info(
           "Matched!" +
-            `\n\t\tSent ${order.amnt / rate!} AR to ${order.addr}` +
-            `\n\t\ttxID = ${arTx.id}` +
-            "\n" +
+            arString +
             `\n\t\tSent ${roundEth(
               order.amnt - gas * gasPrice
             )} ${chain} to ${addr}` +
@@ -209,12 +246,27 @@ export async function ethSwap(
         received += order.amnt;
 
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
-        await sendConfirmation(
-          client,
-          order.txID,
-          `${order.received + order.amnt / rate!} AR`,
-          jwk
-        );
+        if (order.token) {
+          await match(
+            client,
+            {
+              id: order.txID,
+              sender: order.addr,
+              type: "Buy",
+              table: order.token,
+              arAmnt: order.received + order.amnt / rate!,
+            },
+            jwk,
+            db
+          );
+        } else {
+          await sendConfirmation(
+            client,
+            order.txID,
+            `${order.received + order.amnt / rate!} AR`,
+            jwk
+          );
+        }
       }
     }
   } else {
@@ -222,15 +274,18 @@ export async function ethSwap(
     for (const order of orders) {
       if (!order.rate) continue;
       if (order.amnt >= amnt / order.rate) {
-        const arTx = await client.createTransaction(
-          {
-            target: addr,
-            quantity: client.ar.arToWinston((amnt / order.rate).toString()),
-          },
-          jwk
-        );
-        await client.transactions.sign(arTx, jwk);
-        await client.transactions.post(arTx);
+        let arTx: Transaction;
+        if (!tx.token) {
+          arTx = await client.createTransaction(
+            {
+              target: addr,
+              quantity: client.ar.arToWinston((amnt / order.rate).toString()),
+            },
+            jwk
+          );
+          await client.transactions.sign(arTx, jwk);
+          await client.transactions.post(arTx);
+        }
 
         const gasPrice = parseFloat(
           ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
@@ -251,11 +306,17 @@ export async function ethSwap(
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
 
+        let arString = "";
+        if (!tx.token) {
+          arString =
+            `\n\t\tSent ${amnt / order.rate} AR to ${addr}` +
+            // @ts-ignore
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n";
+        }
         log.info(
           "Matched!" +
-            `\n\t\tSent ${amnt / order.rate} AR to ${addr}` +
-            `\n\t\ttxID = ${arTx.id}` +
-            "\n" +
+            arString +
             `\n\t\tSent ${roundEth(amnt - gas * gasPrice)} ${chain} to ${
               order.addr
             }` +
@@ -277,24 +338,42 @@ export async function ethSwap(
           );
         }
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [tx.id]);
-        await sendConfirmation(
-          client,
-          tx.id,
-          `${received + amnt / order.rate} AR`,
-          jwk
-        );
+        if (tx.token) {
+          await match(
+            client,
+            {
+              id: tx.id,
+              sender: addr,
+              type: "Buy",
+              table: tx.token,
+              arAmnt: received + amnt / order.rate,
+            },
+            jwk,
+            db
+          );
+        } else {
+          await sendConfirmation(
+            client,
+            tx.id,
+            `${received + amnt / order.rate} AR`,
+            jwk
+          );
+        }
 
         return;
       } else {
-        const arTx = await client.createTransaction(
-          {
-            target: addr,
-            quantity: client.ar.arToWinston(order.amnt.toString()),
-          },
-          jwk
-        );
-        await client.transactions.sign(arTx, jwk);
-        await client.transactions.post(arTx);
+        let arTx: Transaction;
+        if (!tx.token) {
+          arTx = await client.createTransaction(
+            {
+              target: addr,
+              quantity: client.ar.arToWinston(order.amnt.toString()),
+            },
+            jwk
+          );
+          await client.transactions.sign(arTx, jwk);
+          await client.transactions.post(arTx);
+        }
 
         const gasPrice = parseFloat(
           ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
@@ -318,11 +397,17 @@ export async function ethSwap(
           await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
         ).transactionHash;
 
+        let arString = "";
+        if (!tx.token) {
+          arString =
+            `\n\t\tSent ${order.amnt} AR to ${addr}` +
+            // @ts-ignore
+            `\n\t\ttxID = ${arTx.id}` +
+            "\n";
+        }
         log.info(
           "Matched!" +
-            `\n\t\tSent ${order.amnt} AR to ${addr}` +
-            `\n\t\ttxID = ${arTx.id}` +
-            "\n" +
+            arString +
             `\n\t\tSent ${roundEth(
               order.amnt * order.rate - gas * gasPrice
             )} ${chain} to ${order.addr}` +

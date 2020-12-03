@@ -14,14 +14,15 @@ const log = new Logger({
   name: "eth",
 });
 
-export async function init(keyfile?: string) {
+export async function init(keyfile?: string, url?: string) {
   log.info(`Loading private key from: ${keyfile || relativeKeyPath}`);
   const privateKey = (await readFile(keyfile || relativeKeyPath))
     .toString()
     .split("\n")[0];
 
   const client = new Web3(
-    "https://eth-mainnet.alchemyapi.io/v2/U5zYjOBafrwXy-2jZY6HMa0lOrsFge9K"
+    url ||
+      "https://eth-mainnet.alchemyapi.io/v2/U5zYjOBafrwXy-2jZY6HMa0lOrsFge9K"
   );
 
   const account = client.eth.accounts.privateKeyToAccount(privateKey);

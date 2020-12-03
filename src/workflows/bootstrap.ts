@@ -9,6 +9,7 @@ import { ethSwap } from "@workflows/swap";
 import { match } from "@workflows/match";
 import Web3 from "web3";
 import { getTxStore } from "@utils/database";
+import Arweave from "arweave";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -16,13 +17,14 @@ const log = new Log({
 });
 
 async function getLatestTxs(
+  client: Arweave,
   db: Database,
   addr: string,
   latest: {
     block: number;
     txID: string;
   },
-  client: Web3,
+  ethClient: Web3,
   ethAddr: string,
   counter: number
 ): Promise<{
@@ -32,6 +34,7 @@ async function getLatestTxs(
     sender: string;
     type: string;
     table?: string;
+    token?: string;
     order?: string;
     arAmnt?: number;
     amnt?: number;
@@ -42,7 +45,7 @@ async function getLatestTxs(
     txID: string;
   };
 }> {
-  const arRes = await latestTxs(db, addr, latest);
+  const arRes = await latestTxs(client, db, addr, latest);
 
   const ethRes: {
     id: string;
@@ -50,33 +53,28 @@ async function getLatestTxs(
     sender: string;
     type: string;
     table?: string;
+    token?: string;
     order?: string;
     arAmnt?: number;
     amnt?: number;
     rate?: number;
   }[] = [];
   if (counter == 60) {
-    let store: {
-      txHash: string;
-      chain: string;
-      sender: string;
-    }[];
-    try {
-      store = await getTxStore(db);
-    } catch {
-      store = [];
-    }
-
+    const store = await getTxStore(db);
     for (const entry of store) {
-      const tx = await client.eth.getTransaction(entry.txHash);
+      const tx = await ethClient.eth.getTransaction(entry.txHash);
 
       if (tx.from !== (await getChainAddr(entry.sender, entry.chain))) {
         // tx is invalid
-        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+        await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+          entry.txHash,
+        ]);
       }
       if (tx.to !== ethAddr) {
         // tx is invalid
-        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+        await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+          entry.txHash,
+        ]);
       }
 
       if (tx.blockNumber) {
@@ -86,9 +84,12 @@ async function getLatestTxs(
           sender: tx.from,
           type: "Swap",
           table: entry.chain,
-          amnt: parseFloat(client.utils.fromWei(tx.value, "ether")),
+          token: entry.token,
+          amnt: parseFloat(ethClient.utils.fromWei(tx.value, "ether")),
         });
-        await db.run(`DELETE FROM "TX_STORE" WHERE txHash = ?`, [entry.txHash]);
+        await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+          entry.txHash,
+        ]);
       }
     }
   }
@@ -106,7 +107,10 @@ export async function bootstrap(
   ethKeyfile?: string
 ) {
   const { client, addr, jwk } = await init(keyfile);
-  const { client: ethClient, addr: ethAddr, sign } = await ethInit(ethKeyfile);
+  const { client: ethClient, addr: ethAddr, sign } = await ethInit(
+    ethKeyfile,
+    config.genesis.chain["ETH"].node
+  );
 
   await genesis(client, jwk!, config.genesis);
 
@@ -124,6 +128,7 @@ export async function bootstrap(
 
   setInterval(async () => {
     const res = await getLatestTxs(
+      client,
       db,
       addr,
       latest,
@@ -155,6 +160,7 @@ export async function bootstrap(
                     id: tx.id,
                     sender: tx.sender,
                     table: tx.table,
+                    token: tx.token,
                     arAmnt: tx.arAmnt,
                     amnt: tx.amnt,
                     rate: tx.rate,
