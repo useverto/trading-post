@@ -93,6 +93,9 @@ export async function match(
           },
           jwk
         );
+        arTx.addTag("Exchange", "Verto");
+        arTx.addTag("Type", "AR-Transfer");
+        arTx.addTag("Order", order.txID);
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
@@ -176,6 +179,9 @@ export async function match(
           },
           jwk
         );
+        arTx.addTag("Exchange", "Verto");
+        arTx.addTag("Type", "AR-Transfer");
+        arTx.addTag("Order", order.txID);
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
@@ -251,6 +257,9 @@ export async function match(
           },
           jwk
         );
+        arTx.addTag("Exchange", "Verto");
+        arTx.addTag("Type", "AR-Transfer");
+        arTx.addTag("Order", tx.id);
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
@@ -332,6 +341,9 @@ export async function match(
           },
           jwk
         );
+        arTx.addTag("Exchange", "Verto");
+        arTx.addTag("Type", "AR-Transfer");
+        arTx.addTag("Order", tx.id);
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
