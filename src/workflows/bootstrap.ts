@@ -62,31 +62,37 @@ async function getLatestTxs(
   if (counter == 60) {
     const store = await getTxStore(db);
     for (const entry of store) {
-      const tx = await ethClient.eth.getTransaction(entry.txHash);
+      try {
+        const tx = await ethClient.eth.getTransaction(entry.txHash);
 
-      if (tx.from !== (await getChainAddr(entry.sender, entry.chain))) {
-        // tx is invalid
-        await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
-          entry.txHash,
-        ]);
-      }
-      if (tx.to !== ethAddr) {
-        // tx is invalid
-        await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
-          entry.txHash,
-        ]);
-      }
+        if (tx.from !== (await getChainAddr(entry.sender, entry.chain))) {
+          // tx is invalid
+          await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+            entry.txHash,
+          ]);
+        }
+        if (tx.to !== ethAddr) {
+          // tx is invalid
+          await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+            entry.txHash,
+          ]);
+        }
 
-      if (tx.blockNumber) {
-        ethRes.push({
-          id: entry.txHash,
-          block: tx.blockNumber,
-          sender: tx.from,
-          type: "Swap",
-          table: entry.chain,
-          token: entry.token,
-          amnt: parseFloat(ethClient.utils.fromWei(tx.value, "ether")),
-        });
+        if (tx.blockNumber) {
+          ethRes.push({
+            id: entry.txHash,
+            block: tx.blockNumber,
+            sender: tx.from,
+            type: "Swap",
+            table: entry.chain,
+            token: entry.token,
+            amnt: parseFloat(ethClient.utils.fromWei(tx.value, "ether")),
+          });
+          await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
+            entry.txHash,
+          ]);
+        }
+      } catch (err) {
         await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
           entry.txHash,
         ]);
