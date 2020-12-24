@@ -147,21 +147,25 @@ export const latestTxs = async (
         const res = await readContract(client, contract, undefined, true);
 
         if (res.valid[tx.node.id]) {
-          txs.push({
-            id: tx.node.id,
-            block: tx.node.block.height,
-            sender: tx.node.owner.address,
-            type,
-            table: contract,
-            amnt: JSON.parse(
-              tx.node.tags.find(
-                (tag: { name: string; value: string }) => tag.name === "Input"
-              ).value
-            ).qty,
-            rate: tx.node.tags.find(
-              (tag: { name: string; value: string }) => tag.name === "Rate"
-            ).value,
-          });
+          const input = JSON.parse(
+            tx.node.tags.find(
+              (tag: { name: string; value: string }) => tag.name === "Input"
+            ).value
+          );
+
+          if (input.function === "transfer" && input.target === addr) {
+            txs.push({
+              id: tx.node.id,
+              block: tx.node.block.height,
+              sender: tx.node.owner.address,
+              type,
+              table: contract,
+              amnt: input.qty,
+              rate: tx.node.tags.find(
+                (tag: { name: string; value: string }) => tag.name === "Rate"
+              ).value,
+            });
+          }
         }
       } else if (type === "Cancel") {
         txs.push({
