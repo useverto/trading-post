@@ -96,6 +96,7 @@ export async function match(
         arTx.addTag("Exchange", "Verto");
         arTx.addTag("Type", "AR-Transfer");
         arTx.addTag("Order", order.txID);
+        arTx.addTag("Match", tx.id);
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
@@ -103,6 +104,7 @@ export async function match(
           Exchange: "Verto",
           Type: "PST-Transfer",
           Order: tx.id,
+          Match: order.txID,
           "App-Name": "SmartWeaveAction",
           "App-Version": "0.3.0",
           Contract: token,
@@ -182,6 +184,7 @@ export async function match(
         arTx.addTag("Exchange", "Verto");
         arTx.addTag("Type", "AR-Transfer");
         arTx.addTag("Order", order.txID);
+        arTx.addTag("Match", tx.id);
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
@@ -189,6 +192,7 @@ export async function match(
           Exchange: "Verto",
           Type: "PST-Transfer",
           Order: tx.id,
+          Match: order.txID,
           "App-Name": "SmartWeaveAction",
           "App-Version": "0.3.0",
           Contract: token,
@@ -260,6 +264,7 @@ export async function match(
         arTx.addTag("Exchange", "Verto");
         arTx.addTag("Type", "AR-Transfer");
         arTx.addTag("Order", tx.id);
+        arTx.addTag("Match", order.txID);
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
@@ -267,6 +272,7 @@ export async function match(
           Exchange: "Verto",
           Type: "PST-Transfer",
           Order: order.txID,
+          Match: tx.id,
           "App-Name": "SmartWeaveAction",
           "App-Version": "0.3.0",
           Contract: token,
@@ -344,6 +350,7 @@ export async function match(
         arTx.addTag("Exchange", "Verto");
         arTx.addTag("Type", "AR-Transfer");
         arTx.addTag("Order", tx.id);
+        arTx.addTag("Match", order.txID);
         await client.transactions.sign(arTx, jwk);
         await client.transactions.post(arTx);
 
@@ -351,6 +358,7 @@ export async function match(
           Exchange: "Verto",
           Type: "PST-Transfer",
           Order: order.txID,
+          Match: tx.id,
           "App-Name": "SmartWeaveAction",
           "App-Version": "0.3.0",
           Contract: token,
