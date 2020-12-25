@@ -294,7 +294,7 @@ export async function ethSwap(
           arTx.addTag("Exchange", "Verto");
           arTx.addTag("Type", "AR-Transfer");
           arTx.addTag("Order", tx.id);
-          arTx.addTag("Match", tx.id);
+          arTx.addTag("Match", order.txID);
           await client.transactions.sign(arTx, jwk);
           await client.transactions.post(arTx);
         }
@@ -386,7 +386,7 @@ export async function ethSwap(
           arTx.addTag("Exchange", "Verto");
           arTx.addTag("Type", "AR-Transfer");
           arTx.addTag("Order", tx.id);
-          arTx.addTag("Match", tx.id);
+          arTx.addTag("Match", order.txID);
           await client.transactions.sign(arTx, jwk);
           await client.transactions.post(arTx);
         }
