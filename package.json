@@ -33,6 +33,7 @@
     "dotenv": "^8.2.0",
     "enquirer": "^2.3.6",
     "koa": "^2.13.0",
+    "moment": "^2.29.1",
     "node-fetch": "^2.6.1",
     "rfs": "^9.0.3",
     "rotating-file-stream": "^2.1.3",
