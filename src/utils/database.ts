@@ -18,6 +18,7 @@ export interface OrderInstance {
   type: Order;
   createdAt: Date;
   received: number;
+  token?: string;
 }
 
 /**
@@ -51,22 +52,27 @@ export async function saveOrder(
     addr STRING NOT NULL,
     type STRING NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    received INTEGER NOT NULL
+    received INTEGER NOT NULL,
+    token STRING
   )`);
   /**
    * Insert a token instance into the database.
    * NOTE: The following code is not vulnerable to sql injection since invalid table names can never be queried.
    *       The values are assigned via db.run that is capable of preventing any type of injection
    */
-  return await db.run(`INSERT INTO "${table}" VALUES (?, ?, ?, ?, ?, ?, ?)`, [
-    entry.txID,
-    entry.amnt,
-    entry.rate,
-    entry.addr,
-    entry.type,
-    entry.createdAt,
-    entry.received,
-  ]);
+  return await db.run(
+    `INSERT INTO "${table}" VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      entry.txID,
+      entry.amnt,
+      entry.rate,
+      entry.addr,
+      entry.type,
+      entry.createdAt,
+      entry.received,
+      entry.token,
+    ]
+  );
 }
 
 export async function getOrders(db: Database) {
@@ -223,18 +229,23 @@ export async function saveHash(
   entry: {
     txHash: string;
     chain: string;
+    token?: string;
     sender: string;
   }
 ) {
   await db.exec(`CREATE TABLE IF NOT EXISTS "TX_STORE" (
     txHash STRING NOT NULL PRIMARY KEY,
+    parsed INTEGER NOT NULL DEFAULT 0,
     chain STRING NOT NULL,
+    token STRING,
     sender STRING NOT NULL
   )`);
 
-  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?, ?)`, [
+  return await db.run(`INSERT INTO "TX_STORE" VALUES (?, ?, ?, ?, ?)`, [
     entry.txHash,
+    0,
     entry.chain,
+    entry.token,
     entry.sender,
   ]);
 }
@@ -245,16 +256,21 @@ export async function getTxStore(
   {
     txHash: string;
     chain: string;
+    token?: string;
     sender: string;
   }[]
 > {
-  const store = await db.all<
-    {
-      txHash: string;
-      chain: string;
-      sender: string;
-    }[]
-  >(`SELECT * FROM "TX_STORE"`);
+  let store: {
+    txHash: string;
+    chain: string;
+    token?: string;
+    sender: string;
+  }[] = [];
+  try {
+    store = await db.all(`SELECT * FROM "TX_STORE" WHERE parsed = 0`);
+  } catch {
+    // do nothing
+  }
 
   return store;
 }

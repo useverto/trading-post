@@ -60,6 +60,10 @@ export async function cancel(
       jwk
     );
 
+    tx.addTag("Exchange", "Verto");
+    tx.addTag("Type", "Cancel-AR-Transfer");
+    tx.addTag("Order", txID);
+
     await client.transactions.sign(tx, jwk);
     await client.transactions.post(tx);
 
@@ -74,6 +78,9 @@ export async function cancel(
     );
   } else if (type === "Sell") {
     const tags = {
+      Exchange: "Verto",
+      Type: "Cancel-PST-Transfer",
+      Order: txID,
       "App-Name": "SmartWeaveAction",
       "App-Version": "0.3.0",
       Contract: token,

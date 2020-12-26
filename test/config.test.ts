@@ -18,7 +18,9 @@ describe("Config tests", () => {
           "FcM-QQpfcD0xTTzr8u4Su9QCgcvRx_JH4JSCQoFi6Ck",
         ],
         chain: {
-          ETH: "",
+          ETH: {
+            addr: "",
+          },
         },
         tradeFee: 0.01,
         publicURL: "https://example.com/",
