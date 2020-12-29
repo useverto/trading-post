@@ -170,11 +170,17 @@ export async function getOrder(
  * @param db the database connection pool
  */
 export async function saveTimestamp(db: Database) {
-  await db.exec(`CREATE TABLE IF NOT EXISTS "__verto__" (
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )`);
+  const columns = await db.all("PRAGMA table_info(__verto__)");
+  if (columns.length !== 3) {
+    await db.exec("DROP TABLE __verto__");
+    await db.exec(`CREATE TABLE "__verto__" (
+      tx STRING NOT NULL,
+      block INTEGER NOT NULL,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+  }
   log.info(`Performing shutdown cleanup.`);
-  await db.run(`INSERT INTO "__verto__" VALUES (?)`, [new Date()]);
+  // await db.run(`INSERT INTO "__verto__" VALUES (?)`, [new Date()]);
 }
 
 interface DbTimestamp {
