@@ -146,7 +146,7 @@ export const latestTxs = async (
         ).value;
         const res = await readContract(client, contract, undefined, true);
 
-        if (res.valid[tx.node.id]) {
+        if (res.validity[tx.node.id]) {
           const input = JSON.parse(
             tx.node.tags.find(
               (tag: { name: string; value: string }) => tag.name === "Input"
