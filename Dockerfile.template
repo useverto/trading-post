@@ -1,0 +1,7 @@
+FROM balenalib/%%BALENA_ARCH%%-node
+
+RUN apt-get update
+
+COPY . /usr/src/app/
+
+RUN yarn
