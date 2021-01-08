@@ -8,7 +8,6 @@ import {
   getSellOrders,
   getBuyOrders,
 } from "@utils/database";
-import orders from "@commands/orders";
 
 const log = new Log({
   level: Log.Levels.debug,
