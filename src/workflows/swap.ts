@@ -83,6 +83,46 @@ export async function ethSwap(
     `Received swap.\n\t\ttxID = ${tx.id}\n\t\tchain = ${chain}\n\t\ttype = ${type}`
   );
 
+  if (type === "Buy" && (await getSellOrders(db, chain)).length === 0) {
+    let returnTx;
+
+    returnTx = await client.createTransaction(
+      {
+        target: tx.sender,
+        quantity: client.ar.arToWinston(amnt.toString()),
+      },
+      jwk
+    );
+
+    const fee = parseFloat(
+      client.ar.winstonToAr(
+        await client.transactions.getPrice(
+          parseFloat(returnTx.data_size),
+          returnTx.target
+        )
+      )
+    );
+
+    returnTx = await client.createTransaction(
+      {
+        target: tx.sender,
+        quantity: client.ar.arToWinston((amnt - fee).toString()),
+      },
+      jwk
+    );
+
+    returnTx.addTag("Exchange", "Verto");
+    returnTx.addTag("Type", "Swap-Return");
+    returnTx.addTag("Order", tx.id);
+    await client.transactions.sign(returnTx, jwk);
+    await client.transactions.post(returnTx);
+
+    log.info(
+      `Returned swap order.\n\t\torder = ${tx.id}\n\t\ttxID = ${returnTx.id}`
+    );
+    return;
+  }
+
   const swapEntry: OrderInstance = {
     txID: tx.id,
     amnt,

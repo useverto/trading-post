@@ -68,6 +68,46 @@ export async function match(
 
   log.info(`Received order.\n\t\ttxID = ${tx.id}\n\t\ttype = ${type}`);
 
+  if (type === "Buy" && (await getSellOrders(db, token)).length === 0) {
+    let returnTx;
+
+    returnTx = await client.createTransaction(
+      {
+        target: tx.sender,
+        quantity: client.ar.arToWinston(amnt.toString()),
+      },
+      jwk
+    );
+
+    const fee = parseFloat(
+      client.ar.winstonToAr(
+        await client.transactions.getPrice(
+          parseFloat(returnTx.data_size),
+          returnTx.target
+        )
+      )
+    );
+
+    returnTx = await client.createTransaction(
+      {
+        target: tx.sender,
+        quantity: client.ar.arToWinston((amnt - fee).toString()),
+      },
+      jwk
+    );
+
+    returnTx.addTag("Exchange", "Verto");
+    returnTx.addTag("Type", "Buy-Return");
+    returnTx.addTag("Order", tx.id);
+    await client.transactions.sign(returnTx, jwk);
+    await client.transactions.post(returnTx);
+
+    log.info(
+      `Returned buy order.\n\t\torder = ${tx.id}\n\t\ttxID = ${returnTx.id}`
+    );
+    return;
+  }
+
   const tokenEntry: OrderInstance = {
     txID: tx.id,
     amnt,
