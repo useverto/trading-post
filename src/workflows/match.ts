@@ -125,6 +125,49 @@ export async function match(
     for (const order of orders) {
       if (!order.rate) continue;
       const pstAmount = Math.floor(amnt * order.rate);
+
+      if (pstAmount === 0) {
+        let returnTx;
+
+        returnTx = await client.createTransaction(
+          {
+            target: tx.sender,
+            quantity: client.ar.arToWinston(amnt.toString()),
+          },
+          jwk
+        );
+
+        const fee = parseFloat(
+          client.ar.winstonToAr(
+            await client.transactions.getPrice(
+              parseFloat(returnTx.data_size),
+              returnTx.target
+            )
+          )
+        );
+
+        returnTx = await client.createTransaction(
+          {
+            target: tx.sender,
+            quantity: client.ar.arToWinston((amnt - fee).toString()),
+          },
+          jwk
+        );
+
+        returnTx.addTag("Exchange", "Verto");
+        returnTx.addTag("Type", "Buy-Return");
+        returnTx.addTag("Order", tx.id);
+        await client.transactions.sign(returnTx, jwk);
+        await client.transactions.post(returnTx);
+
+        await db.run(`DELETE FROM "${token}" WHERE txID = ?`, [tx.id]);
+
+        log.info(
+          `Returned buy order.\n\t\torder = ${tx.id}\n\t\ttxID = ${returnTx.id}`
+        );
+        return;
+      }
+
       if (order.amnt >= pstAmount) {
         const arTx = await client.createTransaction(
           {
