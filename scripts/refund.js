@@ -6,7 +6,7 @@ const client = new Arweave({
   port: 443,
   protocol: "https",
 });
-const jwk = JSON.parse(await fs.readFileSync("./arweave.json"));
+const jwk = JSON.parse(fs.readFileSync("./arweave.json"));
 
 const orders = [
   {
