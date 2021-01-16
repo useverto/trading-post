@@ -196,6 +196,7 @@ export async function bootstrap(
           log.error(
             `Failed to handle transaction.\n\t\ttxID = ${tx.id}\n\t\t${err}`
           );
+          process.exit(1);
         }
       }
     }
