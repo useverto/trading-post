@@ -7,10 +7,10 @@ import { Database } from "sqlite";
 import {
   OrderInstance,
   saveOrder,
-  getSellOrders,
   getBuyOrders,
+  getSellOrders,
 } from "@utils/database";
-import { getArAddr, getChainAddr } from "@utils/arweave";
+import { getChainAddr } from "@utils/arweave";
 import { match } from "./match";
 
 const log = new Log({
@@ -81,7 +81,7 @@ export async function ethSwap(
     `Received swap.\n\t\ttxID = ${tx.id}\n\t\tchain = ${chain}\n\t\ttype = ${type}`
   );
 
-  if (type === "Buy" && (await getSellOrders(db, chain)).length === 0) {
+  if (type === "Sell" && (await getBuyOrders(db, chain)).length === 0) {
     let returnTx;
 
     returnTx = await client.createTransaction(

@@ -107,9 +107,15 @@ export async function getSellOrders(
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
-  const orders = await db.all<OrderInstance[]>(
-    `SELECT * FROM "${table}" WHERE type = "Sell"`
-  );
+  let orders: OrderInstance[];
+  try {
+    orders = await db.all<OrderInstance[]>(
+      `SELECT * FROM "${table}" WHERE type = "Sell"`
+    );
+  } catch {
+    // table doesn't exist
+    orders = [];
+  }
   if (!orders || orders?.length === 0) {
     log.info(`No sell orders to match with.`);
     return [];
@@ -137,9 +143,15 @@ export async function getBuyOrders(
    * Retrieve sell orders from the database.
    * NOTE: The following code is not vulnerable to sql injection as it is merely retreiving data.
    */
-  const orders = await db.all<OrderInstance[]>(
-    `SELECT * FROM "${table}" WHERE type = "Buy"`
-  );
+  let orders: OrderInstance[];
+  try {
+    orders = await db.all<OrderInstance[]>(
+      `SELECT * FROM "${table}" WHERE type = "Buy"`
+    );
+  } catch {
+    // table doesn't exist
+    orders = [];
+  }
   if (!orders || orders?.length === 0) {
     log.info(`No buy orders to match with.`);
     return [];
