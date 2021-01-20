@@ -71,9 +71,7 @@ export async function ethSwap(
   let rate = tx.rate;
 
   let addr =
-    type === "Buy"
-      ? (await getChainAddr(tx.sender, tx.table))!
-      : (await getArAddr(tx.sender, tx.table))!;
+    type === "Buy" ? (await getChainAddr(tx.sender, tx.table))! : tx.sender;
 
   let received = 0;
 
