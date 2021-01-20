@@ -82,7 +82,7 @@ async function getLatestTxs(
           ethRes.push({
             id: entry.txHash,
             block: tx.blockNumber,
-            sender: tx.from,
+            sender: entry.sender,
             type: "Swap",
             table: entry.chain,
             token: entry.token,
