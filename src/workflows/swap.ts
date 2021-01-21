@@ -319,6 +319,19 @@ export async function ethSwap(
     const orders = await getBuyOrders(db, chain);
     for (const order of orders) {
       if (!order.rate) continue;
+
+      const original = amnt;
+
+      const gasPrice = parseFloat(
+        ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
+      );
+      const gas = await ethClient.eth.estimateGas({
+        to: order.addr,
+        value: ethClient.utils.toWei(roundEth(amnt), "ether"),
+      });
+
+      amnt = parseFloat(roundEth(amnt - gas * gasPrice));
+
       if (order.amnt >= amnt / order.rate) {
         let arTx: Transaction;
         if (!tx.token) {
@@ -337,19 +350,9 @@ export async function ethSwap(
           await client.transactions.post(arTx);
         }
 
-        const gasPrice = parseFloat(
-          ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
-        );
-        const gas = await ethClient.eth.estimateGas({
-          to: order.addr,
-          value: ethClient.utils.toWei(roundEth(amnt), "ether"),
-        });
         const ethTx = await sign({
           to: order.addr,
-          value: ethClient.utils.toWei(
-            roundEth(amnt - gas * gasPrice),
-            "ether"
-          ),
+          value: ethClient.utils.toWei(roundEth(amnt), "ether"),
           gas,
         });
         const ethTxID = (
@@ -367,9 +370,7 @@ export async function ethSwap(
         log.info(
           "Matched!" +
             arString +
-            `\n\t\tSent ${roundEth(amnt - gas * gasPrice)} ${chain} to ${
-              order.addr
-            }` +
+            `\n\t\tSent ${roundEth(amnt)} ${chain} to ${order.addr}` +
             `\n\t\ttxID = ${ethTxID}`
         );
 
@@ -378,7 +379,7 @@ export async function ethSwap(
           await sendConfirmation(
             client,
             order.txID,
-            `${order.received + roundEth(amnt - gas * gasPrice)} ${chain}`,
+            `${order.received + roundEth(amnt)} ${chain}`,
             jwk
           );
         } else {
@@ -412,6 +413,8 @@ export async function ethSwap(
 
         return;
       } else {
+        amnt = original;
+
         let arTx: Transaction;
         if (!tx.token) {
           arTx = await client.createTransaction(
