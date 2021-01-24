@@ -3,7 +3,7 @@ import { Database } from "sqlite";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Web3 from "web3";
-import { OrderInstance, saveOrder } from "@utils/database";
+import { OrderInstance, saveOrder, getSellOrders } from "@utils/database";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -38,7 +38,7 @@ async function ethSwap(
       rate: tx.rate,
       addr: tx.sender,
       type: "Buy",
-      token: tx.token,
+      token: tx.table,
       createdAt: new Date(),
       received: 0,
     };
@@ -48,21 +48,43 @@ async function ethSwap(
   if (tx.amnt) {
     // ETH Incoming
     //   Recursive
+    let amount = tx.amnt;
+
     //   Find first order in orderbook
+    const orders = await getSellOrders(db, tx.table);
+    const order = orders[0];
+
     //   Calculate gas fee to send
+    const gasPrice = parseFloat(
+      ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
+    );
+    const gas = await ethClient.eth.estimateGas({
+      to: order.addr,
+    });
+
     //   Subtract gas fee from incoming ETH amount (gETH)
+    amount -= gas * gasPrice;
+
     //   Match
-    //     if gETH === order
-    //       Remove order from DB
-    //       Send ETH/AR in corresponding locations & confirmation transactions
-    //       DONE
-    //     if gETH < order
-    //       Subtract gETH amount from order (AKA increment matched amount)
-    //       Send ETH/AR in corresponding locations & confirmation transactions
-    //       DONE
-    //     if gETH > order
-    //       Remove order from DB
-    //       Send ETH/AR in corresponding locations & confirmation transactions
-    //       Call function again with updated gETH amount
+    if (amount === order.amnt) {
+      //     if gETH === order
+      //       Remove order from DB
+      await db.run(`DELETE FROM "${tx.table}" WHERE txID = ?`, [order.txID]);
+      //       Send ETH/AR in corresponding locations & confirmation transactions
+      //       DONE
+    }
+    if (amount < order.amnt) {
+      //     if gETH < order
+      //       Subtract gETH amount from order (AKA increment matched amount)
+      //       Send ETH/AR in corresponding locations & confirmation transactions
+      //       DONE
+    }
+    if (amount > order.amnt) {
+      //     if gETH > order
+      //       Remove order from DB
+      await db.run(`DELETE FROM "${tx.table}" WHERE txID = ?`, [order.txID]);
+      //       Send ETH/AR in corresponding locations & confirmation transactions
+      //       Call function again with updated gETH amount
+    }
   }
 }
