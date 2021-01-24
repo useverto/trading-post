@@ -328,7 +328,7 @@ export async function ethSwap(
       const gasPrice = parseFloat(
         ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
       );
-      const gas = await ethClient.eth.estimateGas({
+      let gas = await ethClient.eth.estimateGas({
         to: order.addr,
         value: ethClient.utils.toWei(roundEth(amnt), "ether"),
       });
@@ -418,78 +418,82 @@ export async function ethSwap(
       } else {
         amnt = original;
 
-        let arTx: Transaction;
-        if (!tx.token) {
-          arTx = await client.createTransaction(
-            {
-              target: addr,
-              quantity: client.ar.arToWinston(order.amnt.toString()),
-            },
-            jwk
-          );
-          arTx.addTag("Exchange", "Verto");
-          arTx.addTag("Type", "AR-Transfer");
-          arTx.addTag("Order", tx.id);
-          arTx.addTag("Match", order.txID);
-          await client.transactions.sign(arTx, jwk);
-          await client.transactions.post(arTx);
-        }
-
-        const gasPrice = parseFloat(
-          ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
-        );
-        const gas = await ethClient.eth.estimateGas({
+        gas = await ethClient.eth.estimateGas({
           to: order.addr,
           value: ethClient.utils.toWei(
             roundEth(order.amnt * order.rate),
             "ether"
           ),
         });
-        const ethTx = await sign({
-          to: order.addr,
-          value: ethClient.utils.toWei(
-            roundEth(order.amnt * order.rate - gas * gasPrice),
-            "ether"
-          ),
-          gas,
-        });
-        const ethTxID = (
-          await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
-        ).transactionHash;
 
-        let arString = "";
-        if (!tx.token) {
-          arString =
-            `\n\t\tSent ${order.amnt} AR to ${addr}` +
-            // @ts-ignore
-            `\n\t\ttxID = ${arTx.id}` +
-            "\n";
+        if (amnt > order.amnt * order.rate + gas * gasPrice) {
+          let arTx: Transaction;
+          if (!tx.token) {
+            arTx = await client.createTransaction(
+              {
+                target: addr,
+                quantity: client.ar.arToWinston(order.amnt.toString()),
+              },
+              jwk
+            );
+            arTx.addTag("Exchange", "Verto");
+            arTx.addTag("Type", "AR-Transfer");
+            arTx.addTag("Order", tx.id);
+            arTx.addTag("Match", order.txID);
+            await client.transactions.sign(arTx, jwk);
+            await client.transactions.post(arTx);
+          }
+
+          const ethTx = await sign({
+            to: order.addr,
+            value: ethClient.utils.toWei(
+              roundEth(order.amnt * order.rate),
+              "ether"
+            ),
+            gas,
+          });
+          const ethTxID = (
+            await ethClient.eth.sendSignedTransaction(ethTx.rawTransaction!)
+          ).transactionHash;
+
+          let arString = "";
+          if (!tx.token) {
+            arString =
+              `\n\t\tSent ${order.amnt} AR to ${addr}` +
+              // @ts-ignore
+              `\n\t\ttxID = ${arTx.id}` +
+              "\n";
+          }
+          log.info(
+            "Matched!" +
+              arString +
+              `\n\t\tSent ${roundEth(order.amnt * order.rate)} ${chain} to ${
+                order.addr
+              }` +
+              `\n\t\ttxID = ${ethTxID}`
+          );
+
+          await db.run(
+            `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
+            [
+              amnt - order.amnt * order.rate - gas * gasPrice,
+              received + order.amnt,
+              tx.id,
+            ]
+          );
+          amnt -= order.amnt * order.rate + gas * gasPrice;
+          received += order.amnt;
+
+          await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
+          await sendConfirmation(
+            client,
+            order.txID,
+            `${order.received + roundEth(order.amnt * order.rate)} ${chain}`,
+            jwk
+          );
+        } else {
+          // TODO(@johnletey): We got an issue ...
         }
-        log.info(
-          "Matched!" +
-            arString +
-            `\n\t\tSent ${roundEth(
-              order.amnt * order.rate - gas * gasPrice
-            )} ${chain} to ${order.addr}` +
-            `\n\t\ttxID = ${ethTxID}`
-        );
-
-        await db.run(
-          `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
-          [amnt - order.amnt * order.rate, received + order.amnt, tx.id]
-        );
-        amnt -= order.amnt * order.rate;
-        received += order.amnt;
-
-        await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [order.txID]);
-        await sendConfirmation(
-          client,
-          order.txID,
-          `${
-            order.received + roundEth(order.amnt * order.rate - gas * gasPrice)
-          } ${chain}`,
-          jwk
-        );
       }
     }
   }
