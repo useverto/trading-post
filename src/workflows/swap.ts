@@ -63,7 +63,8 @@ export async function ethSwap(
   jwk: JWKInterface,
   // TODO(@johnletey): Look into the type
   sign: any,
-  db: Database
+  db: Database,
+  save: boolean = true
 ) {
   let type = tx.arAmnt ? "Buy" : "Sell";
 
@@ -121,18 +122,20 @@ export async function ethSwap(
     return;
   }
 
-  const swapEntry: OrderInstance = {
-    txID: tx.id,
-    amnt,
-    rate,
-    addr,
-    // @ts-ignore
-    type,
-    token: tx.token,
-    createdAt: new Date(),
-    received,
-  };
-  await saveOrder(db, chain, swapEntry);
+  if (save) {
+    const swapEntry: OrderInstance = {
+      txID: tx.id,
+      amnt,
+      rate,
+      addr,
+      // @ts-ignore
+      type,
+      token: tx.token,
+      createdAt: new Date(),
+      received,
+    };
+    await saveOrder(db, chain, swapEntry);
+  }
 
   if (type === "Buy") {
     const orders = await getSellOrders(db, chain);
