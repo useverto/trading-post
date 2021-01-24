@@ -5,7 +5,7 @@ import { getChainAddr, init, latestTxs } from "@utils/arweave";
 import { init as ethInit } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
-import { ethSwap } from "@workflows/swap";
+import { ethSwap } from "@workflows/old_swap";
 import { match } from "@workflows/match";
 import Web3 from "web3";
 import { getTxStore } from "@utils/database";
