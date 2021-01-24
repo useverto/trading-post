@@ -140,7 +140,19 @@ export async function ethSwap(
   if (type === "Buy") {
     const orders = await getSellOrders(db, chain);
     for (const order of orders) {
-      const ethAmount = amnt * rate!;
+      let ethAmount = amnt * rate!;
+      const original = ethAmount;
+
+      const gasPrice = parseFloat(
+        ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
+      );
+      let gas = await ethClient.eth.estimateGas({
+        to: addr,
+        value: ethClient.utils.toWei(roundEth(ethAmount), "ether"),
+      });
+
+      ethAmount = parseFloat(roundEth(ethAmount - gas * gasPrice));
+
       if (order.amnt >= ethAmount) {
         let arTx: Transaction;
         if (!order.token) {
@@ -159,19 +171,9 @@ export async function ethSwap(
           await client.transactions.post(arTx);
         }
 
-        const gasPrice = parseFloat(
-          ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
-        );
-        const gas = await ethClient.eth.estimateGas({
-          to: addr,
-          value: ethClient.utils.toWei(roundEth(ethAmount), "ether"),
-        });
         const ethTx = await sign({
           to: addr,
-          value: ethClient.utils.toWei(
-            roundEth(ethAmount - gas * gasPrice),
-            "ether"
-          ),
+          value: ethClient.utils.toWei(roundEth(ethAmount), "ether"),
           gas,
         });
         const ethTxID = (
@@ -189,9 +191,7 @@ export async function ethSwap(
         log.info(
           "Matched!" +
             arString +
-            `\n\t\tSent ${roundEth(
-              ethAmount - gas * gasPrice
-            )} ${chain} to ${addr}` +
+            `\n\t\tSent ${roundEth(ethAmount)} ${chain} to ${addr}` +
             `\n\t\ttxID = ${ethTxID}`
         );
 
@@ -221,14 +221,14 @@ export async function ethSwap(
         } else {
           await db.run(
             `UPDATE "${chain}" SET amnt = ?, received = ? WHERE txID = ?`,
-            [order.amnt - ethAmount, order.received + amnt, order.txID]
+            [order.amnt - original, order.received + amnt, order.txID]
           );
         }
         await db.run(`DELETE FROM "${chain}" WHERE txID = ?`, [tx.id]);
         await sendConfirmation(
           client,
           tx.id,
-          `${received + roundEth(ethAmount - gas * gasPrice)} ${chain}`,
+          `${received + roundEth(ethAmount)} ${chain}`,
           jwk
         );
 
