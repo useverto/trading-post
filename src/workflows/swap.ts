@@ -3,7 +3,8 @@ import { Database } from "sqlite";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Web3 from "web3";
-import { OrderInstance, saveOrder, getSellOrders } from "@utils/database";
+import { getChainAddr } from "@utils/arweave";
+import { OrderInstance, saveOrder, getBuyOrders } from "@utils/database";
 import { sendETH, sendAR, sendConfirmation } from "@utils/swap";
 
 const log = new Log({
@@ -11,7 +12,7 @@ const log = new Log({
   name: "swap",
 });
 
-async function ethSwap(
+export async function ethSwap(
   tx: {
     id: string;
     sender: string;
@@ -33,17 +34,21 @@ async function ethSwap(
     //   Not recursive
     //   Save to DB
 
-    const swapEntry: OrderInstance = {
-      txID: tx.id,
-      amnt: tx.arAmnt,
-      rate: tx.rate,
-      addr: tx.sender,
-      type: "Buy",
-      token: tx.table,
-      createdAt: new Date(),
-      received: 0,
-    };
-    await saveOrder(db, tx.table, swapEntry);
+    const addr = await getChainAddr(tx.sender, tx.table);
+    if (addr) {
+      const swapEntry: OrderInstance = {
+        txID: tx.id,
+        amnt: tx.arAmnt,
+        rate: tx.rate,
+        addr,
+        type: "Buy",
+        createdAt: new Date(),
+        received: 0,
+      };
+      await saveOrder(db, tx.table, swapEntry);
+    } else {
+      // TODO(@johnletey): Return the AR
+    }
   }
 
   if (tx.amnt) {
@@ -52,7 +57,7 @@ async function ethSwap(
     let amount = tx.amnt;
 
     //   Find first order in orderbook
-    const orders = await getSellOrders(db, tx.table);
+    const orders = await getBuyOrders(db, tx.table);
     const order = orders[0];
 
     //   Calculate gas fee to send
@@ -67,7 +72,7 @@ async function ethSwap(
     amount -= gas * gasPrice;
 
     //   Match
-    if (amount === order.amnt) {
+    if (amount === order.amnt * order.rate!) {
       //     if gETH === order
 
       //       Remove order from DB
@@ -90,6 +95,8 @@ async function ethSwap(
         jwk
       );
 
+      console.log(ethHash, arHash);
+
       if (tx.token) {
         // TODO(@johnletey): Execute a token match.
       } else {
@@ -108,7 +115,7 @@ async function ethSwap(
       //       DONE
       return;
     }
-    if (amount < order.amnt) {
+    if (amount < order.amnt * order.rate!) {
       //     if gETH < order
 
       //       Subtract gETH amount from order (AKA increment matched amount)
@@ -134,6 +141,8 @@ async function ethSwap(
         jwk
       );
 
+      console.log(ethHash, arHash);
+
       if (tx.token) {
         // TODO(@johnletey): Execute a token match.
       } else {
@@ -147,7 +156,7 @@ async function ethSwap(
       //       DONE
       return;
     }
-    if (amount > order.amnt) {
+    if (amount > order.amnt * order.rate!) {
       //     if gETH > order
 
       //       Remove order from DB
@@ -169,6 +178,8 @@ async function ethSwap(
         client,
         jwk
       );
+
+      console.log(ethHash, arHash);
 
       await sendConfirmation(
         {

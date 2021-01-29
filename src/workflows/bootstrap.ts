@@ -5,7 +5,7 @@ import { getChainAddr, init, latestTxs } from "@utils/arweave";
 import { init as ethInit } from "@utils/eth";
 import { genesis } from "@workflows/genesis";
 import { cancel } from "@workflows/cancel";
-import { ethSwap } from "@workflows/old_swap";
+import { ethSwap } from "@workflows/swap";
 import { match } from "@workflows/match";
 import Web3 from "web3";
 import { getTxStore } from "@utils/database";
@@ -160,8 +160,6 @@ export async function bootstrap(
             if (tx.table === "ETH") {
               if ("ETH" in config.genesis.chain) {
                 await ethSwap(
-                  client,
-                  ethClient,
                   {
                     id: tx.id,
                     sender: tx.sender,
@@ -171,9 +169,11 @@ export async function bootstrap(
                     amnt: tx.amnt,
                     rate: tx.rate,
                   },
+                  db,
+                  client,
                   jwk!,
-                  sign,
-                  db
+                  ethClient,
+                  sign
                 );
               } else {
                 log.error(
