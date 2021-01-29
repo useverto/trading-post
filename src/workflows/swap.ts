@@ -20,6 +20,7 @@ export async function ethSwap(
     arAmnt?: number;
     amnt?: number;
     rate?: number;
+    received: number;
   },
   db: Database,
   client: Arweave,
@@ -130,7 +131,7 @@ export async function ethSwap(
         // TODO(@johnletey): Execute a token match.
       } else {
         await sendConfirmation(
-          { amount: `${amount / order.rate!} AR`, order: tx.id },
+          { amount: `${tx.received + amount / order.rate!} AR`, order: tx.id },
           client,
           jwk
         );
@@ -176,7 +177,7 @@ export async function ethSwap(
         // TODO(@johnletey): Execute a token match.
       } else {
         await sendConfirmation(
-          { amount: `${amount / order.rate!} AR`, order: tx.id },
+          { amount: `${tx.received + amount / order.rate!} AR`, order: tx.id },
           client,
           jwk
         );
@@ -224,6 +225,7 @@ export async function ethSwap(
         {
           ...tx,
           amnt: tx.amnt - order.amnt * order.rate! - gas * gasPrice,
+          received: tx.received + order.amnt,
         },
         db,
         client,

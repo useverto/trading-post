@@ -162,6 +162,7 @@ export async function bootstrap(
                     arAmnt: tx.arAmnt,
                     amnt: tx.amnt,
                     rate: tx.rate,
+                    received: 0,
                   },
                   db,
                   client,
