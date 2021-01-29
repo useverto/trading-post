@@ -5,6 +5,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import Web3 from "web3";
 import { OrderInstance, saveOrder, getBuyOrders } from "@utils/database";
 import { sendETH, sendAR, sendConfirmation } from "@utils/swap";
+import { match } from "./match";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -140,7 +141,18 @@ export async function ethSwap(
       );
 
       if (tx.token) {
-        // TODO(@johnletey): Execute a token match.
+        await match(
+          client,
+          {
+            id: tx.id,
+            sender: tx.sender.ar,
+            type: "Buy",
+            table: tx.token,
+            arAmnt: tx.received + amount / order.rate!,
+          },
+          jwk,
+          db
+        );
       } else {
         await sendConfirmation(
           { amount: `${tx.received + amount / order.rate!} AR`, order: tx.id },
@@ -193,7 +205,18 @@ export async function ethSwap(
       );
 
       if (tx.token) {
-        // TODO(@johnletey): Execute a token match.
+        await match(
+          client,
+          {
+            id: tx.id,
+            sender: tx.sender.ar,
+            type: "Buy",
+            table: tx.token,
+            arAmnt: tx.received + amount / order.rate!,
+          },
+          jwk,
+          db
+        );
       } else {
         await sendConfirmation(
           { amount: `${tx.received + amount / order.rate!} AR`, order: tx.id },
