@@ -3,7 +3,6 @@ import { Database } from "sqlite";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import Web3 from "web3";
-import { getChainAddr } from "@utils/arweave";
 import { OrderInstance, saveOrder, getBuyOrders } from "@utils/database";
 import { sendETH, sendAR, sendConfirmation } from "@utils/swap";
 
@@ -15,7 +14,7 @@ const log = new Log({
 export async function ethSwap(
   tx: {
     id: string;
-    sender: string;
+    sender: { ar: string; eth?: string };
     table: string;
     token?: string;
     arAmnt?: number;
@@ -34,20 +33,34 @@ export async function ethSwap(
     //   Not recursive
     //   Save to DB
 
-    const addr = await getChainAddr(tx.sender, tx.table);
-    if (addr) {
+    if (tx.sender.eth) {
       const swapEntry: OrderInstance = {
         txID: tx.id,
         amnt: tx.arAmnt,
         rate: tx.rate,
-        addr,
+        addr: tx.sender.eth,
         type: "Buy",
         createdAt: new Date(),
         received: 0,
       };
       await saveOrder(db, tx.table, swapEntry);
     } else {
-      // TODO(@johnletey): Return the AR
+      const returnTx = await client.createTransaction(
+        {
+          target: tx.sender.ar,
+          quantity: client.ar.arToWinston(tx.arAmnt.toString()),
+        },
+        jwk
+      );
+
+      returnTx.addTag("Exchange", "Verto");
+      returnTx.addTag("Type", "Swap-Return");
+      returnTx.addTag("Order", tx.id);
+
+      await client.transactions.sign(returnTx, jwk);
+      await client.transactions.post(returnTx);
+
+      return;
     }
   }
 
@@ -58,6 +71,22 @@ export async function ethSwap(
 
     //   Find first order in orderbook
     const orders = await getBuyOrders(db, tx.table);
+    if (orders.length === 0) {
+      const gasPrice = parseFloat(
+        ethClient.utils.fromWei(await ethClient.eth.getGasPrice(), "ether")
+      );
+      const gas = await ethClient.eth.estimateGas({
+        to: tx.sender.eth,
+      });
+
+      const ethHash = await sendETH(
+        { amount: amount - gas * gasPrice, target: tx.sender.eth!, gas },
+        ethClient,
+        sign
+      );
+
+      return;
+    }
     const order = orders[0];
 
     //   Calculate gas fee to send
@@ -87,7 +116,7 @@ export async function ethSwap(
       const arHash = await sendAR(
         {
           amount: amount / order.rate!,
-          target: tx.sender,
+          target: tx.sender.ar,
           order: tx.id,
           match: order.txID,
         },
@@ -133,7 +162,7 @@ export async function ethSwap(
       const arHash = await sendAR(
         {
           amount: amount / order.rate!,
-          target: tx.sender,
+          target: tx.sender.ar,
           order: tx.id,
           match: order.txID,
         },
@@ -171,7 +200,7 @@ export async function ethSwap(
       const arHash = await sendAR(
         {
           amount: order.amnt,
-          target: tx.sender,
+          target: tx.sender.ar,
           order: tx.id,
           match: order.txID,
         },
