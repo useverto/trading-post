@@ -29,6 +29,8 @@ export async function ethSwap(
   // TODO(@johnletey): Look into the type
   sign: any
 ) {
+  log.info(`Received swap order.\n\t\ttxID = ${tx.id}`);
+
   if (tx.arAmnt) {
     // AR Incoming
     //   Not recursive
@@ -86,6 +88,9 @@ export async function ethSwap(
         sign
       );
 
+      log.info(
+        `Returned swap order.\n\t\torder = ${tx.id}\n\t\ttxID = ${ethHash}`
+      );
       return;
     }
     const order = orders[0];
@@ -125,7 +130,14 @@ export async function ethSwap(
         jwk
       );
 
-      console.log(ethHash, arHash);
+      log.info(
+        "Matched!" +
+          `\n\t\tSent ${amount / order.rate!} AR to ${tx.sender.ar}` +
+          `\n\t\ttxID = ${arHash}` +
+          "\n" +
+          `\n\t\tSent ${amount} ${tx.table} to ${order.addr}` +
+          `\n\t\ttxID = ${ethHash}`
+      );
 
       if (tx.token) {
         // TODO(@johnletey): Execute a token match.
@@ -171,7 +183,14 @@ export async function ethSwap(
         jwk
       );
 
-      console.log(ethHash, arHash);
+      log.info(
+        "Matched!" +
+          `\n\t\tSent ${amount / order.rate!} AR to ${tx.sender.ar}` +
+          `\n\t\ttxID = ${arHash}` +
+          "\n" +
+          `\n\t\tSent ${amount} ${tx.table} to ${order.addr}` +
+          `\n\t\ttxID = ${ethHash}`
+      );
 
       if (tx.token) {
         // TODO(@johnletey): Execute a token match.
@@ -209,7 +228,16 @@ export async function ethSwap(
         jwk
       );
 
-      console.log(ethHash, arHash);
+      log.info(
+        "Matched!" +
+          `\n\t\tSent ${order.amnt} AR to ${tx.sender.ar}` +
+          `\n\t\ttxID = ${arHash}` +
+          "\n" +
+          `\n\t\tSent ${order.amnt * order.rate!} ${tx.table} to ${
+            order.addr
+          }` +
+          `\n\t\ttxID = ${ethHash}`
+      );
 
       await sendConfirmation(
         {
