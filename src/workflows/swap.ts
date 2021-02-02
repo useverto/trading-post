@@ -107,6 +107,31 @@ export async function ethSwap(
     //   Subtract gas fee from incoming ETH amount (gETH)
     amount -= gas * gasPrice;
 
+    if (amount < 0) {
+      const returnTx = await client.createTransaction(
+        {
+          data: Math.random().toString().slice(-4),
+        },
+        jwk
+      );
+
+      returnTx.addTag("Exchange", "Verto");
+      returnTx.addTag("Type", "Swap-Return");
+      returnTx.addTag(
+        "Message",
+        "When executed, the Ethereum gas price was higher than the (remaining) order amount."
+      );
+      returnTx.addTag("Order", tx.id);
+
+      await client.transactions.sign(returnTx, jwk);
+      await client.transactions.post(returnTx);
+
+      log.info(
+        `Returned swap order due to gas prices.\n\t\torder = ${tx.id}\n\t\ttxID = ${returnTx.id}`
+      );
+      return;
+    }
+
     //   Match
     if (amount === order.amnt * order.rate!) {
       //     if gETH === order
