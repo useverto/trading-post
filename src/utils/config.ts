@@ -94,14 +94,18 @@ export async function loadConfig(loc: string): Promise<TradingPostConfig> {
  * corresponding environment variables, if set
  * @param config The config to apply the environment variables to
  */
-function applyEnvironmentVariables(config: TradingPostConfig): TradingPostConfig {
+function applyEnvironmentVariables(
+  config: TradingPostConfig
+): TradingPostConfig {
   if (config.genesis.chain?.ETH) {
-    config.genesis.chain.ETH.addr = process.env.ETH_ADDRESS || config.genesis.chain.ETH.addr;
+    config.genesis.chain.ETH.addr =
+      process.env.ETH_ADDRESS || config.genesis.chain.ETH.addr;
   }
 
-  config.genesis.tradeFee = Number(process.env.TRADE_FEE) || config.genesis.tradeFee;
+  config.genesis.tradeFee =
+    Number(process.env.TRADE_FEE) || config.genesis.tradeFee;
   config.genesis.publicURL = process.env.PUBLIC_URL || config.genesis.publicURL;
-  
+
   return config;
 }
 
