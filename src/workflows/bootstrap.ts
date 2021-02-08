@@ -31,7 +31,7 @@ async function getLatestTxs(
   txs: {
     id: string;
     block: number;
-    sender: string;
+    sender: { ar: string; eth?: string };
     type: string;
     table?: string;
     token?: string;
@@ -50,7 +50,7 @@ async function getLatestTxs(
   const ethRes: {
     id: string;
     block: number;
-    sender: string;
+    sender: { ar: string; eth?: string };
     type: string;
     table?: string;
     token?: string;
@@ -65,12 +65,6 @@ async function getLatestTxs(
       try {
         const tx = await ethClient.eth.getTransaction(entry.txHash);
 
-        if (tx.from !== (await getChainAddr(entry.sender, entry.chain))) {
-          // tx is invalid
-          await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
-            entry.txHash,
-          ]);
-        }
         if (tx.to !== ethAddr) {
           // tx is invalid
           await db.run(`UPDATE "TX_STORE" SET parsed = 1 WHERE txHash = ?`, [
@@ -82,7 +76,7 @@ async function getLatestTxs(
           ethRes.push({
             id: entry.txHash,
             block: tx.blockNumber,
-            sender: entry.sender,
+            sender: { ar: entry.sender, eth: tx.from },
             type: "Swap",
             table: entry.chain,
             token: entry.token,
@@ -160,8 +154,6 @@ export async function bootstrap(
             if (tx.table === "ETH") {
               if ("ETH" in config.genesis.chain) {
                 await ethSwap(
-                  client,
-                  ethClient,
                   {
                     id: tx.id,
                     sender: tx.sender,
@@ -170,10 +162,13 @@ export async function bootstrap(
                     arAmnt: tx.arAmnt,
                     amnt: tx.amnt,
                     rate: tx.rate,
+                    received: 0,
                   },
+                  db,
+                  client,
                   jwk!,
-                  sign,
-                  db
+                  ethClient,
+                  sign
                 );
               } else {
                 log.error(
@@ -189,7 +184,7 @@ export async function bootstrap(
                 }\n\t\ttoken = ${tx.table!}`
               );
             } else {
-              await match(client, tx, jwk!, db);
+              await match(client, { ...tx, sender: tx.sender.ar }, jwk!, db);
             }
           }
         } catch (err) {

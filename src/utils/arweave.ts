@@ -71,7 +71,7 @@ export const latestTxs = async (
   txs: {
     id: string;
     block: number;
-    sender: string;
+    sender: { ar: string; eth?: string };
     type: string;
     table?: string;
     token?: string;
@@ -113,7 +113,7 @@ export const latestTxs = async (
   const txs: {
     id: string;
     block: number;
-    sender: string;
+    sender: { ar: string; eth?: string };
     type: string;
     table?: string;
     token?: string;
@@ -133,7 +133,7 @@ export const latestTxs = async (
         txs.push({
           id: tx.node.id,
           block: tx.node.block.height,
-          sender: tx.node.owner.address,
+          sender: { ar: tx.node.owner.address },
           type,
           table: tx.node.tags.find(
             (tag: { name: string; value: string }) => tag.name === "Token"
@@ -157,7 +157,7 @@ export const latestTxs = async (
             txs.push({
               id: tx.node.id,
               block: tx.node.block.height,
-              sender: tx.node.owner.address,
+              sender: { ar: tx.node.owner.address },
               type,
               table: contract,
               amnt: input.qty,
@@ -171,7 +171,7 @@ export const latestTxs = async (
         txs.push({
           id: tx.node.id,
           block: tx.node.block.height,
-          sender: tx.node.owner.address,
+          sender: { ar: tx.node.owner.address },
           type,
           order: tx.node.tags.find(
             (tag: { name: string; value: string }) => tag.name === "Order"
@@ -209,14 +209,18 @@ export const latestTxs = async (
             });
           }
         } else {
+          const table = tx.node.tags.find(
+            (tag: { name: string; value: string }) => tag.name === "Chain"
+          ).value;
           txs.push({
             id: tx.node.id,
             block: tx.node.block.height,
-            sender: tx.node.owner.address,
+            sender: {
+              ar: tx.node.owner.address,
+              eth: await getChainAddr(tx.node.owner.address, table),
+            },
             type,
-            table: tx.node.tags.find(
-              (tag: { name: string; value: string }) => tag.name === "Chain"
-            ).value,
+            table,
             arAmnt: parseFloat(tx.node.quantity.ar),
             rate: tx.node.tags.find(
               (tag: { name: string; value: string }) => tag.name === "Rate"
