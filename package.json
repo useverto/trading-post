@@ -27,7 +27,7 @@
     "@koa/cors": "^3.1.0",
     "@koa/router": "^9.4.0",
     "@verto/lib": "^0.9.10",
-    "arweave": "^1.10.11",
+    "arweave": "^1.10.13",
     "chalk": "^4.1.0",
     "commander": "^6.1.0",
     "dotenv": "^8.2.0",

@@ -120,10 +120,16 @@ export const asTree = function (
   hideFunctions?: any
 ) {
   var tree = "";
-  growBranch(".", obj, false, [], showValues, hideFunctions, function (
-    line: string
-  ) {
-    tree += line + "\n";
-  });
+  growBranch(
+    ".",
+    obj,
+    false,
+    [],
+    showValues,
+    hideFunctions,
+    function (line: string) {
+      tree += line + "\n";
+    }
+  );
   return tree;
 };

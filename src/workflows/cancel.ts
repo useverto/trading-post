@@ -5,6 +5,7 @@ import { Database } from "sqlite";
 import { query } from "@utils/gql";
 import txQuery from "../queries/tx.gql";
 import { getOrder } from "@utils/database";
+import { readContract } from "smartweave";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -108,14 +109,7 @@ export async function cancel(
 
     await db.run(`DELETE FROM "${token}" WHERE txID = "${txID}"`);
 
-    const ticker = JSON.parse(
-      (
-        await client.transactions.getData(token, {
-          decode: true,
-          string: true,
-        })
-      ).toString()
-    ).ticker;
+    const ticker = (await readContract(client, token)).ticker;
     log.info(
       "Cancelled!" +
         `\n\t\torder = ${txID}` +

@@ -8,6 +8,7 @@ import {
   getSellOrders,
   getBuyOrders,
 } from "@utils/database";
+import { readContract } from "smartweave";
 
 const log = new Log({
   level: Log.Levels.debug,
@@ -55,14 +56,7 @@ export async function match(
   let amnt = type === "Buy" ? tx.arAmnt! : tx.amnt!;
   let received = 0;
   const token = tx.table!;
-  const ticker = JSON.parse(
-    (
-      await client.transactions.getData(token, {
-        decode: true,
-        string: true,
-      })
-    ).toString()
-  ).ticker;
+  const ticker = (await readContract(client, token)).ticker;
 
   let rate = tx.rate;
 
