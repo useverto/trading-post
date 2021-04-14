@@ -137,16 +137,16 @@ export async function cancel(
         },
         jwk
       );
-  
+
       tx.addTag("Exchange", "Verto");
       tx.addTag("Type", "Cancel-AR-Transfer");
       tx.addTag("Order", txID);
-  
+
       await client.transactions.sign(tx, jwk);
       await client.transactions.post(tx);
-  
+
       await db.run(`DELETE FROM "${token}" WHERE txID = "${txID}"`);
-  
+
       log.info(
         "Cancelled!" +
           `\n\t\torder = ${txID}` +
