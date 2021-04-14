@@ -45,7 +45,10 @@ export async function cancel(
   const type = tx.tags.find(
     (tag: { name: string; value: string }) => tag.name === "Type"
   ).value;
-  const tokenTag = type === "Buy" ? "Token" : "Contract";
+  let tokenTag: string;
+  if (type === "Buy") tokenTag = "Token";
+  if (type === "Sell") tokenTag = "Contract";
+  if (type === "Swap") tokenTag = "Chain";
   const token = tx.tags.find(
     (tag: { name: string; value: string }) => tag.name === tokenTag
   ).value;
@@ -117,6 +120,8 @@ export async function cancel(
         `\n\t\tSent ${order.amnt} ${ticker} back to ${order.addr}` +
         `\n\t\ttxID = ${tx.id}`
     );
+  } else if (type === "Swap") {
+    // TODO
   } else {
     log.error("Invalid order type.");
   }
