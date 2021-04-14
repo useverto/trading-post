@@ -121,7 +121,40 @@ export async function cancel(
         `\n\t\ttxID = ${tx.id}`
     );
   } else if (type === "Swap") {
-    // TODO
+    const hash = tx.tags.find(
+      (tag: { name: string; value: string }) => tag.name === "Hash"
+    );
+
+    if (hash) {
+      // This was an ETH -> AR swap
+      // TODO
+    } else {
+      // This was an AR -> ETH swap
+      const tx = await client.createTransaction(
+        {
+          target: order.addr,
+          quantity: client.ar.arToWinston(order.amnt.toString()),
+        },
+        jwk
+      );
+  
+      tx.addTag("Exchange", "Verto");
+      tx.addTag("Type", "Cancel-AR-Transfer");
+      tx.addTag("Order", txID);
+  
+      await client.transactions.sign(tx, jwk);
+      await client.transactions.post(tx);
+  
+      await db.run(`DELETE FROM "${token}" WHERE txID = "${txID}"`);
+  
+      log.info(
+        "Cancelled!" +
+          `\n\t\torder = ${txID}` +
+          "\n" +
+          `\n\t\tSent ${order.amnt} AR back to ${order.addr}` +
+          `\n\t\ttxID = ${tx.id}`
+      );
+    }
   } else {
     log.error("Invalid order type.");
   }
