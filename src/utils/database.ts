@@ -31,6 +31,14 @@ export async function init(db: string): Promise<Database> {
     driver: sqlite3.Database,
   });
 
+  await sqlite.exec(`
+    PRAGMA journal_mode=WAL;
+    PRAGMA temp_store=memory;
+    PRAGMA page_size=4096;
+    PRAGMA mmap_size=6000000;
+    PRAGMA optimize;
+  `);
+
   return sqlite;
 }
 
