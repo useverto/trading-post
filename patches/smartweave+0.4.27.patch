@@ -1,0 +1,40 @@
+diff --git a/node_modules/smartweave/lib/contract-load.js b/node_modules/smartweave/lib/contract-load.js
+index 2820c23..5be8bfb 100644
+--- a/node_modules/smartweave/lib/contract-load.js
++++ b/node_modules/smartweave/lib/contract-load.js
+@@ -33,6 +33,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.createContractExecutionEnvironment = exports.loadContract = void 0;
+ const clarity = __importStar(require("@weavery/clarity"));
++const vm = __importStar(require("vm"));
+ const utils_1 = require("./utils");
+ const smartweave_global_1 = require("./smartweave-global");
+ const bignumber_js_1 = __importDefault(require("bignumber.js"));
+@@ -97,18 +98,21 @@ function createContractExecutionEnvironment(arweave, contractSrc, contractId) {
+     contractSrc = contractSrc.replace(/export\s+async\s+function\s+handle/gmu, 'async function handle');
+     contractSrc = contractSrc.replace(/export\s+function\s+handle/gmu, 'function handle');
+     const returningSrc = `
+-    const [SmartWeave, BigNumber, clarity] = arguments;
+-    clarity.SmartWeave = SmartWeave;
+     class ContractError extends Error { constructor(message) { super(message); this.name = \'ContractError\' } };
+     function ContractAssert(cond, message) { if (!cond) throw new ContractError(message) };
+     ${contractSrc};
+-    return handle;
+   `;
+     const swGlobal = new smartweave_global_1.SmartWeaveGlobal(arweave, { id: contractId });
+-    const getContractFunction = new Function(returningSrc); // eslint-disable-line
+-    // console.log(returningSrc);
++    const getContractFunction = async (state, interaction) => {
++        let context = vm.createContext({ handle: null, swGlobal, BigNumber, clarity });
++        vm.runInContext(returningSrc, context, {
++          timeout: 10000,
++        });
++    
++        return await context.handle(state, interaction);
++    }
+     return {
+-        handler: getContractFunction(swGlobal, bignumber_js_1.default, clarity),
++        handler: getContractFunction,
+         swGlobal,
+     };
+ }

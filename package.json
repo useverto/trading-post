@@ -21,7 +21,8 @@
     "pkg:arm": "echo not implemented",
     "pkg:all": "yarn prod && pkg dist/verto.js",
     "test": "rollup -c rollup.test.js && mocha 'build/verto.test.js'",
-    "test:integration": "ruby ./e2e/main.rb"
+    "test:integration": "ruby ./e2e/main.rb",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@koa/cors": "^3.1.0",
@@ -68,6 +69,7 @@
     "chai": "^4.2.0",
     "mocha": "^8.1.3",
     "module-alias": "^2.2.2",
+    "patch-package": "^6.4.7",
     "pkg": "^4.4.9",
     "prettier": "^2.1.1",
     "rollup": "^2.26.6",
