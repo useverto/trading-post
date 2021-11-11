@@ -1,4 +1,4 @@
-query($addr: String!, $exchange: String!) {
+query ($addr: String!, $exchange: String!) {
   transactions(
     owners: [$addr]
     recipients: [$exchange]

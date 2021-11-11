@@ -1,4 +1,4 @@
-query($recipients: [String!], $min: Int, $num: Int) {
+query ($recipients: [String!], $min: Int, $num: Int) {
   transactions(
     recipients: $recipients
     tags: [

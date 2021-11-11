@@ -270,9 +270,7 @@ export async function saveHash(
   ]);
 }
 
-export async function getTxStore(
-  db: Database
-): Promise<
+export async function getTxStore(db: Database): Promise<
   {
     txHash: string;
     chain: string;

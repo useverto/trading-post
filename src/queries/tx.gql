@@ -1,4 +1,4 @@
-query($txID: ID!) {
+query ($txID: ID!) {
   transaction(id: $txID) {
     id
     owner {
