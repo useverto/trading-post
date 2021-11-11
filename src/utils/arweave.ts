@@ -23,7 +23,7 @@ const log = new Logger({
 
 export async function init(keyfile?: string) {
   const client = new Arweave({
-    host: "amp-gw.online",
+    host: "arweave.net",
     port: 443,
     protocol: "https",
     timeout: 20000,
